@@ -3,15 +3,20 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Role;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable // implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +27,9 @@ class User extends Authenticatable // implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'pending_email',
+        'notification_preferences',
+        'avatar',
     ];
 
     /**
@@ -44,11 +52,96 @@ class User extends Authenticatable // implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
     }
 
     /**
-     * Get the user's initials
+     * Organizations the user belongs to.
+     */
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class, 'organization_user')
+            ->using(OrganizationUser::class)
+            ->withPivot(['id', 'role', 'joined_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Organizations created by this user.
+     */
+    public function createdOrganizations(): HasMany
+    {
+        return $this->hasMany(Organization::class, 'created_by');
+    }
+
+    /**
+     * Get the user's role in a specific organization.
+     */
+    public function roleIn(Organization $organization): ?Role
+    {
+        $membership = $this->organizations()
+            ->where('organization_id', $organization->id)
+            ->first();
+
+        return $membership?->pivot?->role;
+    }
+
+    /**
+     * Check if the user is a member of an organization.
+     */
+    public function isMemberOf(Organization $organization): bool
+    {
+        return $this->organizations()
+            ->where('organization_id', $organization->id)
+            ->exists();
+    }
+
+    /**
+     * Check if user has specific role(s) in an organization.
+     *
+     * @param  Role|array<Role|string>|string  $roles
+     */
+    public function hasRoleIn(Organization $organization, Role|array|string $roles): bool
+    {
+        $currentRole = $this->roleIn($organization);
+
+        if (! $currentRole) {
+            return false;
+        }
+
+        if (is_array($roles)) {
+            $allowedValues = array_map(
+                fn ($r) => $r instanceof Role ? $r->value : $r,
+                $roles
+            );
+
+            return in_array($currentRole->value, $allowedValues, true);
+        }
+
+        $expectedValue = $roles instanceof Role ? $roles->value : $roles;
+
+        return $currentRole->value === $expectedValue;
+    }
+
+    /**
+     * Check if user is an admin of the organization.
+     */
+    public function isAdminOf(Organization $organization): bool
+    {
+        return $this->hasRoleIn($organization, Role::ADMIN);
+    }
+
+    /**
+     * Check if user is a staff or admin in the organization.
+     */
+    public function isStaffOrAdminOf(Organization $organization): bool
+    {
+        return $this->hasRoleIn($organization, [Role::ADMIN, Role::STAFF]);
+    }
+
+    /**
+     * Get the user's initials.
      */
     public function initials(): string
     {
