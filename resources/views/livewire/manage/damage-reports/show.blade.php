@@ -4,9 +4,10 @@ use App\Models\Organization;
 use App\Models\DamageReport;
 use App\Enums\DamageReportStatus;
 use App\Enums\DamageSeverity;
+use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new class extends Component {
+new #[Layout('layouts.manage')] class extends Component {
     public Organization $organization;
     public DamageReport $damageReport;
 
@@ -104,7 +105,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.manage>
+
     <div class="max-w-4xl mx-auto py-10 sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -249,4 +250,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-</x-layouts.manage>
+

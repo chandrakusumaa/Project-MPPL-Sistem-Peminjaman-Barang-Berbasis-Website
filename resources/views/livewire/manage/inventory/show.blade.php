@@ -3,9 +3,10 @@
 use App\Actions\Asset\DeleteAsset;
 use App\Models\Asset;
 use App\Models\Organization;
+use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new class extends Component {
+new #[Layout('layouts.manage')] class extends Component {
     public Organization $organization;
     public Asset $asset;
     public string $tab = 'detail'; // detail, qr, history
@@ -93,7 +94,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.manage>
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center gap-4">
             <a href="{{ route('manage.inventory.index', $organization->slug) }}" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
@@ -288,4 +289,4 @@ new class extends Component {
             </form>
         </div>
     </flux:modal>
-</x-layouts.manage>
+

@@ -3,10 +3,11 @@
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Organization;
+use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
-new class extends Component {
+new #[Layout('layouts.manage')] class extends Component {
     use WithPagination;
 
     public Organization $organization;
@@ -55,7 +56,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.manage>
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -167,4 +168,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-</x-layouts.manage>
+

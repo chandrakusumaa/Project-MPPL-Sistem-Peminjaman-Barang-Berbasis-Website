@@ -5,9 +5,10 @@ use App\Actions\AssetCategory\DeleteAssetCategory;
 use App\Actions\AssetCategory\UpdateAssetCategory;
 use App\Models\AssetCategory;
 use App\Models\Organization;
+use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new class extends Component {
+new #[Layout('layouts.manage')] class extends Component {
     public Organization $organization;
     public $categories;
 
@@ -86,7 +87,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.manage>
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         
         @if (session()->has('success'))
@@ -156,4 +157,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-</x-layouts.manage>
+

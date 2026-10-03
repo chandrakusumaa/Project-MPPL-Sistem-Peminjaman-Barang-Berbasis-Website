@@ -7,10 +7,11 @@ use App\Actions\Organization\UpdateOrganizationRules;
 use App\Http\Requests\Organization\UpdateProfileRequest;
 use App\Http\Requests\Organization\UpdateRulesRequest;
 use App\Models\Organization;
+use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
 
-new class extends Component {
+new #[Layout('layouts.manage')] class extends Component {
     use WithFileUploads;
 
     public Organization $organization;
@@ -100,7 +101,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.manage>
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         
         @if($organization->archived_at)
@@ -278,4 +279,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-</x-layouts.manage>
+

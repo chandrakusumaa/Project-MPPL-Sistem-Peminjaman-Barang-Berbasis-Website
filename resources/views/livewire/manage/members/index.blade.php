@@ -12,9 +12,10 @@ use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new class extends Component {
+new #[Layout('layouts.manage')] class extends Component {
     public Organization $organization;
     public string $tab = 'members'; // members, requests, invites
 
@@ -113,7 +114,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.manage>
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg mb-6 p-6">
             <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Kelola Anggota</h2>
@@ -298,4 +299,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-</x-layouts.manage>
+

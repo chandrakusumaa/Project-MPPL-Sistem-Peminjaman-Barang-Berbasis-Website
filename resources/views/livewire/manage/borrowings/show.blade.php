@@ -6,9 +6,10 @@ use App\Actions\Borrowing\ProcessReturn;
 use App\Models\Borrowing;
 use App\Models\Organization;
 use App\Enums\BorrowingStatus;
+use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new class extends Component {
+new #[Layout('layouts.manage')] class extends Component {
     public Organization $organization;
     public Borrowing $borrowing;
 
@@ -96,7 +97,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.manage>
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -328,4 +329,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-</x-layouts.manage>
+

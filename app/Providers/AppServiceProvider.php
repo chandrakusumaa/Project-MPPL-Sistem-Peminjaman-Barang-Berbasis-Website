@@ -22,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::preventLazyLoading(! app()->isProduction());
 
+        \Illuminate\Support\Facades\Route::bind('organization', function (string $value) {
+            return \App\Models\Organization::where('slug', $value)->firstOrFail();
+        });
+
+        \Illuminate\Support\Facades\Route::bind('asset', function (string $value) {
+            return \App\Models\Asset::where('code', $value)->firstOrFail();
+        });
+
         \Illuminate\Support\Facades\Event::listen(
             \App\Events\BorrowingApproved::class,
             [\App\Listeners\SendBorrowingReviewedNotification::class, 'handle']

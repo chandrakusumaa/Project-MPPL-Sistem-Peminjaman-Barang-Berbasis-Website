@@ -96,8 +96,8 @@ class OrganizationPolicy
      */
     public function manage(User $user, Organization $organization): bool
     {
-        if (!$organization->exists) {
-            throw new \Exception("Organization does not exist! ID is null.");
+        if (! $organization->exists) {
+            return false;
         }
         return $user->canManage($organization); // Admin or Staff
     }

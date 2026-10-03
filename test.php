@@ -1,0 +1,1 @@
+<?php require 'vendor/autoload.php'; require 'bootstrap/app.php'; \ = app(); \->make('Illuminate\Contracts\Console\Kernel')->bootstrap(); \ = app('router')->getRoutes()->match(request()->create('/o/123/manage/dashboard')); dump(\->parameter('organization'));
