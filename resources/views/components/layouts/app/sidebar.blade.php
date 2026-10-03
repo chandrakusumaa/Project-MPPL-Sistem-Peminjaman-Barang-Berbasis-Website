@@ -14,6 +14,8 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group heading="Platform" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:navlist.item>
+                    <flux:navlist.item icon="building-office-2" :href="route('organizations.index')" :current="request()->routeIs('organizations.*')" wire:navigate>Organizations</flux:navlist.item>
+                    <flux:navlist.item icon="clipboard-document-list" :href="route('my-borrowings.index')" :current="request()->routeIs('my-borrowings.*')" wire:navigate>My Borrowings</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

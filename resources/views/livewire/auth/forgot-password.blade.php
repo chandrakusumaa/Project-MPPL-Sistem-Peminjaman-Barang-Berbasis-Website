@@ -1,24 +1,52 @@
 <?php
 
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.auth')] class extends Component {
     public string $email = '';
 
+    protected function rules(): array
+    {
+        return (new ForgotPasswordRequest)->rules();
+    }
+
+    protected function messages(): array
+    {
+        return (new ForgotPasswordRequest)->messages();
+    }
+
     /**
      * Send a password reset link to the provided email address.
      */
     public function sendPasswordResetLink(): void
     {
-        $this->validate([
-            'email' => ['required', 'string', 'email'],
-        ]);
+        $this->validate();
 
-        Password::sendResetLink($this->only('email'));
+        $throttleKey = Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'email' => 'Terlalu banyak permintaan. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.',
+            ]);
+        }
+        RateLimiter::hit($throttleKey);
 
-        session()->flash('status', __('A reset link will be sent if the account exists.'));
+        $status = Password::sendResetLink($this->only('email'));
+
+        if ($status === Password::RESET_LINK_SENT) {
+            session()->flash('status', 'Link reset password telah dikirim ke email Anda.');
+            $this->email = '';
+        } else {
+            throw ValidationException::withMessages([
+                'email' => 'Email tidak ditemukan.',
+            ]);
+        }
     }
 }; ?>
 

@@ -64,3 +64,11 @@ test('password can be reset with valid token', function () {
         return true;
     });
 });
+
+test('forgot password fails if email not found', function () {
+    $response = Volt::test('auth.forgot-password')
+        ->set('email', 'notfound@example.com')
+        ->call('sendPasswordResetLink');
+
+    $response->assertHasErrors(['email' => 'Email tidak ditemukan.']);
+});

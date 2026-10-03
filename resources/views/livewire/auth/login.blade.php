@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -7,17 +8,23 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.auth')] class extends Component {
-    #[Validate('required|string|email')]
+    #[\Livewire\Attributes\Url]
     public string $email = '';
-
-    #[Validate('required|string')]
     public string $password = '';
-
     public bool $remember = false;
+
+    protected function rules(): array
+    {
+        return (new LoginRequest)->rules();
+    }
+
+    protected function messages(): array
+    {
+        return (new LoginRequest)->messages();
+    }
 
     /**
      * Handle an incoming authentication request.
@@ -32,7 +39,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'email' => 'Email atau password salah.',
             ]);
         }
 
@@ -56,10 +63,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => __('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => 'Terlalu banyak percobaan login. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.',
         ]);
     }
 

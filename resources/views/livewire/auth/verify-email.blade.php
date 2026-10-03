@@ -3,6 +3,8 @@
 use App\Livewire\Actions\Logout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -17,6 +19,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
             return;
         }
+
+        $throttleKey = 'resend-verification:'.Auth::id();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'email' => 'Terlalu banyak permintaan. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.',
+            ]);
+        }
+
+        RateLimiter::hit($throttleKey, 60);
 
         Auth::user()->sendEmailVerificationNotification();
 
@@ -36,18 +49,22 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
 <div class="mt-4 flex flex-col gap-6">
     <div class="text-center text-sm text-gray-600">
-        {{ __('Please verify your email address by clicking on the link we just emailed to you.') }}
+        {{ __('Terima kasih telah mendaftar! Sebelum memulai, mohon verifikasi alamat email Anda dengan mengklik tautan yang baru saja kami kirimkan. Jika Anda tidak menerima email tersebut, kami akan mengirimkan yang baru dengan senang hati.') }}
     </div>
 
     @if (session('status') == 'verification-link-sent')
         <div class="font-medium text-center text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+            {{ __('Tautan verifikasi baru telah dikirimkan ke alamat email yang Anda berikan saat mendaftar.') }}
         </div>
     @endif
 
+    @error('email')
+        <div class="text-center text-sm text-red-600 mt-2">{{ $message }}</div>
+    @enderror
+
     <div class="flex flex-col items-center justify-between space-y-3">
         <flux:button wire:click="sendVerification" variant="primary" class="w-full">
-            {{ __('Resend verification email') }}
+            {{ __('Kirim Ulang Email Verifikasi') }}
         </flux:button>
 
         <button

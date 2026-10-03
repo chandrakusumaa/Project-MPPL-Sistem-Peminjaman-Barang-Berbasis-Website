@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Role;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-class User extends Authenticatable // implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
@@ -133,9 +133,17 @@ class User extends Authenticatable // implements MustVerifyEmail
     }
 
     /**
-     * Check if user is a staff or admin in the organization.
+     * Check if user is a staff of the organization.
      */
-    public function isStaffOrAdminOf(Organization $organization): bool
+    public function isStaffOf(Organization $organization): bool
+    {
+        return $this->hasRoleIn($organization, Role::STAFF);
+    }
+
+    /**
+     * Check if user is a staff or admin in the organization (can manage).
+     */
+    public function canManage(Organization $organization): bool
     {
         return $this->hasRoleIn($organization, [Role::ADMIN, Role::STAFF]);
     }

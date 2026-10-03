@@ -112,4 +112,12 @@ class Organization extends Model
     {
         return 'slug';
     }
+
+    /**
+     * Scope a query to only include active (not archived) organizations.
+     */
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
 }

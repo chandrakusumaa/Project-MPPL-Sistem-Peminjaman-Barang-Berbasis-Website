@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Livewire\Volt\Volt;
 
 test('registration screen can be rendered', function () {
@@ -18,7 +19,20 @@ test('new users can register', function () {
 
     $response
         ->assertHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
+        ->assertRedirect(route('login', absolute: false));
 
-    $this->assertAuthenticated();
+    $this->assertGuest();
+});
+
+test('registration fails if email already exists', function () {
+    User::factory()->create(['email' => 'test@example.com']);
+
+    $response = Volt::test('auth.register')
+        ->set('name', 'Test User')
+        ->set('email', 'test@example.com')
+        ->set('password', 'password')
+        ->set('password_confirmation', 'password')
+        ->call('register');
+
+    $response->assertHasErrors(['email' => 'unique']);
 });
