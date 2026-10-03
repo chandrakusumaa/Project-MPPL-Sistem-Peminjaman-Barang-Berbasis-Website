@@ -32,8 +32,10 @@
             </flux:navlist>
 
             <!-- Desktop User Menu -->
-            <flux:dropdown position="bottom" align="start">
-                <flux:profile
+            <div class="flex items-center gap-2">
+                <livewire:notifications.bell />
+                <flux:dropdown position="bottom" align="start">
+                    <flux:profile
                     :name="auth()->user()->name"
                     :initials="auth()->user()->initials()"
                     icon-trailing="chevrons-up-down"
@@ -75,6 +77,7 @@
                     </form>
                 </flux:menu>
             </flux:dropdown>
+            </div>
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
@@ -83,8 +86,10 @@
 
             <flux:spacer />
 
-            <flux:dropdown position="top" align="end">
-                <flux:profile
+            <div class="flex items-center gap-2">
+                <livewire:notifications.bell />
+                <flux:dropdown position="top" align="end">
+                    <flux:profile
                     :initials="auth()->user()->initials()"
                     icon-trailing="chevron-down"
                 />
@@ -125,6 +130,7 @@
                     </form>
                 </flux:menu>
             </flux:dropdown>
+            </div>
         </flux:header>
 
         {{ $slot }}

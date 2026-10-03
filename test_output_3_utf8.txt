@@ -1,0 +1,7 @@
+﻿
+   FAIL  Tests\Feature\DashboardTest
+  ✓ guests are redirected to the login page                                                                      0.34s  
+  ⨯ member dashboard displays active borrowings and pending requests                                             0.03s  
+  ⨯ manage dashboard statistics are correct                                                                      0.02s  
+  ✓ staff cannot access reports page                                                                             0.45s  
+  ⨯ admin can access reports page and export csv                                                                 0.03s  

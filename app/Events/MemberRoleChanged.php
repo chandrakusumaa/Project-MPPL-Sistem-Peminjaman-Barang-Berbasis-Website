@@ -15,7 +15,7 @@ class MemberRoleChanged
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct(public \App\Models\Organization $organization, public \App\Models\User $user, public \App\Enums\Role $newRole)
     {
         //
     }

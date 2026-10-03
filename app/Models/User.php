@@ -84,6 +84,10 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('organization_id', $organization->id)
             ->first();
 
+        if (!$membership) {
+            throw new \Exception("Membership is null! Org ID: {$organization->id}, User ID: {$this->id}. Total orgs: " . $this->organizations()->count());
+        }
+
         return $membership?->pivot?->role;
     }
 
@@ -157,5 +161,16 @@ class User extends Authenticatable implements MustVerifyEmail
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    /**
+     * Check if user wants email notifications for a specific category.
+     */
+    public function wantsEmailFor(string $category): bool
+    {
+        $prefs = $this->notification_preferences ?? [];
+        
+        // If the key is not set, default to true
+        return $prefs[$category] ?? true;
     }
 }

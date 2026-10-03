@@ -14,7 +14,7 @@ Route::get('/', function () {
 Volt::route('/explore', 'explore.organization-list')->name('explore.index');
 Volt::route('/explore/{organization:slug}', 'explore.organization-profile')->name('explore.show');
 
-Route::view('dashboard', 'dashboard')
+Volt::route('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -22,6 +22,21 @@ Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
+    Route::get('/verify-pending-email/{user}', function (\Illuminate\Http\Request $request, \App\Models\User $user) {
+        if (! $request->hasValidSignature()) {
+            return redirect()->route('settings.profile')->with('error', 'Verifikasi gagal atau link sudah kedaluwarsa.');
+        }
+        
+        if ($user->pending_email === $request->email) {
+            $user->email = $user->pending_email;
+            $user->pending_email = null;
+            $user->email_verified_at = now();
+            $user->save();
+            return redirect()->route('settings.profile')->with('success', 'Email berhasil diperbarui!');
+        }
+        
+        return redirect()->route('settings.profile')->with('error', 'Verifikasi gagal.');
+    })->name('profile.verify-pending-email');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 
@@ -30,6 +45,9 @@ Route::middleware(['auth'])->group(function () {
 
     Volt::route('/my-borrowings', 'my-borrowings.index')->name('my-borrowings.index');
     Volt::route('/my-borrowings/{borrowing}', 'my-borrowings.show')->name('my-borrowings.show');
+
+    Volt::route('/notifications', 'notifications.index')->name('notifications.index');
+    Volt::route('/notifications/{id}', 'notifications.show')->name('notifications.show');
 });
 
 Volt::route('/invitations/{token}', 'invitations.accept')->name('invitations.accept');
@@ -53,9 +71,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('/borrowings', 'manage.borrowings.index')->name('borrowings.index');
         Volt::route('/borrowings/{borrowing}', 'manage.borrowings.show')->name('borrowings.show');
 
+        Volt::route('/damage-reports', 'manage.damage-reports.index')->name('damage-reports.index');
+        Volt::route('/damage-reports/{damageReport}', 'manage.damage-reports.show')->name('damage-reports.show');
+
         Route::middleware('can:manageMembers,organization')->group(function () {
             Volt::route('/members', 'manage.members.index')->name('members.index');
         });
+
+        // Reports route (authorization is inside the component)
+        Volt::route('/reports', 'manage.reports')->name('reports.index');
 
         Route::middleware('can:manageSettings,organization')->group(function () {
             Volt::route('/settings', 'manage.settings.index')->name('settings.index');

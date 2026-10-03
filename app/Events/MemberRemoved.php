@@ -15,7 +15,7 @@ class MemberRemoved
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct(public \App\Models\Organization $organization, public \App\Models\User $user)
     {
         //
     }
