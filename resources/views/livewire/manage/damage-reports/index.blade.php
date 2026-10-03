@@ -47,15 +47,20 @@ new class extends Component {
                 $query->where('severity', $this->severityFilter);
             })
             ->when($this->search, function ($query) {
-                $query->whereHas('asset', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('code', 'like', '%' . $this->search . '%');
-                })->orWhereHas('reporter', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%');
+                $term = '%' . $this->search . '%';
+
+                // Dikelompokkan agar OR tidak lolos dari scope organisasi.
+                $query->where(function ($group) use ($term) {
+                    $group->whereHas('asset', function ($q) use ($term) {
+                        $q->where('name', 'like', $term)
+                          ->orWhere('code', 'like', $term);
+                    })->orWhereHas('reporter', function ($q) use ($term) {
+                        $q->where('name', 'like', $term);
+                    });
                 });
             })
             ->latest()
-            ->paginate(15);
+            ->simplePaginate(15);
     }
 }; ?>
 
@@ -116,9 +121,9 @@ new class extends Component {
                                     <div class="text-sm text-gray-900 dark:text-gray-100">{{ $report->reporter->name }}</div>
                                     <div class="text-xs text-gray-500">
                                         @if($report->borrowing_id)
-                                            <span class="text-indigo-500">Dari Inspeksi Return</span>
+                                            <span class="text-indigo-500">Hasil Inspeksi Return</span>
                                         @else
-                                            Laporan Manual
+                                            Dari Member
                                         @endif
                                     </div>
                                 </td>

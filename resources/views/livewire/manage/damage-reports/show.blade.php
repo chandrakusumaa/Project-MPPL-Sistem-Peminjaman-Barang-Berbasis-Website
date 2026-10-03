@@ -38,9 +38,9 @@ new class extends Component {
                 'severity' => DamageSeverity::from($this->severity),
                 'resolution_notes' => $this->resolution_notes,
             ]);
-            session()->flash('success', 'Detail kerusakan berhasil diperbarui.');
+            Flux::toast('Detail kerusakan berhasil diperbarui.', variant: 'success');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            Flux::toast($e->getMessage(), variant: 'danger');
         }
     }
 
@@ -56,9 +56,9 @@ new class extends Component {
                 'severity' => DamageSeverity::from($this->severity),
                 'resolution_notes' => $this->resolution_notes,
             ]);
-            session()->flash('success', 'Maintenance berhasil dimulai.');
+            Flux::toast('Maintenance berhasil dimulai. Status aset kini Perbaikan.', variant: 'success');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            Flux::toast($e->getMessage(), variant: 'danger');
         }
     }
 
@@ -81,9 +81,9 @@ new class extends Component {
                 'handled_by' => auth()->id(),
             ]);
 
-            session()->flash('success', 'Laporan dicatat tanpa maintenance.');
+            Flux::toast('Laporan dicatat tanpa maintenance.', variant: 'success');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            Flux::toast($e->getMessage(), variant: 'danger');
         }
     }
 
@@ -97,9 +97,9 @@ new class extends Component {
             $this->damageReport = $action->execute($this->damageReport, auth()->user(), [
                 'resolution_notes' => $this->resolution_notes,
             ]);
-            session()->flash('success', 'Maintenance selesai. Aset kini tersedia.');
+            Flux::toast('Maintenance selesai. Status aset kini Tersedia.', variant: 'success');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            Flux::toast($e->getMessage(), variant: 'danger');
         }
     }
 }; ?>
@@ -123,16 +123,7 @@ new class extends Component {
             </div>
         </div>
 
-        @if (session()->has('success'))
-            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
-        @endif
-        @if (session()->has('error'))
-            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <span class="block sm:inline">{{ session('error') }}</span>
-            </div>
-        @endif
+
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-1 space-y-6">
@@ -205,7 +196,12 @@ new class extends Component {
                     
                     <form class="space-y-6">
                         <div>
-                            <x-input-label for="severity" value="Tingkat Keparahan (Severity)" />
+                            <div class="flex items-center gap-2">
+                                <x-input-label for="severity" value="Tingkat Keparahan (Severity)" />
+                                <flux:tooltip content="Dilaporkan member tanpa severity. Nilai di sini diisi oleh staff: Minor (tetap tersedia) atau Major (butuh maintenance).">
+                                    <flux:icon.information-circle class="size-4 text-gray-400 cursor-help" />
+                                </flux:tooltip>
+                            </div>
                             <select wire:model="severity" id="severity" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" {{ in_array($damageReport->status->value, ['resolved', 'noted']) ? 'disabled' : '' }}>
                                 <option value="">-- Belum Dinilai --</option>
                                 @foreach(App\Enums\DamageSeverity::cases() as $sev)

@@ -12,31 +12,27 @@ class DamageReportedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public DamageReport $report)
-    {
-    }
+    public function __construct(public DamageReport $report) {}
 
+    /**
+     * Notifikasi laporan kerusakan bersifat transaksional: preferensi user
+     * diabaikan, in-app dan email selalu dikirim.
+     */
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
-
-        if ($notifiable->wantsEmailFor('damage')) {
-            $channels[] = 'mail';
-        }
-
-        return $channels;
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         $url = route('manage.damage-reports.show', ['organization' => $this->report->organization->slug, 'damageReport' => $this->report->id]);
-        
+
         return (new MailMessage)
-                    ->subject('Laporan Kerusakan Baru')
-                    ->greeting("Halo {$notifiable->name}!")
-                    ->line("Pengguna {$this->report->reporter->name} telah melaporkan kerusakan pada aset {$this->report->asset->name}.")
-                    ->action('Lihat Laporan', $url)
-                    ->line('Silakan tinjau laporan ini dan ambil tindakan yang diperlukan.');
+            ->subject('Laporan Kerusakan Baru')
+            ->greeting("Halo {$notifiable->name}!")
+            ->line("Pengguna {$this->report->reporter->name} telah melaporkan kerusakan pada aset {$this->report->asset->name}.")
+            ->action('Lihat Laporan', $url)
+            ->line('Silakan tinjau laporan ini dan ambil tindakan yang diperlukan.');
     }
 
     public function toDatabase(object $notifiable): array

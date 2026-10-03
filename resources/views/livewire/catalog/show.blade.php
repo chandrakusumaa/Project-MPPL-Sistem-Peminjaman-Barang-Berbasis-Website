@@ -59,9 +59,19 @@ new #[Layout('components.layouts.app')] class extends Component {
 
     public function submitDamageReport(\App\Actions\Asset\ReportDamage $action)
     {
-        $validated = $this->validate([
+        $this->asset->refresh();
+
+        if ($this->asset->status === \App\Enums\AssetStatus::LOST) {
+            $message = 'Aset berstatus Hilang sehingga tidak dapat dilaporkan kerusakannya.';
+            $this->addError('damage_description', $message);
+            Flux::toast($message, variant: 'danger');
+
+            return;
+        }
+
+        $this->validate([
             'damage_description' => 'required|string|min:5',
-            'damage_photo' => 'nullable|image|max:2048',
+            'damage_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $photoPath = null;
@@ -74,14 +84,19 @@ new #[Layout('components.layouts.app')] class extends Component {
                 'description' => $this->damage_description,
                 'photo' => $photoPath,
             ]);
-
-            session()->flash('success', 'Laporan kerusakan berhasil dikirim.');
-            $this->reset(['damage_description', 'damage_photo']);
-            // The modal will close via x-on:click or similar on the close button if needed, but a flash message is shown.
-            $this->redirectRoute('organization.catalog.show', ['organization' => $this->organization->slug, 'asset' => $this->asset->code], navigate: true);
         } catch (\Exception $e) {
+            if ($photoPath) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($photoPath);
+            }
             $this->addError('damage_description', $e->getMessage());
+            Flux::toast($e->getMessage(), variant: 'danger');
+
+            return;
         }
+
+        $this->reset(['damage_description', 'damage_photo']);
+        Flux::modal('damage-modal')->close();
+        Flux::toast('Laporan kerusakan berhasil dikirim.', variant: 'success');
     }
 
     public function getAssetLogsProperty()
@@ -214,11 +229,17 @@ new #[Layout('components.layouts.app')] class extends Component {
                                 </button>
                             @endif
 
-                            <flux:modal.trigger name="damage-modal">
-                                <button class="sm:flex-none inline-flex justify-center items-center px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-red-600 dark:text-red-400 uppercase tracking-widest shadow-sm hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                    Lapor Kerusakan
+                            @if($asset->status->value === 'lost')
+                                <button disabled title="Aset berstatus Hilang tidak dapat dilaporkan kerusakannya" class="sm:flex-none inline-flex justify-center items-center px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-red-600 dark:text-red-400 uppercase tracking-widest shadow-sm opacity-50 cursor-not-allowed">
+                                    Lapor Kerusakan (Aset Hilang)
                                 </button>
-                            </flux:modal.trigger>
+                            @else
+                                <flux:modal.trigger name="damage-modal">
+                                    <button class="sm:flex-none inline-flex justify-center items-center px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-red-600 dark:text-red-400 uppercase tracking-widest shadow-sm hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                        Lapor Kerusakan
+                                    </button>
+                                </flux:modal.trigger>
+                            @endif
                         </div>
                 </div>
             </div>
@@ -270,6 +291,13 @@ new #[Layout('components.layouts.app')] class extends Component {
                     <x-input-label for="damage_description" value="Deskripsi Kerusakan" />
                     <textarea wire:model="damage_description" id="damage_description" rows="3" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="Jelaskan secara detail bagian mana yang rusak" required></textarea>
                     <x-input-error :messages="$errors->get('damage_description')" class="mt-2" />
+                </div>
+
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Tingkat keparahan: <span class="italic">Belum dinilai</span></span>
+                    <flux:tooltip content="Tingkat keparahan (severity) akan dinilai oleh staff setelah laporan Anda diterima.">
+                        <flux:icon.information-circle class="size-4 cursor-help" />
+                    </flux:tooltip>
                 </div>
                 
                 <div>

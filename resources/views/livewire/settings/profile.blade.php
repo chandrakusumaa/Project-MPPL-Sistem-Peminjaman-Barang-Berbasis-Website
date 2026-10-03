@@ -29,10 +29,12 @@ new class extends Component {
         $this->name = $user->name;
         $this->email = $user->email;
         
-        $prefs = $user->notification_preferences ?? [];
-        $this->notify_membership = $prefs['membership'] ?? true;
-        $this->notify_borrowing = $prefs['borrowing'] ?? true;
-        $this->notify_damage = $prefs['damage'] ?? true;
+        $prefs = $user->notification_preferences;
+        $prefs = is_array($prefs) ? $prefs : [];
+        $this->notify_membership = (bool) ($prefs['membership'] ?? true);
+        $this->notify_borrowing = (bool) ($prefs['borrowing'] ?? true);
+        // Email laporan kerusakan bersifat transaksional: selalu aktif.
+        $this->notify_damage = true;
     }
 
     /**
@@ -55,8 +57,15 @@ new class extends Component {
             ],
             'notify_membership' => 'boolean',
             'notify_borrowing' => 'boolean',
-            'notify_damage' => 'boolean',
         ]);
+
+        // Validasi skema preferensi (aturan dari Form Request); damage dipaksa true.
+        $preferences = \App\Http\Requests\Settings\UpdateNotificationPreferencesRequest::validatePreferences([
+            'membership' => $this->notify_membership,
+            'borrowing' => $this->notify_borrowing,
+            'damage' => true,
+        ]);
+        $this->notify_damage = true;
 
         $user->name = $validated['name'];
         
@@ -68,11 +77,7 @@ new class extends Component {
         }
 
         // Notification preferences
-        $user->notification_preferences = [
-            'membership' => $this->notify_membership,
-            'borrowing' => $this->notify_borrowing,
-            'damage' => $this->notify_damage,
-        ];
+        $user->notification_preferences = $preferences;
 
         // Handle Email
         if ($validated['email'] !== $user->email) {
@@ -189,7 +194,10 @@ new class extends Component {
                 <div class="space-y-3">
                     <flux:checkbox wire:model="notify_membership" label="Keanggotaan Organisasi (Request & Perubahan Role)" />
                     <flux:checkbox wire:model="notify_borrowing" label="Peminjaman (Persetujuan, Overdue, & Pengembalian)" />
-                    <flux:checkbox wire:model="notify_damage" label="Laporan Kerusakan & Maintenance Aset" />
+                    <div>
+                        <flux:checkbox checked disabled label="Laporan Kerusakan & Maintenance Aset (wajib)" />
+                        <p class="mt-1 ml-7 text-xs text-zinc-500">Email laporan kerusakan bersifat transaksional dan tidak dapat dimatikan.</p>
+                    </div>
                 </div>
             </div>
 

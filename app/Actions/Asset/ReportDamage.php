@@ -3,6 +3,7 @@
 namespace App\Actions\Asset;
 
 use App\Enums\AssetLogEvent;
+use App\Enums\AssetStatus;
 use App\Enums\DamageReportStatus;
 use App\Events\DamageReported;
 use App\Models\Asset;
@@ -14,6 +15,10 @@ class ReportDamage
 {
     public function execute(Asset $asset, User $reportedBy, array $data, ?int $borrowingId = null): DamageReport
     {
+        if ($asset->status === AssetStatus::LOST) {
+            throw new \Exception('Aset berstatus Hilang sehingga tidak dapat dilaporkan kerusakannya.');
+        }
+
         return DB::transaction(function () use ($asset, $reportedBy, $data, $borrowingId) {
             $report = DamageReport::create([
                 'organization_id' => $asset->organization_id,

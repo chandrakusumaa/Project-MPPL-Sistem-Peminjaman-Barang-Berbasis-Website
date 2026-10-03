@@ -84,10 +84,6 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('organization_id', $organization->id)
             ->first();
 
-        if (!$membership) {
-            throw new \Exception("Membership is null! Org ID: {$organization->id}, User ID: {$this->id}. Total orgs: " . $this->organizations()->count());
-        }
-
         return $membership?->pivot?->role;
     }
 
@@ -164,13 +160,51 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Notification categories whose email can be toggled by the user.
+     */
+    public const NOTIFICATION_CATEGORIES = ['membership', 'borrowing', 'damage'];
+
+    /**
+     * Categories whose email is transactional and can never be disabled.
+     */
+    public const MANDATORY_EMAIL_CATEGORIES = ['damage'];
+
+    /**
      * Check if user wants email notifications for a specific category.
      */
     public function wantsEmailFor(string $category): bool
     {
-        $prefs = $this->notification_preferences ?? [];
-        
-        // If the key is not set, default to true
-        return $prefs[$category] ?? true;
+        if (in_array($category, self::MANDATORY_EMAIL_CATEGORIES, true)) {
+            return true;
+        }
+
+        $prefs = $this->notification_preferences;
+
+        if (! is_array($prefs)) {
+            return true;
+        }
+
+        // If the key is not set (or malformed), default to true
+        return filter_var($prefs[$category] ?? true, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+    }
+
+    /**
+     * Build a complete, well-formed preference array (all categories present as booleans,
+     * mandatory categories forced to true).
+     *
+     * @param  array<string, mixed>  $input
+     * @return array<string, bool>
+     */
+    public static function normalizeNotificationPreferences(array $input): array
+    {
+        $normalized = [];
+
+        foreach (self::NOTIFICATION_CATEGORIES as $category) {
+            $normalized[$category] = in_array($category, self::MANDATORY_EMAIL_CATEGORIES, true)
+                ? true
+                : (bool) ($input[$category] ?? true);
+        }
+
+        return $normalized;
     }
 }
