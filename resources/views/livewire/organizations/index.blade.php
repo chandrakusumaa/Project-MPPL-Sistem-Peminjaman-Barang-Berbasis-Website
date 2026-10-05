@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
-new class extends Component {
+use Livewire\Attributes\Layout;
+
+new #[Layout('layouts.app')] class extends Component {
     use WithPagination;
 
     public string $tab = 'all'; // 'all' or 'my'
@@ -98,7 +100,7 @@ new class extends Component {
     }
 }; ?>
 
-<x-layouts.app>
+<div>
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Organisasi</h1>
@@ -157,9 +159,12 @@ new class extends Component {
                             @endphp
 
                             @if($isMember)
-                                @php $role = $org->users->first()->pivot->role; @endphp
+                                @php 
+                                    $role = $org->users->first()->pivot->role; 
+                                    $roleVal = $role instanceof \BackedEnum ? $role->value : $role;
+                                @endphp
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mb-4">
-                                    {{ ucfirst($role) }}
+                                    {{ ucfirst($roleVal) }}
                                 </span>
                             @elseif($pendingReq)
                                 <div class="text-sm text-yellow-600 dark:text-yellow-400 mb-4 font-medium">Menunggu persetujuan</div>
@@ -167,7 +172,7 @@ new class extends Component {
                         </div>
                         <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
                             @if($isMember)
-                                <a href="{{ in_array($role, ['admin', 'staff']) ? route('manage.dashboard', $org->slug) : route('organization.catalog', $org->slug) }}" class="w-full inline-flex justify-center items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                                <a href="{{ in_array($roleVal, ['admin', 'staff']) ? route('manage.dashboard', $org->slug) : route('organization.catalog', $org->slug) }}" class="w-full inline-flex justify-center items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                                     Buka
                                 </a>
                             @elseif($pendingReq)
@@ -197,12 +202,13 @@ new class extends Component {
                         <div class="p-6 flex-1">
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{{ $org->name }}</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ $org->category }}</p>
+                            @php $myRoleVal = $org->pivot->role instanceof \BackedEnum ? $org->pivot->role->value : $org->pivot->role; @endphp
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mb-4">
-                                {{ ucfirst($org->pivot->role) }}
+                                {{ ucfirst($myRoleVal) }}
                             </span>
                         </div>
                         <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-                            <a href="{{ in_array($org->pivot->role, ['admin', 'staff']) ? route('manage.dashboard', $org->slug) : route('organization.catalog', $org->slug) }}" class="w-full inline-flex justify-center items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                            <a href="{{ in_array($myRoleVal, ['admin', 'staff']) ? route('manage.dashboard', $org->slug) : route('organization.catalog', $org->slug) }}" class="w-full inline-flex justify-center items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                                 Buka
                             </a>
                         </div>
@@ -244,4 +250,4 @@ new class extends Component {
             </form>
         </x-modal>
     </div>
-</x-layouts.app>
+</div>
