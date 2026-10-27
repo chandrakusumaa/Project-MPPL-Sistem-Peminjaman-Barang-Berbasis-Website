@@ -1445,6 +1445,8 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 
 ### 10.3 Keputusan Desain (Penyelesaian Perbedaan PRD vs Flowchart)
 
+**OD17 — keputusan pemilik proyek, 27 Oktober 2026:** Admin/Staff boleh menyetujui pinjaman miliknya sendiri jika seluruh syarat FR-BRW-08 terpenuhi. Ini tidak mengubah larangan persetujuan finansial sendiri pada FR-CHG-12 dan BR-11.
+
 | No | Topik | Keputusan |
 | --- | --- | --- |
 | 1 | Menu Member | Digabung: Home, Organizations (Semua + Saya), My Borrowing, Notifications, Scan QR, Profile/Settings. |

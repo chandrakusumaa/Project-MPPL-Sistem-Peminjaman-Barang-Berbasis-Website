@@ -1,0 +1,1 @@
+<p>Anda meminta perubahan email akun Organization Inventory.</p><p><a href="{{ $link }}">Verifikasi email baru</a></p><p>Alamat email lama tetap aktif sampai verifikasi berhasil. Tautan berlaku satu jam.</p>

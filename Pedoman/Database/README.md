@@ -7,9 +7,9 @@ Acuan: [SRS v1.2](../SRS_Organization_Inventory_v1.2.md), terutama bagian 7 dan 
 
 ## Status SQL
 
-Belum tersedia migration/SQL v1.2 yang teruji dalam repo ini. SQL baseline v1.0 dari pekerjaan sebelumnya hanya mencakup 13 tabel dan tidak boleh digunakan seolah-olah sudah mendukung finansial. Paket ini sengaja tidak memasukkan SQL baseline sebagai schema aktif.
+Migration v1.2 tersedia pada `../../database/migrations/` dengan DDL awal pada `../../database/schema/inventory-v1.2.sql`. DDL dan migration telah dijalankan pada MySQL 8.4; hasil integritas dan concurrency dicatat di `../../docs/IMPLEMENTATION.md`. SQL baseline v1.0 dari pekerjaan sebelumnya hanya mencakup 13 tabel dan tidak boleh digunakan seolah-olah sudah mendukung finansial. Paket ini sengaja tidak memasukkan SQL baseline sebagai schema aktif.
 
-Agent implementasi harus menulis migration dari SRS dan ERD v1.2, lalu mengujinya pada database target. Diagram dan kamus data saja belum membuktikan constraint sudah ditegakkan.
+Perubahan berikutnya tetap harus mengikuti SRS/ERD v1.2 dan diuji pada MySQL target. Diagram dan kamus data saja belum membuktikan constraint sudah ditegakkan.
 
 ## Constraint dan aturan yang harus diterapkan
 
