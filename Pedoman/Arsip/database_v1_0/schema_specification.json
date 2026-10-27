@@ -1,0 +1,2919 @@
+[
+  {
+    "name": "users",
+    "purpose": "Identitas akun global; role berada pada keanggotaan organisasi.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "name",
+        "type": "VARCHAR(150)",
+        "description": "Nama tampilan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "email",
+        "type": "VARCHAR(254)",
+        "description": "Email aktif; normalisasi trim + lowercase oleh aplikasi.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "email_verified_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu verifikasi email aktif.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "password",
+        "type": "VARCHAR(255)",
+        "description": "Hash password Laravel; tidak boleh plaintext.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "remember_token",
+        "type": "VARCHAR(100)",
+        "description": "Token remember-me Laravel.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "pending_email",
+        "type": "VARCHAR(254)",
+        "description": "Usulan email baru; belum menggantikan email aktif.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "pending_email_requested_at",
+        "type": "DATETIME(6)",
+        "description": "Pengikat versi permintaan perubahan email pada signed URL.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "avatar",
+        "type": "VARCHAR(255)",
+        "description": "Path relatif file avatar pada Storage.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "notification_preferences",
+        "type": "JSON",
+        "description": "Preferensi email: membership, borrowing, damage. NULL memakai semua true.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      },
+      {
+        "name": "deleted_at",
+        "type": "DATETIME(6)",
+        "description": "Soft delete akun; identitas historis tetap disimpan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_users_email",
+        [
+          "email"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_users_pending_email",
+        [
+          "pending_email"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_users_name",
+        "CHAR_LENGTH(TRIM(name)) > 0"
+      ],
+      [
+        "ck_users_pending_email",
+        "(pending_email IS NULL AND pending_email_requested_at IS NULL) OR (pending_email IS NOT NULL AND pending_email_requested_at IS NOT NULL)"
+      ]
+    ],
+    "fks": [],
+    "refs": "FR-AUTH-02..08; FR-PRF-01..06; DAT-01"
+  },
+  {
+    "name": "organizations",
+    "purpose": "Organisasi pemilik aset dan kebijakan operasional.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "name",
+        "type": "VARCHAR(150)",
+        "description": "Nama organisasi.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "slug",
+        "type": "VARCHAR(160) CHARACTER SET ascii COLLATE ascii_bin",
+        "description": "URL slug unik; immutable agar QR tetap valid.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "description",
+        "type": "TEXT",
+        "description": "Deskripsi profil publik.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "category",
+        "type": "ENUM('kampus','sekolah','komunitas','perusahaan','lainnya')",
+        "description": "Kategori organisasi dari daftar tetap SRS.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "logo",
+        "type": "VARCHAR(255)",
+        "description": "Path relatif logo.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "max_borrow_days",
+        "type": "SMALLINT UNSIGNED",
+        "description": "Batas durasi pinjam dalam hari.",
+        "nullable": false,
+        "default": "7",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "late_fine_per_day",
+        "type": "DECIMAL(12,0)",
+        "description": "Tarif denda Rupiah per hari; tanpa pecahan.",
+        "nullable": false,
+        "default": "0",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "User pembuat organisasi; bukan sumber role.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "archived_at",
+        "type": "DATETIME(6)",
+        "description": "NULL = aktif; isi = diarsipkan/read-only.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      },
+      {
+        "name": "deleted_at",
+        "type": "DATETIME(6)",
+        "description": "Soft delete organisasi.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_organizations_slug",
+        [
+          "slug"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_org_explore",
+        [
+          "deleted_at",
+          "archived_at",
+          "category"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_org_name",
+        "CHAR_LENGTH(TRIM(name)) > 0"
+      ],
+      [
+        "ck_org_slug",
+        "CHAR_LENGTH(slug) > 0"
+      ],
+      [
+        "ck_org_max_borrow_days",
+        "max_borrow_days >= 1"
+      ],
+      [
+        "ck_org_fine",
+        "late_fine_per_day >= 0"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_organizations_created_by",
+        "columns": [
+          "created_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-EXP-01..04; FR-ORG-01,12..15; BR-06"
+  },
+  {
+    "name": "organization_user",
+    "purpose": "Keanggotaan dan role per organisasi; baris dicabut tetap disimpan.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi keanggotaan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "user_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "User anggota.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "role",
+        "type": "ENUM('admin','staff','member')",
+        "description": "Hak akses pada organisasi ini.",
+        "nullable": false,
+        "default": "'member'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "status",
+        "type": "ENUM('active','revoked')",
+        "description": "Hanya active + user/organisasi belum dihapus yang memberi akses.",
+        "nullable": false,
+        "default": "'active'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "joined_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu aktivasi terakhir; aktivasi lama tersimpan di audit.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "revoked_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pencabutan; NULL saat aktif.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "revoked_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Pelaku pencabutan; NULL bila aksi sistem.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      }
+    ],
+    "unique": [
+      [
+        "uq_org_user",
+        [
+          "organization_id",
+          "user_id"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_membership_user",
+        [
+          "user_id",
+          "status",
+          "organization_id"
+        ]
+      ],
+      [
+        "ix_org_admins",
+        [
+          "organization_id",
+          "status",
+          "role"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_membership_lifecycle",
+        "(status = 'active' AND revoked_at IS NULL AND revoked_by IS NULL) OR (status = 'revoked' AND revoked_at IS NOT NULL)"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_membership_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_membership_user_id",
+        "columns": [
+          "user_id"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_membership_revoked_by",
+        "columns": [
+          "revoked_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-ORG-06,08..11; FR-RBAC-01; PRD 8.4; keputusan D02"
+  },
+  {
+    "name": "membership_requests",
+    "purpose": "Pengajuan join; setiap pengajuan ulang adalah baris baru.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi tujuan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "user_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Pengaju.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "message",
+        "type": "TEXT",
+        "description": "Pesan pengajuan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "status",
+        "type": "ENUM('pending','approved','rejected','cancelled')",
+        "description": "Status pengajuan.",
+        "nullable": false,
+        "default": "'pending'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "reviewed_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Admin peninjau.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "reviewed_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu keputusan approve/reject.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "review_notes",
+        "type": "TEXT",
+        "description": "Catatan keputusan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "cancelled_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "User/Admin pembatal; NULL bila sistem.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "cancelled_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembatalan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      },
+      {
+        "name": "pending_guard",
+        "type": "TINYINT",
+        "description": "Kolom turunan untuk mencegah pending ganda; jangan ditulis aplikasi.",
+        "nullable": true,
+        "default": null,
+        "generated": "CASE WHEN status = 'pending' THEN 1 ELSE NULL END",
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_join_pending",
+        [
+          "organization_id",
+          "user_id",
+          "pending_guard"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_join_inbox",
+        [
+          "organization_id",
+          "status",
+          "created_at"
+        ]
+      ],
+      [
+        "ix_join_user",
+        [
+          "user_id",
+          "created_at"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_join_review",
+        "(status IN ('approved','rejected') AND reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL) OR (status NOT IN ('approved','rejected') AND reviewed_by IS NULL AND reviewed_at IS NULL)"
+      ],
+      [
+        "ck_join_cancel",
+        "(status = 'cancelled' AND cancelled_at IS NOT NULL) OR (status <> 'cancelled' AND cancelled_at IS NULL AND cancelled_by IS NULL)"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_join_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_join_user_id",
+        "columns": [
+          "user_id"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_join_reviewed_by",
+        "columns": [
+          "reviewed_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_join_cancelled_by",
+        "columns": [
+          "cancelled_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-ORG-05..06; FR-PRF-05"
+  },
+  {
+    "name": "organization_invitations",
+    "purpose": "Undangan satu email; token mentah hanya dikirim lewat link, bukan disimpan.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi pengundang.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "email",
+        "type": "VARCHAR(254)",
+        "description": "Email target yang dinormalisasi.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "role",
+        "type": "ENUM('staff','member')",
+        "description": "Role yang diberikan saat penerimaan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "token_hash",
+        "type": "CHAR(64) CHARACTER SET ascii COLLATE ascii_bin",
+        "description": "SHA-256 atas token acak; unik. Token minimal 32 byte acak.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "invited_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Admin pengundang.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "expires_at",
+        "type": "DATETIME(6)",
+        "description": "Kedaluwarsa 7 hari setelah pembuatan/rotasi token.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "last_sent_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu terakhir email berhasil dikirim.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "status",
+        "type": "ENUM('pending','accepted','expired','revoked')",
+        "description": "Status undangan.",
+        "nullable": false,
+        "default": "'pending'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "accepted_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "User penerima yang email aktifnya sesuai target.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "accepted_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu penerimaan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "revoked_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Admin pencabut; NULL untuk pencabutan sistem.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "revoked_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pencabutan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      },
+      {
+        "name": "pending_guard",
+        "type": "TINYINT",
+        "description": "Maksimal satu undangan pending per email per organisasi.",
+        "nullable": true,
+        "default": null,
+        "generated": "CASE WHEN status = 'pending' THEN 1 ELSE NULL END",
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_invitation_hash",
+        [
+          "token_hash"
+        ]
+      ],
+      [
+        "uq_invitation_pending",
+        [
+          "organization_id",
+          "email",
+          "pending_guard"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_invitation_expiry",
+        [
+          "status",
+          "expires_at"
+        ]
+      ],
+      [
+        "ix_invitation_inbox",
+        [
+          "organization_id",
+          "status",
+          "created_at"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_invitation_hash",
+        "CHAR_LENGTH(token_hash) = 64"
+      ],
+      [
+        "ck_invitation_expiry",
+        "expires_at > created_at"
+      ],
+      [
+        "ck_invitation_accept",
+        "(status = 'accepted' AND accepted_by IS NOT NULL AND accepted_at IS NOT NULL AND accepted_at < expires_at) OR (status <> 'accepted' AND accepted_by IS NULL AND accepted_at IS NULL)"
+      ],
+      [
+        "ck_invitation_revoke",
+        "(status = 'revoked' AND revoked_at IS NOT NULL) OR (status <> 'revoked' AND revoked_at IS NULL AND revoked_by IS NULL)"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_invitation_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_invitation_invited_by",
+        "columns": [
+          "invited_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_invitation_accepted_by",
+        "columns": [
+          "accepted_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_invitation_revoked_by",
+        "columns": [
+          "revoked_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-ORG-07..08; BR-06d; NFR-SEC-06"
+  },
+  {
+    "name": "asset_categories",
+    "purpose": "Kategori aset milik satu organisasi; nama unik per organisasi.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi pemilik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "name",
+        "type": "VARCHAR(120)",
+        "description": "Nama kategori; trim sebelum simpan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      }
+    ],
+    "unique": [
+      [
+        "uq_category_name",
+        [
+          "organization_id",
+          "name"
+        ]
+      ],
+      [
+        "uq_category_id_org",
+        [
+          "id",
+          "organization_id"
+        ]
+      ]
+    ],
+    "indexes": [],
+    "checks": [
+      [
+        "ck_category_name",
+        "CHAR_LENGTH(TRIM(name)) > 0"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_category_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-INV-07; BR-07"
+  },
+  {
+    "name": "assets",
+    "purpose": "Satu baris = satu unit fisik = satu kode/QR; tidak ada quantity.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi pemilik; immutable.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "asset_category_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Kategori dari organisasi yang sama.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "code",
+        "type": "CHAR(26) CHARACTER SET ascii COLLATE ascii_bin",
+        "description": "ULID publik immutable; QR memakai URL dengan kode ini.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "name",
+        "type": "VARCHAR(180)",
+        "description": "Nama aset.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "description",
+        "type": "TEXT",
+        "description": "Deskripsi aset.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "specifications",
+        "type": "TEXT",
+        "description": "Spesifikasi bebas; tidak memerlukan struktur JSON.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "location",
+        "type": "VARCHAR(180)",
+        "description": "Lokasi penyimpanan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "purchase_date",
+        "type": "DATE",
+        "description": "Tanggal pembelian opsional.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "photo",
+        "type": "VARCHAR(255)",
+        "description": "Path relatif satu foto aset.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "status",
+        "type": "ENUM('available','borrowed','maintenance','lost')",
+        "description": "Ketersediaan operasional; hanya diubah lewat action yang sah.",
+        "nullable": false,
+        "default": "'available'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "physical_condition",
+        "type": "ENUM('good','minor_damage','major_damage','unknown')",
+        "description": "Kondisi fisik terkini; berbeda dari ketersediaan.",
+        "nullable": false,
+        "default": "'good'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      },
+      {
+        "name": "deleted_at",
+        "type": "DATETIME(6)",
+        "description": "Soft delete aset; kode tidak dipakai ulang.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_asset_code",
+        [
+          "code"
+        ]
+      ],
+      [
+        "uq_asset_id_org",
+        [
+          "id",
+          "organization_id"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_asset_inventory",
+        [
+          "organization_id",
+          "deleted_at",
+          "status"
+        ]
+      ],
+      [
+        "ix_asset_category",
+        [
+          "organization_id",
+          "asset_category_id",
+          "deleted_at"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_asset_code",
+        "CHAR_LENGTH(code) = 26"
+      ],
+      [
+        "ck_asset_name",
+        "CHAR_LENGTH(TRIM(name)) > 0"
+      ],
+      [
+        "ck_asset_location",
+        "CHAR_LENGTH(TRIM(location)) > 0"
+      ],
+      [
+        "ck_asset_usable",
+        "status <> 'available' OR physical_condition IN ('good','minor_damage')"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_asset_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_asset_category_tenant",
+        "columns": [
+          "asset_category_id",
+          "organization_id"
+        ],
+        "table": "asset_categories",
+        "target": [
+          "id",
+          "organization_id"
+        ]
+      }
+    ],
+    "refs": "FR-INV-01..09; FR-QR-01,10; PRD F04; keputusan D03,D04"
+  },
+  {
+    "name": "borrowings",
+    "purpose": "Satu request untuk satu aset; approval dan inspeksi return berada pada baris yang sama.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi transaksi.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "asset_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Aset dari organisasi yang sama.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "user_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Peminjam global; histori tidak bergantung pada membership aktif.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "borrow_date",
+        "type": "DATE",
+        "description": "Tanggal mulai yang diminta dalam kalender Asia/Jakarta.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "due_date",
+        "type": "DATE",
+        "description": "Hari terakhir pengembalian tepat waktu dalam kalender Asia/Jakarta.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "reason",
+        "type": "TEXT",
+        "description": "Alasan peminjaman, minimal 10 karakter setelah trim.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "status",
+        "type": "ENUM('pending','rejected','cancelled','borrowed','overdue','returned')",
+        "description": "Status workflow; tidak ada status approved terpisah.",
+        "nullable": false,
+        "default": "'pending'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "approved_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Admin/Staff yang menyetujui sekaligus memulai pinjam.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "approved_at",
+        "type": "DATETIME(6)",
+        "description": "Awal peminjaman aktual; UTC.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "max_borrow_days_snapshot",
+        "type": "SMALLINT UNSIGNED",
+        "description": "Salinan batas durasi saat approve; immutable setelah approve.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "late_fine_per_day_snapshot",
+        "type": "DECIMAL(12,0)",
+        "description": "Salinan tarif saat approve; perubahan settings tidak mengubah pinjaman lama.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "rejected_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Admin/Staff penolak.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "rejected_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu penolakan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "rejection_reason",
+        "type": "TEXT",
+        "description": "Alasan wajib saat rejected.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "cancelled_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Pelaku pembatalan; NULL bila sistem.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "cancelled_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembatalan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "cancellation_reason",
+        "type": "TEXT",
+        "description": "Alasan pembatalan, termasuk revoke/delete account.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "overdue_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pertama scheduler menandai overdue; dipertahankan setelah return.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "returned_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pengembalian fisik; dapat berbeda dari waktu pemrosesan.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "processed_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Admin/Staff pemroses pengembalian.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "return_processed_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu petugas menyimpan hasil return; UTC.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "return_condition",
+        "type": "ENUM('good','minor_damage','major_damage','lost')",
+        "description": "Hasil inspeksi satu kali saat return.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "return_notes",
+        "type": "TEXT",
+        "description": "Catatan wajib jika hasil bukan good.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "late_days",
+        "type": "INT UNSIGNED",
+        "description": "Hari kalender terlambat saat return; dihitung aplikasi dalam Asia/Jakarta.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "calculated_fine_amount",
+        "type": "DECIMAL(14,0)",
+        "description": "late_days x snapshot tarif; nilai otomatis sebelum override.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "fine_amount",
+        "type": "DECIMAL(14,0)",
+        "description": "Denda final yang dicatat; tidak ada pembayaran.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "fine_override_reason",
+        "type": "TEXT",
+        "description": "Alasan wajib bila denda final berbeda dari hasil otomatis.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      },
+      {
+        "name": "active_guard",
+        "type": "TINYINT",
+        "description": "Maksimal satu pinjaman borrowed/overdue per aset.",
+        "nullable": true,
+        "default": null,
+        "generated": "CASE WHEN status IN ('borrowed','overdue') THEN 1 ELSE NULL END",
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "open_user_guard",
+        "type": "TINYINT",
+        "description": "Maksimal satu pending/aktif per user dan aset.",
+        "nullable": true,
+        "default": null,
+        "generated": "CASE WHEN status IN ('pending','borrowed','overdue') THEN 1 ELSE NULL END",
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_borrowing_active_asset",
+        [
+          "asset_id",
+          "active_guard"
+        ]
+      ],
+      [
+        "uq_borrowing_open_user",
+        [
+          "asset_id",
+          "user_id",
+          "open_user_guard"
+        ]
+      ],
+      [
+        "uq_borrowing_id_asset_org",
+        [
+          "id",
+          "asset_id",
+          "organization_id"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_borrowing_org_status",
+        [
+          "organization_id",
+          "status",
+          "created_at"
+        ]
+      ],
+      [
+        "ix_borrowing_user",
+        [
+          "user_id",
+          "status",
+          "created_at"
+        ]
+      ],
+      [
+        "ix_borrowing_due",
+        [
+          "status",
+          "due_date"
+        ]
+      ],
+      [
+        "ix_borrowing_report",
+        [
+          "organization_id",
+          "borrow_date"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_borrowing_dates",
+        "due_date > borrow_date"
+      ],
+      [
+        "ck_borrowing_reason",
+        "CHAR_LENGTH(TRIM(reason)) >= 10"
+      ],
+      [
+        "ck_borrowing_approval",
+        "(status IN ('borrowed','overdue','returned') AND approved_by IS NOT NULL AND approved_at IS NOT NULL AND max_borrow_days_snapshot IS NOT NULL AND late_fine_per_day_snapshot IS NOT NULL) OR (status NOT IN ('borrowed','overdue','returned') AND approved_by IS NULL AND approved_at IS NULL AND max_borrow_days_snapshot IS NULL AND late_fine_per_day_snapshot IS NULL)"
+      ],
+      [
+        "ck_borrowing_snapshot",
+        "(max_borrow_days_snapshot IS NULL OR max_borrow_days_snapshot >= 1) AND (late_fine_per_day_snapshot IS NULL OR late_fine_per_day_snapshot >= 0)"
+      ],
+      [
+        "ck_borrowing_reject",
+        "(status = 'rejected' AND rejected_by IS NOT NULL AND rejected_at IS NOT NULL AND rejection_reason IS NOT NULL AND CHAR_LENGTH(TRIM(rejection_reason)) > 0) OR (status <> 'rejected' AND rejected_by IS NULL AND rejected_at IS NULL AND rejection_reason IS NULL)"
+      ],
+      [
+        "ck_borrowing_cancel",
+        "(status = 'cancelled' AND cancelled_at IS NOT NULL AND cancellation_reason IS NOT NULL AND CHAR_LENGTH(TRIM(cancellation_reason)) > 0) OR (status <> 'cancelled' AND cancelled_at IS NULL AND cancelled_by IS NULL AND cancellation_reason IS NULL)"
+      ],
+      [
+        "ck_borrowing_overdue",
+        "(status = 'overdue' AND overdue_at IS NOT NULL) OR status = 'returned' OR (status NOT IN ('overdue','returned') AND overdue_at IS NULL)"
+      ],
+      [
+        "ck_borrowing_return",
+        "(status = 'returned' AND returned_at IS NOT NULL AND processed_by IS NOT NULL AND return_processed_at IS NOT NULL AND return_condition IS NOT NULL AND late_days IS NOT NULL AND calculated_fine_amount IS NOT NULL AND fine_amount IS NOT NULL) OR (status <> 'returned' AND returned_at IS NULL AND processed_by IS NULL AND return_processed_at IS NULL AND return_condition IS NULL AND return_notes IS NULL AND late_days IS NULL AND calculated_fine_amount IS NULL AND fine_amount IS NULL AND fine_override_reason IS NULL)"
+      ],
+      [
+        "ck_borrowing_return_notes",
+        "return_condition IS NULL OR return_condition = 'good' OR (return_notes IS NOT NULL AND CHAR_LENGTH(TRIM(return_notes)) > 0)"
+      ],
+      [
+        "ck_borrowing_return_time",
+        "returned_at IS NULL OR (returned_at >= approved_at AND return_processed_at >= returned_at)"
+      ],
+      [
+        "ck_borrowing_fine",
+        "(fine_amount IS NULL OR fine_amount >= 0) AND (calculated_fine_amount IS NULL OR calculated_fine_amount >= 0)"
+      ],
+      [
+        "ck_borrowing_calculation",
+        "calculated_fine_amount IS NULL OR calculated_fine_amount = late_days * late_fine_per_day_snapshot"
+      ],
+      [
+        "ck_borrowing_override",
+        "fine_amount IS NULL OR fine_amount = calculated_fine_amount OR (fine_override_reason IS NOT NULL AND CHAR_LENGTH(TRIM(fine_override_reason)) > 0)"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_borrowing_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_borrowing_asset_tenant",
+        "columns": [
+          "asset_id",
+          "organization_id"
+        ],
+        "table": "assets",
+        "target": [
+          "id",
+          "organization_id"
+        ]
+      },
+      {
+        "name": "fk_borrowing_user_id",
+        "columns": [
+          "user_id"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_borrowing_approved_by",
+        "columns": [
+          "approved_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_borrowing_rejected_by",
+        "columns": [
+          "rejected_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_borrowing_cancelled_by",
+        "columns": [
+          "cancelled_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_borrowing_processed_by",
+        "columns": [
+          "processed_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-BRW-01..15; BR-01..05; DAT-02..04; NFR-REL-01..02"
+  },
+  {
+    "name": "damage_reports",
+    "purpose": "Laporan kerusakan manual/anggota/inspeksi; sekaligus workflow maintenance MVP.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi laporan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "asset_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Aset yang dilaporkan.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "borrowing_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Opsional; harus borrowing untuk aset dan organisasi yang sama.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "source",
+        "type": "ENUM('member_report','staff_report','return_inspection')",
+        "description": "Asal laporan tetap tersimpan walau role pelapor berubah.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "reported_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Pelapor; untuk hasil inspeksi adalah petugas pemroses return.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "description",
+        "type": "TEXT",
+        "description": "Deskripsi kerusakan wajib.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "photo",
+        "type": "VARCHAR(255)",
+        "description": "Path relatif satu foto.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "severity",
+        "type": "ENUM('minor','major')",
+        "description": "NULL = belum dinilai.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "status",
+        "type": "ENUM('open','in_maintenance','resolved','noted')",
+        "description": "Status tindak lanjut.",
+        "nullable": false,
+        "default": "'open'",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "handled_by",
+        "type": "BIGINT UNSIGNED",
+        "description": "Petugas tindakan terakhir; detail pelaku tiap transisi tersimpan di audit.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "assessed_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu penilaian severity.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "assessment_notes",
+        "type": "TEXT",
+        "description": "Catatan penilaian.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "maintenance_started_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu mulai maintenance.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "resolution_notes",
+        "type": "TEXT",
+        "description": "Catatan penyelesaian atau keputusan cukup dicatat.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "resolved_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perbaikan selesai.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      },
+      {
+        "name": "maintenance_guard",
+        "type": "TINYINT",
+        "description": "Maksimal satu maintenance aktif per aset.",
+        "nullable": true,
+        "default": null,
+        "generated": "CASE WHEN status = 'in_maintenance' THEN 1 ELSE NULL END",
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "inspection_guard",
+        "type": "TINYINT",
+        "description": "Satu laporan otomatis dari satu inspeksi return.",
+        "nullable": true,
+        "default": null,
+        "generated": "CASE WHEN source = 'return_inspection' THEN 1 ELSE NULL END",
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_damage_active_maintenance",
+        [
+          "asset_id",
+          "maintenance_guard"
+        ]
+      ],
+      [
+        "uq_damage_return_inspection",
+        [
+          "borrowing_id",
+          "inspection_guard"
+        ]
+      ],
+      [
+        "uq_damage_id_asset_org",
+        [
+          "id",
+          "asset_id",
+          "organization_id"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_damage_inbox",
+        [
+          "organization_id",
+          "status",
+          "created_at"
+        ]
+      ],
+      [
+        "ix_damage_severity",
+        [
+          "organization_id",
+          "severity",
+          "created_at"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_damage_description",
+        "CHAR_LENGTH(TRIM(description)) > 0"
+      ],
+      [
+        "ck_damage_source",
+        "source <> 'return_inspection' OR (borrowing_id IS NOT NULL AND severity IS NOT NULL)"
+      ],
+      [
+        "ck_damage_assessment",
+        "(severity IS NULL AND assessed_at IS NULL) OR (severity IS NOT NULL AND assessed_at IS NOT NULL AND handled_by IS NOT NULL)"
+      ],
+      [
+        "ck_damage_maintenance",
+        "status <> 'in_maintenance' OR (maintenance_started_at IS NOT NULL AND severity IS NOT NULL AND handled_by IS NOT NULL)"
+      ],
+      [
+        "ck_damage_resolved",
+        "(status = 'resolved' AND resolved_at IS NOT NULL AND maintenance_started_at IS NOT NULL AND severity IS NOT NULL AND resolution_notes IS NOT NULL AND CHAR_LENGTH(TRIM(resolution_notes)) > 0 AND handled_by IS NOT NULL) OR (status <> 'resolved' AND resolved_at IS NULL)"
+      ],
+      [
+        "ck_damage_noted",
+        "status <> 'noted' OR (severity IS NOT NULL AND handled_by IS NOT NULL AND resolution_notes IS NOT NULL AND CHAR_LENGTH(TRIM(resolution_notes)) > 0)"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_damage_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_damage_asset_tenant",
+        "columns": [
+          "asset_id",
+          "organization_id"
+        ],
+        "table": "assets",
+        "target": [
+          "id",
+          "organization_id"
+        ]
+      },
+      {
+        "name": "fk_damage_borrowing_tenant",
+        "columns": [
+          "borrowing_id",
+          "asset_id",
+          "organization_id"
+        ],
+        "table": "borrowings",
+        "target": [
+          "id",
+          "asset_id",
+          "organization_id"
+        ]
+      },
+      {
+        "name": "fk_damage_reported_by",
+        "columns": [
+          "reported_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_damage_handled_by",
+        "columns": [
+          "handled_by"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-DMG-01..09; BR-05; keputusan D05"
+  },
+  {
+    "name": "asset_logs",
+    "purpose": "Timeline append-only per aset; metadata yang tampil ke Member harus disaring.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Organisasi aset.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "asset_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Aset terkait.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "user_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Pelaku; NULL untuk scheduler/sistem.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "borrowing_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Referensi transaksi opsional.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "damage_report_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Referensi laporan opsional.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "event",
+        "type": "VARCHAR(40)",
+        "description": "Jenis event terkontrol.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "description",
+        "type": "TEXT",
+        "description": "Keterangan event untuk timeline.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "metadata",
+        "type": "JSON",
+        "description": "Data tambahan, mis. perubahan status; bukan tempat secret.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "event_key",
+        "type": "VARCHAR(191) CHARACTER SET ascii COLLATE ascii_bin",
+        "description": "Kunci idempotensi opsional, mis. borrowing:42:overdue.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu kejadian UTC; tidak ada updated_at.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_asset_log_event",
+        [
+          "event_key"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_asset_timeline",
+        [
+          "organization_id",
+          "asset_id",
+          "created_at",
+          "id"
+        ]
+      ],
+      [
+        "ix_asset_log_event",
+        [
+          "organization_id",
+          "event",
+          "created_at"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_asset_log_event",
+        "event IN ('created','updated','qr_generated','borrow_requested','borrow_approved','borrow_rejected','borrow_cancelled','borrowed','returned','inspected','overdue','damage_reported','damage_assessed','damage_noted','maintenance_started','maintenance_finished','marked_lost','marked_found','deleted')"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_log_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_log_asset_tenant",
+        "columns": [
+          "asset_id",
+          "organization_id"
+        ],
+        "table": "assets",
+        "target": [
+          "id",
+          "organization_id"
+        ]
+      },
+      {
+        "name": "fk_log_borrowing_tenant",
+        "columns": [
+          "borrowing_id",
+          "asset_id",
+          "organization_id"
+        ],
+        "table": "borrowings",
+        "target": [
+          "id",
+          "asset_id",
+          "organization_id"
+        ]
+      },
+      {
+        "name": "fk_log_damage_tenant",
+        "columns": [
+          "damage_report_id",
+          "asset_id",
+          "organization_id"
+        ],
+        "table": "damage_reports",
+        "target": [
+          "id",
+          "asset_id",
+          "organization_id"
+        ]
+      },
+      {
+        "name": "fk_asset_log_user_id",
+        "columns": [
+          "user_id"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-HIS-01..03; DAT-02; PRD F08"
+  },
+  {
+    "name": "audit_logs",
+    "purpose": "Audit append-only lintas entitas: membership, settings, akun, aset, dan transaksi.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Primary key internal; bukan identifier publik.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": true,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "NULL untuk aksi akun global.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "actor_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "User pelaku; NULL untuk sistem.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "action",
+        "type": "VARCHAR(80)",
+        "description": "Kode aksi, mis. membership.revoked atau borrowing.approved.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "subject_type",
+        "type": "VARCHAR(60)",
+        "description": "Alias jenis objek dalam allowlist aplikasi.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "subject_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "ID objek; relasi polimorfik, tidak memiliki FK universal.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "old_values",
+        "type": "JSON",
+        "description": "Nilai sebelum perubahan yang telah disaring.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "new_values",
+        "type": "JSON",
+        "description": "Nilai sesudah perubahan yang telah disaring.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "metadata",
+        "type": "JSON",
+        "description": "Konteks tambahan tanpa password/token mentah.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "event_key",
+        "type": "VARCHAR(191) CHARACTER SET ascii COLLATE ascii_bin",
+        "description": "Kunci deduplikasi opsional.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu kejadian UTC; tidak ada updated_at.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [
+      [
+        "uq_audit_event",
+        [
+          "event_key"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_audit_org",
+        [
+          "organization_id",
+          "created_at",
+          "id"
+        ]
+      ],
+      [
+        "ix_audit_actor",
+        [
+          "actor_id",
+          "created_at"
+        ]
+      ],
+      [
+        "ix_audit_subject",
+        [
+          "subject_type",
+          "subject_id",
+          "created_at"
+        ]
+      ]
+    ],
+    "checks": [
+      [
+        "ck_audit_action",
+        "CHAR_LENGTH(TRIM(action)) > 0"
+      ]
+    ],
+    "fks": [
+      {
+        "name": "fk_audit_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      },
+      {
+        "name": "fk_audit_actor_id",
+        "columns": [
+          "actor_id"
+        ],
+        "table": "users",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "PRD F03,F08,F10,8.6; keputusan D01"
+  },
+  {
+    "name": "notifications",
+    "purpose": "Notifikasi database dengan bentuk polymorphic Laravel dan tambahan organization_id.",
+    "columns": [
+      {
+        "name": "id",
+        "type": "CHAR(36) CHARACTER SET ascii COLLATE ascii_bin",
+        "description": "UUID notifikasi Laravel.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "type",
+        "type": "VARCHAR(255)",
+        "description": "Nama kelas/alias notifikasi.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "notifiable_type",
+        "type": "VARCHAR(255)",
+        "description": "Morph type Laravel; MVP hanya User.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "notifiable_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "ID penerima; target polimorfik ditentukan aplikasi.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "organization_id",
+        "type": "BIGINT UNSIGNED",
+        "description": "Scope organisasi opsional; NULL untuk notifikasi global.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "data",
+        "type": "TEXT",
+        "description": "Payload JSON serialisasi Laravel: judul, isi, URL, referensi aman.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "event_key",
+        "type": "VARCHAR(191) CHARACTER SET ascii COLLATE ascii_bin",
+        "description": "Kunci event untuk deduplikasi per penerima.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "read_at",
+        "type": "DATETIME(6)",
+        "description": "NULL = belum dibaca.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu pembuatan UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "updated_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu perubahan terakhir UTC.",
+        "nullable": false,
+        "default": "CURRENT_TIMESTAMP(6)",
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": true
+      }
+    ],
+    "unique": [
+      [
+        "uq_notification_recipient_event",
+        [
+          "notifiable_type",
+          "notifiable_id",
+          "event_key"
+        ]
+      ]
+    ],
+    "indexes": [
+      [
+        "ix_notification_owner",
+        [
+          "notifiable_type",
+          "notifiable_id",
+          "read_at",
+          "created_at"
+        ]
+      ],
+      [
+        "ix_notification_org",
+        [
+          "organization_id",
+          "created_at"
+        ]
+      ]
+    ],
+    "checks": [],
+    "fks": [
+      {
+        "name": "fk_notification_org",
+        "columns": [
+          "organization_id"
+        ],
+        "table": "organizations",
+        "target": [
+          "id"
+        ]
+      }
+    ],
+    "refs": "FR-NTF-01..08; BR-09"
+  },
+  {
+    "name": "password_reset_tokens",
+    "purpose": "Tabel autentikasi pendukung mengikuti pola Laravel; bukan entitas domain.",
+    "columns": [
+      {
+        "name": "email",
+        "type": "VARCHAR(254)",
+        "description": "Email akun yang meminta reset; primary key.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": true,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "token",
+        "type": "VARCHAR(255)",
+        "description": "Hash token reset yang dikelola broker Laravel.",
+        "nullable": false,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      },
+      {
+        "name": "created_at",
+        "type": "DATETIME(6)",
+        "description": "Waktu penerbitan token.",
+        "nullable": true,
+        "default": null,
+        "generated": null,
+        "primary": false,
+        "auto": false,
+        "update": false
+      }
+    ],
+    "unique": [],
+    "indexes": [],
+    "checks": [],
+    "fks": [],
+    "refs": "FR-AUTH-07; tabel framework"
+  }
+]
