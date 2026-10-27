@@ -245,7 +245,7 @@ Matriks berikut berlaku pada **ruang yang sedang diakses**, dengan membership ak
 | Export laporan | Ya | Tidak, menu nonaktif | Tidak |
 | Settings ruang | Ya | Tidak, menu nonaktif | Tidak |
 
-Role Staff/Admin mencakup hak penggunaan anggota pada ruang terkait sebagaimana SRS. Kebijakan persetujuan atas permintaan milik pengelola sendiri dicatat sebagai keputusan terbuka OD17; skenario demo menggunakan peminjam dan pemberi persetujuan yang berbeda.
+Role Staff/Admin mencakup hak penggunaan anggota pada ruang terkait sebagaimana SRS. Keputusan pemilik proyek pada 27 Oktober 2026 (OD17): Admin/Staff boleh menyetujui peminjaman sendiri jika semua syarat peminjaman terpenuhi. Larangan persetujuan kewajiban finansial sendiri tetap berlaku.
 
 Menu nonaktif untuk Staff adalah keputusan UI. Endpoint tetap wajib menolak tindakan tanpa izin.
 
@@ -1153,7 +1153,7 @@ Bagian ini menggantikan daftar “keputusan terbuka sebelum SRS” pada v0.2. Se
 | OD14 | Maintenance | Ditetapkan: maksimal satu aktif per aset, penilaian/pencatatan penyelesaian dan kondisi akhir |
 | OD15 | Lost dan recovery | Ditetapkan: mark found dengan catatan dan penilaian kondisi sesuai SRS; tagihan penggantian loss mengikuti F12 |
 | OD16 | QR non-anggota | Ditetapkan: login bila guest; non-anggota diarahkan bergabung tanpa detail privat |
-| OD17 | Approval pinjaman sendiri | Belum diputuskan secara eksplisit pada sumber; tetapkan kebijakan sebelum alur persetujuan sendiri dinyatakan final |
+| OD17 | Approval pinjaman sendiri | Diputuskan pemilik proyek pada 27 Oktober 2026: Admin/Staff diizinkan menyetujui pinjaman sendiri. Larangan keputusan finansial sendiri tetap berlaku. |
 | OD18 | Persona dan fokus pengguna awal | Hipotesis: mahasiswa pengelola/peminjam perlengkapan; validasi wawancara dan observasi belum dilakukan |
 
 ## 13.2 Hal yang Perlu Diperiksa dengan Calon Pengguna

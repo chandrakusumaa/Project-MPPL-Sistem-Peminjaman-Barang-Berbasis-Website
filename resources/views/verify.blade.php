@@ -1,0 +1,1 @@
+<x-layout><div class="card"><h1>Verifikasi email Anda</h1><p>Periksa kotak masuk untuk mengaktifkan akun. Pada development, email tersedia di log Laravel.</p><form method="POST" action="{{ route('verification.send') }}">@csrf<button class="primary">Kirim ulang verifikasi</button></form></div></x-layout>

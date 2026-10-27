@@ -20,10 +20,10 @@ PRD dan SRS yang sudah ada di repo dipertahankan utuh. ERD berasal dari lampiran
 ## Status penting
 
 - Database target: 16 tabel, 14 inti dan 2 pendukung.
-- SQL/migration terbaru belum disertakan atau diuji. Agent implementasi harus membuatnya dari spesifikasi v1.2.
+- Implementasi awal Laravel dan migration v1.2 tersedia pada root repo. Status kemampuan dan hasil pengujian aktual dicatat di `../docs/IMPLEMENTATION.md`; dokumen spesifikasi sendiri tetap bukan bukti semua acceptance criteria telah lulus.
 - Source MagicPath adalah prototipe lokal; belum terhubung API produksi.
 - Persona masih hipotesis sesuai PRD; jangan mengklaim sudah diwawancarai/tervalidasi.
-- Keputusan approval pinjaman sendiri masih OD17; larangan persetujuan finansial sendiri sudah ditetapkan pada SRS.
+- OD17 telah diputuskan pemilik proyek: persetujuan pinjaman sendiri diizinkan bagi Admin/Staff. Persetujuan finansial sendiri tetap dilarang.
 
 `SHA256SUMS.txt` mencatat checksum berkas dalam folder Pedoman selain file checksum itu sendiri. Perbarui ketika pedoman berubah.
 

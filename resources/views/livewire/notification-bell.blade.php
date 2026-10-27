@@ -1,0 +1,1 @@
+<div wire:poll.30s><details><summary aria-label="Notifikasi">♧ {{ $count }}</summary><div class="bell-menu card">@forelse($recent as $n)<p>{{ $n->data['title']??'Aktivitas ruang' }}</p>@empty<p>Belum ada notifikasi.</p>@endforelse<a href="/notifications">Semua notifikasi →</a></div></details></div>

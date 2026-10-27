@@ -1,0 +1,63 @@
+# Status implementasi
+
+Acuan: PRD v0.4, SRS v1.2, ERD/kamus data v1.2. Implementasi dimulai dari origin/main commit a7e9c0e18d8cf57d6bf7f1a7070f0cbe5c763855 pada branch feat/organization-inventory.
+
+Dokumen membedakan kode yang tersedia, skenario yang benar-benar diperiksa, dan hal yang belum diverifikasi. Adanya halaman/endpoint bukan bukti seluruh acceptance criteria sudah lulus.
+
+## Kemampuan yang tersedia
+
+| Lingkup | Frontend–backend | Bukti utama |
+| --- | --- | --- |
+| F01 Akun | Register, normalisasi email, signed verification, login/logout, reset, rate limit | Pest register/unverified/signed/forged URL/reset; Chromium login/logout |
+| F02 Ruang & membership | Buat ruang + Admin atomik, discovery/filter, profil publik, Ruang Saya, join/review/cancel, undangan hash/resend/expiry/revoke, role | Pest pembuatan ruang Livewire, join/review, undangan email berbeda, last Admin; profil publik tanpa katalog |
+| F03 Otorisasi | Policy server, role lokal, membership aktif, scope resource, menu Admin nonaktif untuk Staff, arsip read-only | Pest lintas akun/ruang, mutasi Member, export Staff, arsip/unarchive |
+| F04 Inventaris | Kategori, metadata/foto, filter/sort/pagination, soft delete, ULID immutable, damage report, penilaian, maintenance, ditemukan kembali | Pest FK lintas ruang, identifier, inspeksi major/perbaikan; Chromium membuat aset |
+| F05 QR | Simple QrCode SVG/PNG, stiker, html5-qrcode, kode manual, URL stabil | Pest SVG, signature PNG asli, stiker, pembatasan anggota |
+| F06 Peminjaman | Request/cancel/approve/reject, tanggal bisnis, snapshot kebijakan/pengakuan, My Borrowing/filter manajemen | Pest future date, duplikat, dua approval simultan, OD17 |
+| F07 Pengembalian | Waktu fisik terpisah, inspeksi final, good/minor/major/lost, denda/override, laporan inspeksi, maintenance terpisah dari pelunasan | Pest inspeksi berulang, major → maintenance → available, snapshot tarif, override tanpa alasan |
+| F08 Histori/audit | Timeline tersaring, actor/waktu/before/after aman, append-only pada model, histori soft delete | Pest larangan update audit dan revisi nominal draft dengan nilai sebelumnya |
+| F09 Dashboard/notifikasi | Statistik MySQL, komposisi, enam bulan approval/top aset, ringkasan pribadi, polling/inbox/preferensi, queued mail | Query scope ruang; reset email benar-benar diproses worker ke mail log |
+| F10 Laporan/settings | CSV UTF-8 BOM/periode/status, aset/pinjaman/kerusakan/tagihan/pembayaran/kredit/saldo, kebijakan, arsip/soft delete | Pest Admin vs Staff, CSV tidak menghitung pending, blok kewajiban terbuka |
+| F11 Profil | Nama/avatar/password, pending email berversi, preferensi, soft delete/cabut sesi | Pest email lama hingga verifikasi, sole Admin, soft delete |
+| F12 Finansial | Draft/edit/issue, bukti privat, damage/loss terpisah, consent transaksi tanpa snapshot, pembayaran/confirm/reject/credit/void/cancel/saldo turunan | Pest contoh Rp150.000 → Rp100.000 → paid → void; staff/self approval, evidence, damage/loss, concurrency |
+
+Action/constraint menolak peminjaman ganda, maintenance ganda, inspeksi berulang, pencampuran tenant/peminjam, dan overpayment. Lock organisasi menyerialkan mutasi singkat per ruang. Nominal memakai integer Rupiah/DECIMAL tanpa pecahan. Email diantrekan setelah commit. Aplikasi tidak memindahkan uang.
+
+## Keputusan produk
+
+OD17 diputuskan pemilik proyek pada 27 Oktober 2026: **izinkan approval pinjaman sendiri** untuk Admin/Staff. Larangan persetujuan finansial sendiri tetap berlaku. PRD/SRS dan checksum diselaraskan.
+
+Persona/riset pengguna tetap hipotesis sesuai PRD. Tidak ada klaim wawancara/validasi pengguna atau keputusan produk tambahan.
+
+## Hasil verifikasi
+
+Runtime: PHP 8.4.27, MySQL 8.4.13, Laravel 12, Node 24, Livewire 3, Flux 2, Tailwind 4.
+
+- DDL v1.2 dan migration dijalankan pada MySQL asli.
+- Setup Compose diuji dengan database development baru dan dengan data yang dipertahankan.
+- Aplikasi, worker, dan scheduler dijalankan dari konfigurasi reusable.
+- Composer platform requirements, build frontend, dan Pint diperiksa.
+- Reset email masuk queue dan dirender ke mail log; failed_jobs = 0 saat diperiksa.
+- Chromium memeriksa login, tab Livewire, pembuatan aset di database, logout, viewport desktop 1440/mobile 390, dan overflow halaman.
+- Uji paralel memakai proses PHP terpisah: confirm/confirm, credit/confirm, void/void, issue/archive, dan approval/approval.
+- Pemeriksaan terakhir tercatat pada bagian hasil akhir di bawah.
+
+## Belum selesai / belum diverifikasi
+
+- Pengiriman SMTP nyata, kamera perangkat fisik/izin pada berbagai browser, dan printer fisik belum diuji. Development memakai mail log, Chromium headless, dan halaman stiker.
+- Load test target p95/5.000 aset, audit aksesibilitas menyeluruh, dan pixel comparison semua frame MagicPath belum dilakukan.
+- Suite mencakup skenario inti dan sebagian acceptance criteria, belum pemetaan assertion satu per satu untuk seluruh FR/AC. Tidak ada klaim sertifikasi seluruh F01–F12 atau kesiapan produksi.
+- Semua kombinasi filter/role/interaksi seluruh layar belum diuji melalui browser; keberhasilan backend tidak otomatis membuktikan seluruh kombinasi UI.
+- Deployment, publikasi environment, backup/restore produksi, dan validasi pada task cloud baru belum dilakukan.
+
+Keterbatasan ini dipisahkan dari integrasi development yang sudah diperiksa. SQL arsip tidak digunakan sebagai implementasi finansial aktif.
+
+## Hasil akhir task
+
+- **44 pengujian Pest lulus, 163 assertion**, pada MySQL 8.4.13 dengan PHP 8.4.27. Termasuk lima pengujian dua proses paralel.
+- Build frontend, Composer platform requirements, Pint, dan pemeriksaan whitespace lulus.
+- Smoke test Chromium desktop/mobile lulus pada runtime Compose final.
+- Setup dijalankan ulang dan mempertahankan application key/data yang sudah ada.
+- Satu paket QR benar-benar diunduh ulang dari lockfile melalui jaringan host/proxy dengan verifikasi TLS tetap aktif; pemeriksaan ini tidak hanya mengandalkan vendor/cache hangat.
+- Semua 24 checksum pedoman lulus setelah sinkronisasi OD17.
+- install_script dan start_skill cloud disimpan sebagai draft baru untuk workflow Laravel. Penyimpanan draft tidak memublikasikan environment; fresh-task restoration belum divalidasi.

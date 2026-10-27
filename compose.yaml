@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: orginventory-php
+    working_dir: /app
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    volumes:
+      - .:/app
+      - "${DEV_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}:/etc/ssl/certs/ca-certificates.crt:ro"
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+  queue:
+    image: orginventory-php
+    working_dir: /app
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    volumes:
+      - .:/app
+      - "${DEV_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}:/etc/ssl/certs/ca-certificates.crt:ro"
+    environment:
+      DB_HOST: db
+    command: php artisan queue:work --tries=3 --timeout=90
+    depends_on:
+      db:
+        condition: service_healthy
+  scheduler:
+    image: orginventory-php
+    working_dir: /app
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    volumes:
+      - .:/app
+      - "${DEV_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}:/etc/ssl/certs/ca-certificates.crt:ro"
+    environment:
+      DB_HOST: db
+    command: php artisan schedule:work
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-orginventory}
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: ${DB_PASSWORD:-local-development-only}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-local-root-development-only}
+    volumes:
+      - inventory_db:/var/lib/mysql
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/test-database.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      default:
+        aliases: [orginventory-db]
+volumes:
+  inventory_db:
