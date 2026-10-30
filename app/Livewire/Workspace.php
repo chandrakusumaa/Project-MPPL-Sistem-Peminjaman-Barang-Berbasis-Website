@@ -14,6 +14,7 @@ use App\Models\AssetCategory;
 use App\Models\AuditLog;
 use App\Models\BorrowerCharge;
 use App\Models\Borrowing;
+use App\Models\ChargePayment;
 use App\Models\DamageReport;
 use App\Models\Membership;
 use App\Models\MembershipRequest;
@@ -24,13 +25,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class Workspace extends Component
 {
-    use WithFileUploads,WithPagination;
+    use \App\Livewire\Concerns\SwitchesWorkspaces,WithFileUploads, WithPagination;
 
     #[Locked]
     public int $organizationId;
@@ -52,7 +54,10 @@ class Workspace extends Component
 
     public int $filterCategory = 0;
 
-    public string $tab = 'inventory';
+    #[Url(except: 'dashboard')]
+    public string $tab = 'dashboard';
+
+    public bool $assetFormOpen = false;
 
     public string $search = '';
 
@@ -248,7 +253,13 @@ class Workspace extends Component
         if ($asset?->exists) {
             abort_unless($asset->organization_id === $organization->id, 404);
             $this->focusedAsset = $asset->id;
-        }$this->organizationId = $organization->id;
+        }
+        if ($asset?->exists) {
+            $this->tab = 'inventory';
+        } elseif (! Gate::allows('operate', $organization) && ! request()->has('tab')) {
+            $this->tab = 'inventory';
+        }
+        $this->organizationId = $organization->id;
         $this->settingName = $organization->name;
         $this->settingPolicy = $organization->damage_charge_policy ?? '';
         $this->maxDays = $organization->max_borrow_days;
@@ -338,14 +349,59 @@ class Workspace extends Component
         $this->resetValidation();
     }
 
+    public function openAssetForm(string $field = 'assetName'): void
+    {
+        Gate::authorize('operate', $this->org());
+        abort_unless(in_array($field, ['assetName', 'categoryName', 'location']), 422);
+        $this->tab = 'inventory';
+        $this->assetFormOpen = true;
+        $this->dispatch('oi-focus-field', field: $field);
+    }
+
+    public function reviewBorrowing(int $id): void
+    {
+        Gate::authorize('operate', $this->org());
+        Borrowing::where('organization_id', $this->organizationId)->where('status', 'pending')->findOrFail($id);
+        $this->reset('borrowFrom', 'borrowTo', 'borrowSearch');
+        $this->tab = 'borrowings';
+        $this->borrowStatus = 'pending';
+        $this->resetPage('borrowingsPage');
+        $this->dispatch('oi-review-borrowing', id: $id);
+    }
+
+    public function showOverdue(): void
+    {
+        Gate::authorize('operate', $this->org());
+        $this->tab = 'borrowings';
+        $this->borrowStatus = 'overdue';
+        $this->resetPage('borrowingsPage');
+    }
+
+    public function showDamageReports(): void
+    {
+        $this->tab = 'maintenance';
+        $this->reportStatus = '';
+    }
+
+    public function showMaintenance(): void
+    {
+        Gate::authorize('operate', $this->org());
+        $this->tab = 'maintenance';
+        $this->reportStatus = 'in_maintenance';
+    }
+
     public function render()
     {
         $org = $this->org();
         $operator = Gate::allows('operate', $org);
         $admin = Gate::allows('administer', $org);
-        abort_unless(in_array($this->tab, ['inventory', 'borrowings', 'charges', 'members', 'audit', 'maintenance', 'settings']), 404);
+        abort_unless(in_array($this->tab, ['dashboard', 'inventory', 'borrowings', 'charges', 'members', 'audit', 'maintenance', 'settings']), 404);
         if (in_array($this->tab, ['members', 'audit', 'settings'])) {
             Gate::authorize('administer', $org);
+        }
+
+        if ($this->tab === 'dashboard') {
+            Gate::authorize('operate', $org);
         }
 
         $monthly = collect();
@@ -357,6 +413,25 @@ class Workspace extends Component
         }
         $top = DB::table('borrowings')->join('assets', 'assets.id', '=', 'borrowings.asset_id')->where('borrowings.organization_id', $org->id)->whereNotNull('borrowings.approved_at')->groupBy('assets.id', 'assets.name')->selectRaw('assets.name, COUNT(*) as total')->orderByDesc('total')->limit(5)->pluck('total', 'name');
 
-        return view('livewire.workspace', ['monthly' => $monthly, 'top' => $top, 'reports' => DamageReport::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))->latest()->paginate(20, ['*'], 'reportsPage'), 'org' => $org, 'operator' => $operator, 'admin' => $admin, 'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12), 'categories' => AssetCategory::where('organization_id', $org->id)->get(), 'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'), 'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'), 'requests' => $admin ? MembershipRequest::where('organization_id', $org->id)->where('status', 'pending')->with('user')->get() : collect(), 'invitations' => $admin ? OrganizationInvitation::where('organization_id', $org->id)->where('status', 'pending')->get() : collect(), 'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(), 'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(), 'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status')])->layout('components.layout');
+        $summary = [];
+        if ($operator && $this->tab === 'dashboard') {
+            $borrowingCounts = Borrowing::where('organization_id', $org->id)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+            $issued = BorrowerCharge::where('organization_id', $org->id)->where('status', 'issued')->withSum(['payments as confirmed_total' => fn ($q) => $q->where('status', 'confirmed')], 'amount')->withSum('credits', 'amount')->get(['id', 'amount']);
+            $summary = [
+                'pending' => (int) ($borrowingCounts['pending'] ?? 0),
+                'borrowed' => (int) ($borrowingCounts['borrowed'] ?? 0) + (int) ($borrowingCounts['overdue'] ?? 0),
+                'overdue' => (int) ($borrowingCounts['overdue'] ?? 0),
+                'pendingRequests' => Borrowing::where('organization_id', $org->id)->where('status', 'pending')->with('asset', 'borrower')->latest()->limit(4)->get(),
+                'overdueBorrowings' => Borrowing::where('organization_id', $org->id)->where('status', 'overdue')->with('asset', 'borrower')->orderBy('due_date')->limit(5)->get(),
+                'recentAssets' => Asset::where('organization_id', $org->id)->latest()->orderByDesc('id')->limit(5)->get(),
+                'reports' => DamageReport::where('organization_id', $org->id)->whereIn('status', ['open', 'in_maintenance'])->count(),
+                'maintenance' => DamageReport::where('organization_id', $org->id)->where('status', 'in_maintenance')->count(),
+                'members' => Membership::where('organization_id', $org->id)->where('status', 'active')->count(),
+                'balance' => $issued->sum(fn ($charge) => (int) $charge->amount - (int) $charge->confirmed_total - (int) $charge->credits_sum_amount),
+                'pendingPayments' => ChargePayment::where('organization_id', $org->id)->where('status', 'pending')->whereIn('charge_id', BorrowerCharge::where('organization_id', $org->id)->where('status', 'issued')->select('id'))->count(),
+            ];
+        }
+
+        return view('livewire.workspace', ['summary' => $summary, 'workspaces' => $this->availableWorkspaces(), 'monthly' => $monthly, 'top' => $top, 'reports' => DamageReport::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))->latest()->paginate(20, ['*'], 'reportsPage'), 'org' => $org, 'operator' => $operator, 'admin' => $admin, 'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12), 'categories' => AssetCategory::where('organization_id', $org->id)->get(), 'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'), 'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'), 'requests' => $admin ? MembershipRequest::where('organization_id', $org->id)->where('status', 'pending')->with('user')->get() : collect(), 'invitations' => $admin ? OrganizationInvitation::where('organization_id', $org->id)->where('status', 'pending')->get() : collect(), 'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(), 'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(), 'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status')])->layout('components.layout', ['context' => 'workspace']);
     }
 }

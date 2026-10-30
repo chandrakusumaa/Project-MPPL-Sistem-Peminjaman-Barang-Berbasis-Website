@@ -7,6 +7,7 @@ use App\Models\Borrowing;
 use App\Models\Membership;
 use App\Models\MembershipRequest;
 use App\Models\Organization;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,6 +15,7 @@ class Home extends Component
 {
     use WithPagination;
 
+    #[Url(except: 'all')]
     public string $listing = 'all';
 
     public string $filterCategory = '';

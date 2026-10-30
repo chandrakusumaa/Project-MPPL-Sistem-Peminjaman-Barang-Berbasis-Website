@@ -1,3 +1,23 @@
+@props(['context' => null])
 <!DOCTYPE html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Organization Inventory</title>@vite(['resources/css/app.css','resources/js/app.js']) @livewireStyles @fluxAppearance</head>
-<body><div class="app-shell"><aside class="sidebar"><a class="brand" href="/">▣ <span>Organization<br>Inventory</span></a><p class="eyebrow">RUANG KERJA ANDA</p><nav><a href="/dashboard">⌂ Dashboard Pribadi</a><a href="/organizations">▦ Ruang Inventaris</a><a href="/my-borrowings">↗ Peminjaman Saya</a><a href="/scan">▣ Scan QR</a><a href="/profile">◎ Profil Saya</a><a href="/notifications">♧ Notifikasi</a></nav><div class="sidebar-note">Satu akun, banyak ruang.<br>Kelola dan pinjam barang dengan catatan yang jelas.</div></aside><div class="main-shell"><header><span class="muted">Organization Inventory / Ruang Inventaris</span><div>@auth @if(auth()->user()->hasVerifiedEmail())<livewire:notification-bell />@endif@if(auth()->user()->avatar)<img src="{{ asset('storage/'.auth()->user()->avatar) }}" alt="" width="32" height="32" style="border-radius:50%">@endif<span>{{ auth()->user()->name }}</span><form method="POST" action="/logout" class="inline">@csrf<button class="secondary">Keluar</button></form>@else<a href="/login">Masuk</a> · <a href="/register">Daftar</a>@endauth</div></header><main>@if(session('status'))<div class="notice" role="status">{{ session('status') }}</div>@endif @if($errors->any())<div class="errors" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif {{ $slot }}</main><footer>Organization Inventory · Ruang untuk barang yang berguna bersama.</footer></div></div>@livewireScripts @fluxScripts</body></html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Organization Inventory</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
+    @fluxAppearance
+</head>
+<body>
+    @if($context === 'workspace')
+        {{ $slot }}
+    @elseif($context === 'public' || !auth()->check() || request()->routeIs('organization.public'))
+        @include('components.layouts.public')
+    @else
+        @include('components.layouts.account')
+    @endif
+    @livewireScripts
+    @fluxScripts
+</body>
+</html>
