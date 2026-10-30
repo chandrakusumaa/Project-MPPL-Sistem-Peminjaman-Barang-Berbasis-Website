@@ -10,6 +10,8 @@ Pertahankan identitas desain awal: aksen merah, permukaan putih, latar abu-abu m
 
 Jelajahi Organization pada navbar merupakan daftar publik tanpa tab Organization Saya atau aksi pengelolaan. Organization Saya berada di area akun tersendiri dengan tab Jelajahi yang tetap mempertahankan sidebar akun. Tulisan penjelasan di bawah sidebar dihapus.
 
+Logo navbar mengikuti gambar pemilik proyek pada 30 Oktober 2026: simbol geometris burgundy/navy dan tulisan dua baris "Organizing Inventory". Versi PNG berlatar transparan tersedia di `../../public/images/organizing-inventory-logo.png`. Komponen navbar bersama dipakai halaman publik, akun, dan Organization. Navbar menggunakan lebar halaman penuh dengan inset kiri 24 px pada desktop dan 14 px pada mobile; tinggi gambar logo 56 px dan 48 px dengan rasio asli dipertahankan. Klik logo menuju Beranda. Snapshot MagicPath tetap disimpan sebagai referensi historis untuk bagian visual lainnya.
+
 ## Source referensi
 
 - `source/App.tsx`: contoh entry React untuk menampilkan prototipe utama.

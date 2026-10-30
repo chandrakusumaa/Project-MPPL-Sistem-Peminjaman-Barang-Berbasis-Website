@@ -112,3 +112,13 @@ Berkas aplikasi yang berubah: `app/Livewire/Workspace.php`, `resources/views/liv
 - **43 pengujian inventaris lulus, 173 assertion**; build frontend, Pint, dan pemeriksaan diff lulus.
 - Chromium nyata dengan fixture terisolasi memeriksa Member/Admin: form awal tidak ada, buka tanpa membuat laporan, fokus, Batal/reset, validasi server, peminjaman terkait, unggah foto privat, penyimpanan, serta laporan muncul di daftar. Isian pengajuan peminjaman tetap terjaga. Fixture dan foto uji dibersihkan sesudah pemeriksaan.
 - Screenshot desktop 1440×1000 dan mobile 390×844 telah dilihat; form terbaca dan halaman tidak melebar. Tabel tetap memiliki area scroll horizontal tersendiri. Pemeriksaan ini memakai aplikasi berjalan, tanpa membandingkan ulang canvas MagicPath live.
+
+## Logo dan posisi navbar — 30 Oktober 2026
+
+Logo huruf O diganti dengan versi PNG transparan dari gambar yang dikirim pemilik proyek, termasuk simbol burgundy/navy dan wordmark "Organizing Inventory". Navbar bersama memakai lebar halaman penuh sehingga gambar berada 24 px dari kiri pada desktop dan 14 px pada mobile; container konten halaman tetap mengikuti layout masing-masing. Tinggi gambar 56/48 px dengan rasio asli dan tautan ke Beranda.
+
+Berkas aplikasi yang berubah: `public/images/organizing-inventory-logo.png`, `resources/views/components/navigation/topbar.blade.php`, dan `resources/css/room.css`. Acuan visual di `Pedoman/Desain/README.md` dan checksum diselaraskan. Backend, skema, dan data aplikasi tidak berubah.
+
+- Build frontend dan **12 tes akun/discovery lulus, 114 assertion**. Checksum 29 berkas pedoman serta pemeriksaan diff lulus.
+- Chromium nyata memeriksa halaman publik, dashboard pribadi, dan dashboard Organization pada 1440×1000 serta 390×844. Ukuran layar tambahan 320, 700, 701, 768, 940, dan 1024 px juga diperiksa: logo termuat, proporsi terjaga, posisi kiri konsisten, dan halaman tidak melebar.
+- Screenshot sebelum/sesudah telah diambil dan hasil desktop/mobile dilihat. Link logo, tiga menu navbar, profil, lonceng notifikasi, dan buka/tutup sidebar akun/Organization tetap berjalan. Pemeriksaan visual memakai aplikasi berjalan dan gambar pengguna, tanpa membuka ulang canvas MagicPath live.
