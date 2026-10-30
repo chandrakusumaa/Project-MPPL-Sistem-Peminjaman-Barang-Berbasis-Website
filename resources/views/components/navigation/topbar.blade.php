@@ -1,7 +1,9 @@
 @props(['sidebarId' => null, 'menuLabel' => 'Buka menu akun'])
 <header class="oi-topbar">
-    <div class="oi-wrap oi-topbar-inner">
-        <a href="{{ route('landing') }}" class="oi-brand" aria-label="Organization Inventory"><span class="oi-brand-mark">O</span><span>OrgInventory</span></a>
+    <div class="oi-topbar-inner">
+        <a href="{{ route('landing') }}" class="oi-brand" aria-label="Organization Inventory — Beranda">
+            <img src="{{ asset('images/organizing-inventory-logo.png') }}" alt="Organizing Inventory" class="oi-brand-logo" width="1817" height="866" fetchpriority="high" decoding="async">
+        </a>
         <nav class="oi-topnav" aria-label="Navigasi utama">
             <a href="{{ route('landing') }}" @if(request()->routeIs('landing')) aria-current="page" @endif>Beranda</a>
             <a href="{{ route('organizations') }}" @if(request()->routeIs('organizations')) aria-current="page" @endif>Jelajahi Organization</a>
