@@ -355,6 +355,8 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | FR-DSH-02 | Dashboard Admin/Staff menampilkan statistik real-time: Total, Available, Borrowed, Maintenance, Lost, serta jumlah Overdue dan Pending Request. | Must |
 | FR-DSH-03 | Grafik komposisi aset, peminjaman 6 bulan, dan 5 aset paling sering dipinjam berasal dari query berscope organisasi. Statistik pemakaian memakai approved_at non-NULL (kalender Asia/Jakarta), bukan jumlah request PENDING. | Must |
 | FR-DSH-04 | Dashboard Admin/Staff menampilkan daftar peminjaman jatuh tempo/overdue dan pending request terbaru. | Must |
+| FR-DSH-05 | Dashboard pribadi terpisah dari discovery Organization: tampilkan ringkasan Organization aktif/peminjaman/pengajuan Pending, Organization yang dibuat atau diikuti beserta role lokal, lalu riwayat peminjaman terbaru milik akun. | Must |
+| FR-DSH-06 | Navbar bersama menyediakan Beranda ke landing page bagi guest maupun akun login, Jelajahi Organization untuk pencarian, dan Dashboard untuk area akun. Sidebar akun/ruang memiliki dropdown Organization berisi membership aktif; Notifikasi hanya melalui lonceng di samping profil pada header. | Must |
 
 ### 4.12 Report
 
@@ -399,6 +401,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | FR-CHG-16 | Blok arsip/hapus ruang, hapus akun, dan revoke membership peminjam jika ada charge draft/sisa issued atau payment pending. | Must |
 | FR-CHG-17 | Audit append-only memuat actor, waktu dan alasan setiap penerbitan, konfirmasi, penolakan, credit, cancellation dan void. | Must |
 | FR-CHG-18 | Export CSV charge, pembayaran, kredit, dan saldo dengan filter ruang/periode/status; pending tidak dihitung sebagai penerimaan. | Must |
+| FR-CHG-19 | Tagihan Saya merangkum tagihan issued, confirmed payments, credits, dan saldo akun sendiri lintas ruang. Daftar memuat jenis late_fee/damage/loss, keterangan, aset/ruang, nominal, dan status pelunasan; riwayat pembayaran memuat waktu, metode/referensi, catatan, dan status pending/confirmed/rejected/voided dengan pagination serta filter terpisah. Draft/cancelled tetap terlihat dalam histori tetapi tidak menambah total kewajiban aktif. | Must |
 
 ## 5. Use Case
 
@@ -1415,7 +1418,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 | PRD F11 Account Settings | FR-PRF, FR-NTF-07..08 | users, preferensi JSON, pending email, soft delete |
 | Flowchart yang dirujuk SRS 1.0: kerusakan | FR-DMG-01..09 | source/severity, maintenance, laporan inspeksi |
 | Flowchart yang dirujuk SRS 1.0: notifikasi/undangan | FR-NTF-01..09, FR-ORG-07..08 | notifications, token_hash, queue, event_key |
-| PRD F12 dan AC12 | FR-CHG-01..18, BR-11, bagian 7.10 | borrower_charges, charge_payments, charge_credits; tambahan snapshot kebijakan |
+| PRD F12 dan AC12 | FR-CHG-01..19, BR-11, bagian 7.10 | borrower_charges, charge_payments, charge_credits; tambahan snapshot kebijakan |
 | Desain Database v1.0 D01..D12 | Bagian 7 dan 10.6 | 11 tabel inti + 2 pendukung, FK/CHECK/UNIQUE dan kontrak Action |
 
 ---

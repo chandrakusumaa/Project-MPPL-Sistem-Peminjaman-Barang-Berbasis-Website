@@ -1,0 +1,86 @@
+{
+  "reference": {
+    ".oi-site .topbar": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 74,
+      "padding": "0px",
+      "radius": "0px"
+    },
+    ".oi-site .sidebar": {
+      "x": 0,
+      "y": 74,
+      "width": 245,
+      "height": 991.515625,
+      "padding": "23px 15px",
+      "radius": "0px"
+    },
+    ".oi-site .page-head": {
+      "x": 283,
+      "y": 102,
+      "width": 1119,
+      "height": 61.078125,
+      "padding": "0px",
+      "radius": "0px"
+    },
+    ".oi-site .stats": {
+      "x": 283,
+      "y": 187.078125,
+      "width": 1119,
+      "height": 144.984375,
+      "padding": "0px",
+      "radius": "0px"
+    },
+    ".oi-site .stat-card": {
+      "x": 283,
+      "y": 187.078125,
+      "width": 268.5,
+      "height": 144.984375,
+      "padding": "17px 18px",
+      "radius": "16px"
+    }
+  },
+  "actual": {
+    ".oi-topbar": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 74,
+      "padding": "0px",
+      "radius": "0px"
+    },
+    ".oi-sidebar": {
+      "x": 0,
+      "y": 74,
+      "width": 245,
+      "height": 1315.5,
+      "padding": "23px 15px",
+      "radius": "0px"
+    },
+    ".oi-page-head": {
+      "x": 283,
+      "y": 102,
+      "width": 1119,
+      "height": 61.078125,
+      "padding": "0px",
+      "radius": "0px"
+    },
+    ".oi-stats": {
+      "x": 283,
+      "y": 187.078125,
+      "width": 1119,
+      "height": 144.984375,
+      "padding": "0px",
+      "radius": "0px"
+    },
+    ".oi-stat-card": {
+      "x": 283,
+      "y": 187.078125,
+      "width": 268.5,
+      "height": 144.984375,
+      "padding": "17px 18px",
+      "radius": "16px"
+    }
+  }
+}

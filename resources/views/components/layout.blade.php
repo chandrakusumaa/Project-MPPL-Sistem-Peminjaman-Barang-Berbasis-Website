@@ -1,4 +1,4 @@
-@props(['context' => null])
+@props(['context' => null, 'showFeedback' => true])
 <!DOCTYPE html>
 <html lang="id">
 <head>

@@ -97,6 +97,8 @@ Screenshot ditulis ke /tmp/orginventory-desktop.png dan /tmp/orginventory-mobile
 
     (cd Pedoman && sha256sum -c SHA256SUMS.txt)
 
+Dashboard pribadi tersedia pada `/dashboard`, daftar/pencarian Organization pada `/organizations`, dan tagihan lintas ruang milik akun pada `/my-charges`. Laporan visual desktop/mobile serta cara menjalankan browser test akun: [docs/visual/account-dashboard/README.md](docs/visual/account-dashboard/README.md).
+
 ## Aturan utama
 
 Role berasal dari membership aktif **per ruang**. Satu user dapat Admin di A dan Member di B. Katalog privat memerlukan membership aktif. Aset adalah satu unit dengan ULID/QR tetap. Pengajuan masa depan bukan reservasi.

@@ -652,6 +652,9 @@ Semua akun terdaftar mempunyai dashboard pribadi. Admin/Staff mempunyai dashboar
 - Akun tanpa ruang/pinjaman memperoleh empty state dan aksi Buat Ruang Inventaris serta Temukan Ruang.
 - Dashboard pribadi menampilkan profil, ringkasan pinjaman/request pribadi, dan pintasan Ruang Saya, Scan QR, serta notifikasi.
 - Dashboard pribadi dapat merangkum transaksi akun sendiri dari ruang yang relevan tanpa menampilkan transaksi pengguna lain.
+- Klarifikasi pemilik proyek, 30 Oktober 2026: dashboard pribadi terpisah dari Jelajahi Organization. Urutannya adalah ringkasan Organization aktif/peminjaman/pengajuan menunggu, Organization yang dibuat atau diikuti, lalu riwayat peminjaman terbaru dengan statusnya.
+- Navbar atas menyediakan Beranda (landing page, termasuk setelah login), Jelajahi Organization, dan Dashboard. Daftar Organization pada sidebar dibuka melalui dropdown berlabel Organization; notifikasi diakses melalui lonceng di samping profil, tanpa menu Notifikasi pada sidebar.
+- Tagihan Saya merangkum total tagihan terbit, pembayaran terkonfirmasi, pembebasan, serta sisa kewajiban akun sendiri lintas ruang; daftar tagihan menampilkan keterangan/status lunas atau belum lunas dan riwayat pembayaran tetap mencakup pending, rejected, dan voided. Pembayaran pending tidak mengurangi saldo.
 - Dashboard manajemen menampilkan Total, Available, Borrowed, Maintenance, Lost, Overdue, dan Pending hanya untuk ruang terkait.
 - Grafik berasal dari data yang dapat ditelusuri; statistik penggunaan memakai pinjaman yang disetujui.
 - Kembali ke dashboard pribadi tidak mengubah membership/role.

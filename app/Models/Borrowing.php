@@ -15,6 +15,11 @@ class Borrowing extends Model
         return $this->hasMany(BorrowerCharge::class);
     }
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class)->withTrashed();
+    }
+
     public function asset()
     {
         return $this->belongsTo(Asset::class)->withTrashed();

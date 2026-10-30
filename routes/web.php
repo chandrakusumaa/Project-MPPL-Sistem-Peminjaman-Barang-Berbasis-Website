@@ -8,6 +8,8 @@ use App\Http\Controllers\QrController;
 use App\Livewire\Home;
 use App\Livewire\Notifications;
 use App\Livewire\PersonalBorrowings;
+use App\Livewire\PersonalCharges;
+use App\Livewire\PersonalDashboard;
 use App\Livewire\Profile;
 use App\Livewire\Reports;
 use App\Livewire\Workspace;
@@ -23,7 +25,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('landing'));
+Route::get('/', fn () => view('landing'))->name('landing');
 Route::get('/organizations', Home::class)->name('organizations');
 Route::middleware('guest')->group(function () {
     Route::get('/login', fn () => view('auth', ['mode' => 'login']))->name('login');
@@ -50,13 +52,14 @@ Route::middleware('auth')->group(function () {
     })->middleware('throttle:3,1')->name('verification.send');
 });
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', Home::class)->name('dashboard');
+    Route::get('/dashboard', PersonalDashboard::class)->name('dashboard');
+    Route::get('/my-charges', PersonalCharges::class)->name('personal.charges');
     Route::get('/o/{organization:slug}', Workspace::class)->name('workspace');
     Route::get('/o/{organization:slug}/assets/{asset:code}/qr', QrController::class)->name('asset.qr');
 });
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/profile', Profile::class);
-    Route::get('/notifications', Notifications::class);
+    Route::get('/profile', Profile::class)->name('profile');
+    Route::get('/notifications', Notifications::class)->name('notifications');
     Route::get('/invitations/{token}', fn () => view('invitation'));
     Route::post('/invitations/{token}', function (string $token) {
         app(InviteMember::class)->accept(auth()->user(), $token);
@@ -113,5 +116,5 @@ Route::post('/ruang/{organization:slug}/join', function (Organization $organizat
     return back()->with('status', 'Pengajuan bergabung dikirim.');
 })->middleware(['auth', 'verified']);
 Route::get('/o/{organization:slug}/assets/{asset:code}', Workspace::class)->middleware(['auth', 'verified'])->name('asset.show');
-Route::get('/my-borrowings', PersonalBorrowings::class)->middleware(['auth', 'verified']);
+Route::get('/my-borrowings', PersonalBorrowings::class)->middleware(['auth', 'verified'])->name('personal.borrowings');
 Route::get('/o/{organization:slug}/reports', Reports::class)->middleware(['auth', 'verified'])->name('reports');
