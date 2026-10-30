@@ -19,7 +19,7 @@ PRD dan SRS yang sudah ada di repo dipertahankan utuh. ERD berasal dari lampiran
 
 ## Status penting
 
-- Database target: 16 tabel, 14 inti dan 2 pendukung.
+- Database target: 14 tabel rancangan (12 inti dan 2 pendukung) sejak keputusan 30 Oktober 2026 menghapus `membership_requests` dan `organization_invitations`; tabel infrastruktur framework dihitung terpisah. Keputusan lama dipisahkan di [Riwayat_Keputusan.md](Riwayat_Keputusan.md); spesifikasi aktif adalah PRD, SRS, ERD, dan kamus data.
 - Implementasi awal Laravel dan migration v1.2 tersedia pada root repo. Status kemampuan dan hasil pengujian aktual dicatat di `../docs/IMPLEMENTATION.md`; dokumen spesifikasi sendiri tetap bukan bukti semua acceptance criteria telah lulus.
 - Source MagicPath adalah prototipe lokal; belum terhubung API produksi.
 - Persona masih hipotesis sesuai PRD; jangan mengklaim sudah diwawancarai/tervalidasi.

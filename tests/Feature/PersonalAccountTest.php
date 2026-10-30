@@ -159,5 +159,5 @@ it('keeps validation and membership action feedback visible during Livewire upda
     Livewire::actingAs($this->other)->test(Home::class)->set('creating', true)->call('create')
         ->assertHasErrors(['name' => 'required'])->assertSee(__('validation.required', ['attribute' => 'name']));
     Livewire::actingAs($this->other)->test(Home::class)->call('join', $this->org->id)
-        ->assertSee('Pengajuan bergabung dikirim.')->call('cancelJoin', $this->org->id)->assertSee('Pengajuan dibatalkan.');
+        ->assertSee('Berhasil bergabung ke Peralatan Raka sebagai Member.');
 });

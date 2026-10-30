@@ -2,19 +2,19 @@
 
 Acuan: [SRS v1.2](../SRS_Organization_Inventory_v1.2.md), terutama bagian 7 dan 7.10.
 
-- [ERD editable](Organization_Inventory_v1_2.drawio): 5 halaman; 16 tabel (14 inti, 2 pendukung).
+- [ERD editable](Organization_Inventory_v1_2.drawio): 5 halaman; 14 tabel (12 inti, 2 pendukung). `membership_requests` dan `organization_invitations` dihapus pada 30 Oktober 2026 (lihat [Riwayat_Keputusan.md](../Riwayat_Keputusan.md)).
 - [Kamus data teks](Kamus_Data_v1_2.md): ekstraksi atribut, enum, nullability, generated expression dan FK dari ERD, agar dapat dibaca tanpa aplikasi diagram.
 
 ## Status SQL
 
-Migration v1.2 tersedia pada `../../database/migrations/` dengan DDL awal pada `../../database/schema/inventory-v1.2.sql`. DDL dan migration telah dijalankan pada MySQL 8.4; hasil integritas dan concurrency dicatat di `../../docs/IMPLEMENTATION.md`. SQL baseline v1.0 dari pekerjaan sebelumnya hanya mencakup 13 tabel dan tidak boleh digunakan seolah-olah sudah mendukung finansial. Paket ini sengaja tidak memasukkan SQL baseline sebagai schema aktif.
+Migration v1.2 tersedia pada `../../database/migrations/` dengan DDL awal pada `../../database/schema/inventory-v1.2.sql` (masih dibaca migration awal; jangan diedit). Migration `2026_10_30_000000_drop_membership_requests_and_invitations` menghapus dua tabel keanggotaan lama; snapshot referensi akhir tanpa kedua tabel ada pada `../../database/schema/inventory-v1.3.sql` (bukan input migration). `down()` hanya membuat ulang struktur dan tidak memulihkan data; ikuti prosedur cadangan pada Riwayat_Keputusan.md. DDL dan migration telah dijalankan pada MySQL 8.4; hasil integritas dan concurrency dicatat di `../../docs/IMPLEMENTATION.md`. SQL baseline v1.0 dari pekerjaan sebelumnya hanya mencakup 13 tabel dan tidak boleh digunakan seolah-olah sudah mendukung finansial. Paket ini sengaja tidak memasukkan SQL baseline sebagai schema aktif.
 
 Perubahan berikutnya tetap harus mengikuti SRS/ERD v1.2 dan diuji pada MySQL target. Diagram dan kamus data saja belum membuktikan constraint sudah ditegakkan.
 
 ## Constraint dan aturan yang harus diterapkan
 
 - UNIQUE membership (organization_id,user_id); kategori unik per ruang; slug ruang dan kode aset unik sesuai SRS.
-- Generated guard harus disertai UNIQUE: request/undangan pending, pinjaman aktif per aset, pending/aktif per user-aset, maintenance aktif per aset, serta laporan inspeksi per borrowing. Ikuti ekspresi/status pada kamus data dan kombinasi key dalam SRS.
+- Generated guard harus disertai UNIQUE: pinjaman aktif per aset, pending/aktif per user-aset, maintenance aktif per aset, serta laporan inspeksi per borrowing. Ikuti ekspresi/status pada kamus data dan kombinasi key dalam SRS.
 - FK gabungan menjaga kategori, aset, borrowing, laporan, charge, pembayaran, serta kredit berada pada ruang dan objek yang sama. Definisikan UNIQUE pendukung pada parent sebagaimana SRS 7.10.
 - Tagihan: UNIQUE(organization_id,idempotency_key), UNIQUE(borrowing_id,charge_type,active_guard), UNIQUE(id,organization_id,borrower_id). Damage dan loss aktif tidak boleh bersamaan pada kejadian yang sama; validasi dengan transaksi dan lock borrowing.
 - Payment dan credit: idempotency key unik per ruang. Nominal Rupiah bulat positif; jangan menggunakan floating point untuk uang.

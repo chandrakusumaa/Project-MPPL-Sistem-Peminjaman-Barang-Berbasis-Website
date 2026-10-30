@@ -9,6 +9,16 @@ use App\Models\User;
 
 class OrganizationPolicy
 {
+    /**
+     * Setiap Organization aktif terbuka bagi pengguna terverifikasi. Keputusan produk 30 Oktober 2026:
+     * bergabung langsung sebagai Member tanpa persetujuan. Pengecekan membership revoked dilakukan
+     * pada action di dalam transaksi agar tidak ada celah balapan.
+     */
+    public function join(User $user, Organization $organization): bool
+    {
+        return ! $user->trashed() && $user->hasVerifiedEmail() && ! $organization->trashed() && $organization->archived_at === null;
+    }
+
     public function view(User $user, Organization $organization): bool
     {
         return ! $user->trashed() && ! $organization->trashed() && Membership::where('organization_id', $organization->id)->where('user_id', $user->id)->where('status', 'active')->exists();

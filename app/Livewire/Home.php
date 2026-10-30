@@ -4,8 +4,10 @@ namespace App\Livewire;
 
 use App\Actions\ManageWorkspace;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -26,6 +28,9 @@ class Home extends Component
     public string $category = 'lainnya';
 
     public string $search = '';
+
+    #[Locked]
+    public int $joinedOrganizationId = 0;
 
     #[Url(as: 'create', except: false)]
     public bool $creating = false;
@@ -66,17 +71,17 @@ class Home extends Component
         if (! $this->requireVerifiedAccount()) {
             return;
         }
-        app(ManageWorkspace::class)->join(auth()->user(), Organization::findOrFail($id));
-        session()->flash('status', 'Pengajuan bergabung dikirim.');
-    }
-
-    public function cancelJoin(int $id): void
-    {
-        if (! $this->requireVerifiedAccount()) {
-            return;
+        $key = 'organization-join:'.auth()->id();
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            throw ValidationException::withMessages(['action' => 'Terlalu banyak percobaan bergabung. Coba lagi dalam '.RateLimiter::availableIn($key).' detik.']);
         }
-        app(ManageWorkspace::class)->cancelJoin(auth()->user(), Organization::findOrFail($id));
-        session()->flash('status', 'Pengajuan dibatalkan.');
+        RateLimiter::hit($key, 60);
+        $organization = Organization::findOrFail($id);
+        $membership = app(ManageWorkspace::class)->join(auth()->user(), $organization);
+        $this->joinedOrganizationId = $organization->id;
+        session()->flash('status', $membership->wasRecentlyCreated
+            ? 'Berhasil bergabung ke '.$organization->name.' sebagai Member.'
+            : 'Anda sudah menjadi anggota '.$organization->name.'.');
     }
 
     protected function requireVerifiedAccount(): bool
@@ -98,7 +103,7 @@ class Home extends Component
     public function render()
     {
         return view('livewire.home', [
-            'pending' => auth()->check() ? MembershipRequest::where('user_id', auth()->id())->where('status', 'pending')->pluck('organization_id')->all() : [],
+            'revoked' => auth()->check() ? Membership::where('user_id', auth()->id())->where('status', 'revoked')->pluck('organization_id')->all() : [],
             'organizations' => Organization::query()
                 ->when($this->listing === 'mine', fn ($query) => $query->whereIn('id', Membership::where('user_id', auth()->id())->where('status', 'active')->select('organization_id')), fn ($query) => $query->whereNull('archived_at'))
                 ->when($this->filterCategory, fn ($query) => $query->where('category', $this->filterCategory))

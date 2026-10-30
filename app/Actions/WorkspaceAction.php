@@ -39,7 +39,9 @@ abstract class WorkspaceAction
     protected function audit(User $actor, Organization $org, string $event, $subject): void
     {
         AuditLog::create(['organization_id' => $org->id, 'actor_id' => $actor->id, 'action' => $event, 'subject_type' => class_basename($subject), 'subject_id' => $subject->id, 'old_values' => json_encode(array_intersect_key($subject->getPrevious(), array_flip(['status', 'role', 'name', 'amount', 'physical_condition', 'max_borrow_days', 'late_fine_per_day']))), 'new_values' => json_encode(array_intersect_key($subject->getAttributes(), array_flip(['status', 'role', 'name', 'amount', 'physical_condition', 'max_borrow_days', 'late_fine_per_day'])))]);
-        $recipientIds = Membership::where('organization_id', $org->id)->where('status', 'active')->whereIn('role', ['admin', 'staff'])->pluck('user_id')->all();
+        // Anggota baru hanya diberitahukan kepada Admin (bukan Staff atau seluruh anggota) agar tidak membanjiri notifikasi.
+        $roles = $event === 'membership.joined' ? ['admin'] : ['admin', 'staff'];
+        $recipientIds = Membership::where('organization_id', $org->id)->where('status', 'active')->whereIn('role', $roles)->pluck('user_id')->all();
         $subjectUser = $subject->borrower_id ?? $subject->user_id ?? null;
         if ($subjectUser) {
             $recipientIds[] = $subjectUser;
@@ -53,7 +55,7 @@ abstract class WorkspaceAction
                 continue;
             }
             DB::table('notifications')->insert(['id' => (string) Str::uuid(), 'type' => 'activity', 'notifiable_type' => User::class, 'notifiable_id' => $id, 'organization_id' => $org->id, 'data' => json_encode(['title' => $event, 'url' => url('/o/'.$org->slug)]), 'created_at' => now(), 'updated_at' => now()]);
-            if (($recipient->notification_preferences[str_starts_with($event, 'membership.') || str_starts_with($event, 'invitation.') ? 'membership' : (str_starts_with($event, 'damage.') ? 'damage' : 'borrowing')] ?? true)) {
+            if (($recipient->notification_preferences[str_starts_with($event, 'membership.') ? 'membership' : (str_starts_with($event, 'damage.') ? 'damage' : 'borrowing')] ?? true)) {
                 $recipient->notify(new ActivityMail($event, url('/o/'.$org->slug)));
             }
         }

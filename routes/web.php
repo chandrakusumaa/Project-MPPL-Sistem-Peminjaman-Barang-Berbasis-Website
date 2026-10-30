@@ -1,6 +1,5 @@
 <?php
 
-use App\Actions\InviteMember;
 use App\Actions\ManageWorkspace;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExportController;
@@ -62,12 +61,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', Profile::class)->name('profile');
     Route::get('/notifications', Notifications::class)->name('notifications');
-    Route::get('/invitations/{token}', fn () => view('invitation'));
-    Route::post('/invitations/{token}', function (string $token) {
-        app(InviteMember::class)->accept(auth()->user(), $token);
-
-        return redirect('/dashboard')->with('status', 'Undangan diterima.');
-    });
     Route::get('/evidence/{charge}/{payment?}', function (BorrowerCharge $charge, ?int $payment = null) {
         $org = Organization::findOrFail($charge->organization_id);
         Gate::authorize('view', $org);
@@ -113,10 +106,12 @@ Route::get('/ruang/{organization:slug}', function (Organization $organization) {
     return view('organization-public', ['org' => $organization, 'memberCount' => $organization->memberships()->where('status', 'active')->count(), 'assetCount' => $organization->assets()->count()]);
 })->name('organization.public');
 Route::post('/ruang/{organization:slug}/join', function (Organization $organization) {
-    app(ManageWorkspace::class)->join(auth()->user(), $organization);
+    $membership = app(ManageWorkspace::class)->join(auth()->user(), $organization);
 
-    return back()->with('status', 'Pengajuan bergabung dikirim.');
-})->middleware(['auth', 'verified'])->name('organization.join');
+    return back()->with('status', $membership->wasRecentlyCreated
+        ? 'Berhasil bergabung ke '.$organization->name.' sebagai Member.'
+        : 'Anda sudah menjadi anggota '.$organization->name.'.');
+})->middleware(['auth', 'verified', 'throttle:10,1'])->name('organization.join');
 Route::get('/o/{organization:slug}/assets/{asset:code}', Workspace::class)->middleware(['auth', 'verified'])->name('asset.show');
 Route::get('/my-borrowings', PersonalBorrowings::class)->middleware(['auth', 'verified'])->name('personal.borrowings');
 Route::get('/o/{organization:slug}/reports', Reports::class)->middleware(['auth', 'verified'])->name('reports');

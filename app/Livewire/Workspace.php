@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Actions\BorrowAsset;
-use App\Actions\InviteMember;
 use App\Actions\MaintainAsset;
 use App\Actions\ManageAssets;
 use App\Actions\ManageMembers;
@@ -17,9 +16,7 @@ use App\Models\Borrowing;
 use App\Models\ChargePayment;
 use App\Models\DamageReport;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
-use App\Models\OrganizationInvitation;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -183,10 +180,6 @@ class Workspace extends Component
 
     public string $severity = 'minor';
 
-    public string $inviteEmail = '';
-
-    public string $inviteRole = 'member';
-
     public string $settingName = '';
 
     public string $settingPolicy = '';
@@ -216,19 +209,6 @@ class Workspace extends Component
     public function member(int $id, string $role): void
     {
         app(ManageMembers::class)->change(auth()->user(), $this->org(), $id, $role);
-        $this->success();
-    }
-
-    public function revokeInvitation(int $id): void
-    {
-        app(InviteMember::class)->revoke(auth()->user(), $this->org(), $id);
-        $this->success();
-    }
-
-    public function invite(): void
-    {
-        $this->validate(['inviteEmail' => 'required|email', 'inviteRole' => 'required|in:member,staff']);
-        app(InviteMember::class)->send(auth()->user(), $this->org(), $this->inviteEmail, $this->inviteRole);
         $this->success();
     }
 
@@ -313,12 +293,6 @@ class Workspace extends Component
     public function inspect(int $id): void
     {
         app(BorrowAsset::class)->inspect(auth()->user(), $this->org(), $id, ['condition' => $this->condition, 'notes' => $this->notes] + ($this->returnedAt ? ['returned_at' => CarbonImmutable::parse($this->returnedAt, 'Asia/Jakarta')->utc()] : []) + ($this->fineOverride !== '' ? ['fine_amount' => $this->validate(['fineOverride' => 'required|integer|min:0|max:99999999999999'])['fineOverride'], 'fine_override_reason' => $this->fineOverrideReason] : []));
-        $this->success();
-    }
-
-    public function review(int $id, bool $approve): void
-    {
-        app(ManageWorkspace::class)->review(auth()->user(), $this->org(), $id, $approve);
         $this->success();
     }
 
@@ -432,6 +406,6 @@ class Workspace extends Component
             ];
         }
 
-        return view('livewire.workspace', ['summary' => $summary, 'workspaces' => $this->availableWorkspaces(), 'monthly' => $monthly, 'top' => $top, 'reports' => DamageReport::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))->latest()->paginate(20, ['*'], 'reportsPage'), 'org' => $org, 'operator' => $operator, 'admin' => $admin, 'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12), 'categories' => AssetCategory::where('organization_id', $org->id)->get(), 'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'), 'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'), 'requests' => $admin ? MembershipRequest::where('organization_id', $org->id)->where('status', 'pending')->with('user')->get() : collect(), 'invitations' => $admin ? OrganizationInvitation::where('organization_id', $org->id)->where('status', 'pending')->get() : collect(), 'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(), 'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(), 'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status')])->layout('components.layout', ['context' => 'workspace']);
+        return view('livewire.workspace', ['summary' => $summary, 'workspaces' => $this->availableWorkspaces(), 'monthly' => $monthly, 'top' => $top, 'reports' => DamageReport::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))->latest()->paginate(20, ['*'], 'reportsPage'), 'org' => $org, 'operator' => $operator, 'admin' => $admin, 'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12), 'categories' => AssetCategory::where('organization_id', $org->id)->get(), 'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'), 'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'), 'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(), 'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(), 'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status')])->layout('components.layout', ['context' => 'workspace']);
     }
 }

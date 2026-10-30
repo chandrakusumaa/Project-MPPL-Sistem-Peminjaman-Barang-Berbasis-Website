@@ -5,10 +5,10 @@ namespace App\Actions;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class ManageWorkspace extends WorkspaceAction
@@ -27,47 +27,38 @@ class ManageWorkspace extends WorkspaceAction
         }, 3);
     }
 
-    public function join(User $user, Organization $org): void
+    /**
+     * Bergabung langsung sebagai Member. Role awal selalu 'member' dan tidak dapat diberikan pemanggil.
+     * Idempoten untuk anggota aktif (role dan joined_at tidak berubah); membership revoked ditolak.
+     * Mengembalikan Membership; gunakan ->wasRecentlyCreated untuk membedakan join baru.
+     */
+    public function join(User $user, Organization $org): Membership
     {
-        DB::transaction(function () use ($user, $org) {
-            User::whereKey($user->id)->lockForUpdate()->firstOrFail();
-            $org = Organization::whereKey($org->id)->lockForUpdate()->firstOrFail();
-            $this->check(! $org->archived_at, 'Organization diarsipkan.');
-            $this->check(! Membership::where('organization_id', $org->id)->where('user_id', $user->id)->where('status', 'active')->exists(), 'Anda sudah menjadi anggota.');
-            MembershipRequest::firstOrCreate(['organization_id' => $org->id, 'user_id' => $user->id, 'status' => 'pending']);
-        }, 3);
-    }
+        return DB::transaction(function () use ($user, $org) {
+            // Urutan lock sama dengan transact(): user lalu Organization lalu membership.
+            $user = User::withTrashed()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $org = Organization::withTrashed()->whereKey($org->id)->lockForUpdate()->firstOrFail();
+            $this->check(! $user->trashed() && ! $org->trashed(), 'Akun atau Organization tidak tersedia.');
 
-    public function review(User $actor, Organization $org, int $id, bool $approve): void
-    {
-        $this->transact($actor, $org, 'administer', function ($org) use ($actor, $id, $approve) {
-            $request = MembershipRequest::where('organization_id', $org->id)->lockForUpdate()->findOrFail($id);
-            $this->check($request->status === 'pending', 'Pengajuan sudah diproses.');
-            if ($approve) {
-                User::findOrFail($request->user_id);
-                $member = Membership::firstOrNew(['organization_id' => $org->id, 'user_id' => $request->user_id]);
-                if (! $member->exists || $member->status !== 'active') {
-                    $member->fill(['role' => 'member', 'status' => 'active', 'joined_at' => now(), 'revoked_at' => null, 'revoked_by' => null])->save();
-                }
+            $membership = Membership::where('organization_id', $org->id)->where('user_id', $user->id)->lockForUpdate()->first();
+            if ($membership?->status === 'active') {
+                return $membership;
             }
-            $request->update(['status' => $approve ? 'approved' : 'rejected', 'reviewed_by' => $actor->id, 'reviewed_at' => now()]);
-            $this->audit($actor, $org, 'membership.reviewed', $request);
-        });
+            $this->check($membership === null, 'Keanggotaan Anda pada Organization ini telah dicabut. Hubungi Admin Organization.');
+            $this->check($org->archived_at === null, 'Organization diarsipkan dan tidak menerima anggota baru.');
+            Gate::forUser($user)->authorize('join', $org);
+
+            $membership = Membership::create(['organization_id' => $org->id, 'user_id' => $user->id, 'role' => 'member', 'status' => 'active', 'joined_at' => now()]);
+            $this->audit($user, $org, 'membership.joined', $membership);
+
+            return $membership;
+        }, 3);
     }
 
     public function category(User $actor, Organization $org, string $name): void
     {
         $this->transact($actor, $org, 'operate', function ($org) use ($name) {
             AssetCategory::firstOrCreate(['organization_id' => $org->id, 'name' => trim($name)]);
-        });
-    }
-
-    public function cancelJoin(User $actor, Organization $org): void
-    {
-        DB::transaction(function () use ($actor, $org) {
-            $org = Organization::whereKey($org->id)->lockForUpdate()->firstOrFail();
-            $this->check(! $org->archived_at, 'Organization diarsipkan.');
-            MembershipRequest::where('organization_id', $org->id)->where('user_id', $actor->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now()]);
         });
     }
 

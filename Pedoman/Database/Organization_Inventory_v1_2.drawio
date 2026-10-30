@@ -1,5 +1,5 @@
 <mxfile host="app.diagrams.net" agent="Organization Inventory design generator" compressed="false" pages="5">
-  <diagram id="1" name="00 Overview - 16 tabel">
+  <diagram id="1" name="00 Overview - 14 tabel">
     <mxGraphModel dx="3125" dy="1113" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2460" pageHeight="1480" background="#F7F9FC" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -34,12 +34,6 @@
         </mxCell>
         <mxCell id="Relationships" parent="0" value="Relationships" />
         <mxCell id="edge_0" edge="1" parent="Relationships" source="field_organization_user_user_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_users_id" tooltip="organization_user(user_id) -&gt; users(id)" value="">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_1" edge="1" parent="Relationships" source="field_membership_requests_organization_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_organizations_id" tooltip="membership_requests(organization_id) -&gt; organizations(id)" value="">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_2" edge="1" parent="Relationships" source="field_organization_invitations_organization_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_organizations_id" tooltip="organization_invitations(organization_id) -&gt; organizations(id)" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="edge_3" edge="1" parent="Relationships" source="field_assets_asset_category_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_asset_categories_id" tooltip="assets(asset_category_id,organization_id) -&gt; asset_categories(id,organization_id)" value="">
@@ -165,51 +159,6 @@
         </mxCell>
         <mxCell id="foot_organizations" connectable="0" parent="table_organizations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="14 kolom  |  1 FK" vertex="1">
           <mxGeometry height="27" width="494" x="14" y="171" as="geometry" />
-        </mxCell>
-        <mxCell id="table_membership_requests" parent="Tables" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" value="membership_requests" vertex="1">
-          <mxGeometry height="203" width="518" x="668" y="493" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_id" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik." value="PK  id" vertex="1">
-          <mxGeometry height="25" width="518" y="44" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_organization_id" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="BIGINT UNSIGNED | Wajib | Organisasi tujuan." value="FK  organization_id" vertex="1">
-          <mxGeometry height="25" width="518" y="69" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_user_id" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | Pengaju." value="FK  user_id" vertex="1">
-          <mxGeometry height="25" width="518" y="94" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_status" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM(&#39;pending&#39;,&#39;approved&#39;,&#39;rejected&#39;,&#39;cancelled&#39;) | Wajib | Status pengajuan." value="    status" vertex="1">
-          <mxGeometry height="25" width="518" y="119" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_pending_guard" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="TINYINT | NULL diizinkan | Kolom turunan untuk mencegah pending ganda; jangan ditulis aplikasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END" value="G  pending_guard ?" vertex="1">
-          <mxGeometry height="25" width="518" y="144" as="geometry" />
-        </mxCell>
-        <mxCell id="foot_membership_requests" connectable="0" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="13 kolom  |  4 FK" vertex="1">
-          <mxGeometry height="27" width="494" x="14" y="171" as="geometry" />
-        </mxCell>
-        <mxCell id="table_organization_invitations" parent="Tables" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" value="organization_invitations" vertex="1">
-          <mxGeometry height="228" width="518" x="668" y="748" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_id" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik." value="PK  id" vertex="1">
-          <mxGeometry height="25" width="518" y="44" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_organization_id" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="BIGINT UNSIGNED | Wajib | Organisasi pengundang." value="FK  organization_id" vertex="1">
-          <mxGeometry height="25" width="518" y="69" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_email" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="VARCHAR(254) | Wajib | Email target yang dinormalisasi." value="    email" vertex="1">
-          <mxGeometry height="25" width="518" y="94" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_token_hash" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="CHAR(64) CHARACTER SET ascii COLLATE ascii_bin | Wajib | SHA-256 atas token acak; unik. Token minimal 32 byte acak." value="    token_hash" vertex="1">
-          <mxGeometry height="25" width="518" y="119" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_status" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM(&#39;pending&#39;,&#39;accepted&#39;,&#39;expired&#39;,&#39;revoked&#39;) | Wajib | Status undangan." value="    status" vertex="1">
-          <mxGeometry height="25" width="518" y="144" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_pending_guard" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="TINYINT | NULL diizinkan | Maksimal satu undangan pending per email per organisasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END" value="G  pending_guard ?" vertex="1">
-          <mxGeometry height="25" width="518" y="169" as="geometry" />
-        </mxCell>
-        <mxCell id="foot_organization_invitations" connectable="0" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="16 kolom  |  4 FK" vertex="1">
-          <mxGeometry height="27" width="494" x="14" y="196" as="geometry" />
         </mxCell>
         <mxCell id="table_notifications" parent="Tables" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" value="notifications" vertex="1">
           <mxGeometry height="203" width="518" x="668" y="1003" as="geometry" />
@@ -647,99 +596,6 @@
         <mxCell id="field_organizations_deleted_at" value="    deleted_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organizations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Soft delete organisasi.">
           <mxGeometry x="0" y="395" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="table_membership_requests" value="membership_requests" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
-          <mxGeometry x="760" y="210" width="570" height="407" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_id" value="PK  id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik.">
-          <mxGeometry x="0" y="44" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_organization_id" value="FK  organization_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Organisasi tujuan.">
-          <mxGeometry x="0" y="71" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_user_id" value="FK  user_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Pengaju.">
-          <mxGeometry x="0" y="98" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_message" value="    message ?  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="TEXT | NULL diizinkan | Pesan pengajuan.">
-          <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="ENUM(&#39;pending&#39;,&#39;approved&#39;,&#39;rejected&#39;,&#39;cancelled&#39;) | Wajib | Status pengajuan.">
-          <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_reviewed_by" value="FK  reviewed_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Admin peninjau.">
-          <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_reviewed_at" value="    reviewed_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu keputusan approve/reject.">
-          <mxGeometry x="0" y="206" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_review_notes" value="    review_notes ?  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="TEXT | NULL diizinkan | Catatan keputusan.">
-          <mxGeometry x="0" y="233" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_cancelled_by" value="FK  cancelled_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | User/Admin pembatal; NULL bila sistem.">
-          <mxGeometry x="0" y="260" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_cancelled_at" value="    cancelled_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu pembatalan.">
-          <mxGeometry x="0" y="287" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_created_at" value="    created_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu pembuatan UTC.">
-          <mxGeometry x="0" y="314" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_updated_at" value="    updated_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu perubahan terakhir UTC.">
-          <mxGeometry x="0" y="341" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_pending_guard" value="G  pending_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="TINYINT | NULL diizinkan | Kolom turunan untuk mencegah pending ganda; jangan ditulis aplikasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END">
-          <mxGeometry x="0" y="368" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="table_organization_invitations" value="organization_invitations" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
-          <mxGeometry x="1460" y="210" width="570" height="488" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_id" value="PK  id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik.">
-          <mxGeometry x="0" y="44" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_organization_id" value="FK  organization_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Organisasi pengundang.">
-          <mxGeometry x="0" y="71" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_email" value="    email  :  varchar(254)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="VARCHAR(254) | Wajib | Email target yang dinormalisasi.">
-          <mxGeometry x="0" y="98" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_role" value="    role  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="ENUM(&#39;staff&#39;,&#39;member&#39;) | Wajib | Role yang diberikan saat penerimaan.">
-          <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_token_hash" value="    token_hash  :  char(64)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="CHAR(64) CHARACTER SET ascii COLLATE ascii_bin | Wajib | SHA-256 atas token acak; unik. Token minimal 32 byte acak.">
-          <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_invited_by" value="FK  invited_by  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Admin pengundang.">
-          <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_expires_at" value="    expires_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | Wajib | Kedaluwarsa 7 hari setelah pembuatan/rotasi token.">
-          <mxGeometry x="0" y="206" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_last_sent_at" value="    last_sent_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu terakhir email berhasil dikirim.">
-          <mxGeometry x="0" y="233" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="ENUM(&#39;pending&#39;,&#39;accepted&#39;,&#39;expired&#39;,&#39;revoked&#39;) | Wajib | Status undangan.">
-          <mxGeometry x="0" y="260" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_accepted_by" value="FK  accepted_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | User penerima yang email aktifnya sesuai target.">
-          <mxGeometry x="0" y="287" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_accepted_at" value="    accepted_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu penerimaan.">
-          <mxGeometry x="0" y="314" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_revoked_by" value="FK  revoked_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Admin pencabut; NULL untuk pencabutan sistem.">
-          <mxGeometry x="0" y="341" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_revoked_at" value="    revoked_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu pencabutan.">
-          <mxGeometry x="0" y="368" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_created_at" value="    created_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu pembuatan UTC.">
-          <mxGeometry x="0" y="395" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_updated_at" value="    updated_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu perubahan terakhir UTC.">
-          <mxGeometry x="0" y="422" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_pending_guard" value="G  pending_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu undangan pending per email per organisasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END">
-          <mxGeometry x="0" y="449" width="570" height="27" as="geometry" />
-        </mxCell>
         <mxCell id="table_notifications" value="notifications" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
           <mxGeometry x="60" y="850" width="570" height="326" as="geometry" />
         </mxCell>
@@ -786,18 +642,6 @@
           <mxGeometry x="0" y="98" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="edge_0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_organizations_created_by" target="field_users_id" tooltip="organizations(created_by) -&gt; users(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_membership_requests_organization_id" target="field_organizations_id" tooltip="membership_requests(organization_id) -&gt; organizations(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_2" value="3 FK" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_membership_requests_user_id" target="field_users_id" tooltip="membership_requests(user_id) -&gt; users(id) | membership_requests(reviewed_by) -&gt; users(id) | membership_requests(cancelled_by) -&gt; users(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_organization_invitations_organization_id" target="field_organizations_id" tooltip="organization_invitations(organization_id) -&gt; organizations(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_4" value="3 FK" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_organization_invitations_invited_by" target="field_users_id" tooltip="organization_invitations(invited_by) -&gt; users(id) | organization_invitations(accepted_by) -&gt; users(id) | organization_invitations(revoked_by) -&gt; users(id)">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="edge_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_notifications_organization_id" target="field_organizations_id" tooltip="notifications(organization_id) -&gt; organizations(id)">

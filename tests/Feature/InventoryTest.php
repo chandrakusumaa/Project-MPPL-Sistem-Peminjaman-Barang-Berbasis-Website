@@ -2,7 +2,6 @@
 
 use App\Actions\BorrowAsset;
 use App\Actions\DeleteAccount;
-use App\Actions\InviteMember;
 use App\Actions\MaintainAsset;
 use App\Actions\ManageAssets;
 use App\Actions\ManageMembers;
@@ -20,11 +19,10 @@ use App\Models\Borrowing;
 use App\Models\ChargePayment;
 use App\Models\DamageReport;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
-use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -64,9 +62,9 @@ function paymentFor($t, $c, int $amount, string $key): ChargePayment
 
     return ChargePayment::where('idempotency_key', $key)->firstOrFail();
 }
-it('runs on real MySQL and creates all sixteen domain tables', function () {
+it('runs on real MySQL and creates all fourteen domain tables', function () {
     expect(DB::getDriverName())->toBe('mysql');
-    foreach (['users', 'organizations', 'organization_user', 'membership_requests', 'organization_invitations', 'asset_categories', 'assets', 'borrowings', 'damage_reports', 'asset_logs', 'audit_logs', 'notifications', 'password_reset_tokens', 'borrower_charges', 'charge_payments', 'charge_credits'] as $table) {
+    foreach (['users', 'organizations', 'organization_user', 'asset_categories', 'assets', 'borrowings', 'damage_reports', 'asset_logs', 'audit_logs', 'notifications', 'password_reset_tokens', 'borrower_charges', 'charge_payments', 'charge_credits'] as $table) {
         expect(Schema::hasTable($table))->toBeTrue();
     }
 });
@@ -203,29 +201,89 @@ it('shows payment metadata to its owner and refuses cross account evidence', fun
     $this->actingAs($this->member)->get(route('evidence', $c))->assertDownload();
     $this->actingAs($this->other)->get(route('evidence', $c))->assertForbidden();
 });
-it('enforces one pending join request and preserves admin role on repeat review', function () {
+it('joins directly as an active member with a backend-assigned role and one audit entry', function () {
+    $membership = app(ManageWorkspace::class)->join($this->other, $this->org);
+    expect($membership->role)->toBe('member')->and($membership->status)->toBe('active')->and($membership->joined_at)->not->toBeNull();
+    expect(Gate::forUser($this->other)->allows('view', $this->org))->toBeTrue();
+    expect(Gate::forUser($this->other)->allows('operate', $this->org))->toBeFalse();
+    expect(AuditLog::where('action', 'membership.joined')->where('actor_id', $this->other->id)->count())->toBe(1);
+});
+it('treats joining as idempotent for active members without changing role or joined date', function () {
+    $a = app(ManageWorkspace::class);
+    $existing = Membership::where('user_id', $this->staff->id)->firstOrFail();
+    $again = $a->join($this->staff, $this->org);
+    expect($again->wasRecentlyCreated)->toBeFalse()->and($again->role)->toBe('staff')->and((string) $again->joined_at)->toBe((string) $existing->joined_at);
+    $a->join($this->other, $this->org);
+    $a->join($this->other, $this->org);
+    expect(Membership::where('organization_id', $this->org->id)->where('user_id', $this->other->id)->count())->toBe(1);
+    expect(AuditLog::where('action', 'membership.joined')->count())->toBe(1);
+});
+it('rejects joining for revoked members, archived, deleted or unverified targets', function () {
     $a = app(ManageWorkspace::class);
     $a->join($this->other, $this->org);
-    $a->join($this->other, $this->org);
-    $requests = MembershipRequest::where('user_id', $this->other->id)->get();
-    expect($requests)->toHaveCount(1);
-    $a->review($this->admin, $this->org, $requests[0]->id, true);
-    expect(Gate::forUser($this->other)->allows('view', $this->org))->toBeTrue();
-    expect(fn () => $a->review($this->admin, $this->org, $requests[0]->id, true))->toThrow(ValidationException::class);
+    $m = Membership::where('user_id', $this->other->id)->firstOrFail();
+    app(ManageMembers::class)->change($this->admin, $this->org, $m->id, 'revoked');
+    expect(fn () => $a->join($this->other, $this->org))->toThrow(ValidationException::class);
+    expect($m->fresh()->status)->toBe('revoked');
+
+    $fresh = User::factory()->create();
+    $archived = $a->create($this->admin, ['name' => 'Arsip', 'category' => 'lainnya']);
+    app(ManageMembers::class)->archive($this->admin, $archived);
+    expect(fn () => $a->join($fresh, $archived->fresh()))->toThrow(ValidationException::class);
+
+    $deleted = $a->create($this->admin, ['name' => 'Dihapus', 'category' => 'lainnya']);
+    $deleted->delete();
+    expect(fn () => $a->join($fresh, $deleted))->toThrow(ValidationException::class);
+
+    $unverified = User::factory()->unverified()->create();
+    expect(fn () => $a->join($unverified, $this->org))->toThrow(AuthorizationException::class);
+    expect(Membership::where('user_id', $unverified->id)->exists())->toBeFalse();
+});
+it('lets only an administrator of that organization promote a member', function () {
+    $a = app(ManageMembers::class);
+    app(ManageWorkspace::class)->join($this->other, $this->org);
+    $m = Membership::where('user_id', $this->other->id)->firstOrFail();
+    expect(fn () => $a->change($this->member, $this->org, $m->id, 'staff'))->toThrow(AuthorizationException::class);
+    expect(fn () => $a->change($this->staff, $this->org, $m->id, 'staff'))->toThrow(AuthorizationException::class);
+    expect(fn () => $a->change($this->other, $this->org, $m->id, 'admin'))->toThrow(AuthorizationException::class);
+    $foreign = app(ManageWorkspace::class)->create($this->other, ['name' => 'Milik Nadia', 'category' => 'lainnya']);
+    expect(fn () => $a->change($this->other, $this->org, $m->id, 'admin'))->toThrow(AuthorizationException::class);
+    expect(fn () => $a->change($this->other, $foreign, $m->id, 'admin'))->toThrow(ModelNotFoundException::class);
+    expect($m->fresh()->role)->toBe('member');
+    $a->change($this->admin, $this->org, $m->id, 'staff');
+    expect($m->fresh()->role)->toBe('staff')->and(AuditLog::where('action', 'membership.changed')->where('subject_id', $m->id)->exists())->toBeTrue();
+});
+it('guards role changes through Livewire for non-admins and revoked rows', function () {
+    $m = Membership::where('user_id', $this->member->id)->firstOrFail();
+    Livewire::actingAs($this->staff)->test(Workspace::class, ['organization' => $this->org])->call('member', $m->id, 'admin')->assertForbidden();
+    Livewire::actingAs($this->member)->test(Workspace::class, ['organization' => $this->org])->call('member', $m->id, 'admin')->assertForbidden();
+    expect($m->fresh()->role)->toBe('member');
+    $m->update(['status' => 'revoked', 'revoked_at' => now(), 'revoked_by' => $this->admin->id]);
+    expect(fn () => app(ManageMembers::class)->change($this->admin, $this->org, $m->id, 'member'))->toThrow(ValidationException::class);
+    expect($m->fresh()->status)->toBe('revoked');
+});
+it('notifies only administrators about a new member', function () {
+    app(ManageWorkspace::class)->join($this->other, $this->org);
+    $recipients = DB::table('notifications')->where('organization_id', $this->org->id)->pluck('notifiable_id')->all();
+    expect($recipients)->toBe([$this->admin->id]);
+});
+it('no longer exposes the invitation endpoints or legacy tables', function () {
+    $this->actingAs($this->other)->get('/invitations/'.str_repeat('a', 64))->assertNotFound();
+    $this->actingAs($this->other)->post('/invitations/'.str_repeat('a', 64))->assertStatus(404);
+    expect(Schema::hasTable('membership_requests'))->toBeFalse()->and(Schema::hasTable('organization_invitations'))->toBeFalse();
+    expect(Membership::where('user_id', $this->other->id)->exists())->toBeFalse();
+});
+it('joins through the public profile route without joining on page view', function () {
+    $this->actingAs($this->other)->get(route('organization.public', $this->org))->assertOk()->assertSee('Gabung');
+    expect(Membership::where('user_id', $this->other->id)->exists())->toBeFalse();
+    $this->actingAs($this->other)->post(route('organization.join', $this->org))->assertRedirect();
+    expect(Membership::where('user_id', $this->other->id)->value('role'))->toBe('member');
+    $this->actingAs(User::factory()->unverified()->create())->post(route('organization.join', $this->org))->assertRedirect(route('verification.notice'));
 });
 it('prevents editing audit or credit history through models', function () {
     $b = requestFor($this);
     $audit = AuditLog::firstOrFail();
     expect(fn () => $audit->update(['action' => 'changed']))->toThrow(LogicException::class);
-});
-it('expires and rejects invitations for the wrong email', function () {
-    Mail::fake();
-    $token = str_repeat('a', 64);
-    $i = OrganizationInvitation::create(['organization_id' => $this->org->id, 'email' => $this->other->email, 'role' => 'member', 'token_hash' => hash('sha256', $token), 'invited_by' => $this->admin->id, 'expires_at' => now()->addDay(), 'status' => 'pending']);
-    expect(fn () => app(InviteMember::class)->accept($this->member, $token))->toThrow(ValidationException::class);
-    app(InviteMember::class)->accept($this->other, $token);
-    expect($i->fresh()->status)->toBe('accepted');
-    expect(fn () => app(InviteMember::class)->accept($this->other, $token))->toThrow(ValidationException::class);
 });
 it('blocks deleting sole administrators and soft deletes an account without obligations', function () {
     expect(fn () => app(DeleteAccount::class)->execute($this->admin))->toThrow(ValidationException::class);

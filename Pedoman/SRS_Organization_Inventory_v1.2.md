@@ -11,7 +11,7 @@
 | **Sumber** | PRD Organization Inventory v0.4, proposal proyek, flowchart yang dirujuk versi 1.0, dan Desain Database Organization Inventory v1.0 (20 Oktober 2026) |
 | **Standar Acuan** | Struktur mengikuti IEEE 830 / ISO/IEC/IEEE 29148, disesuaikan untuk proyek MVP |
 
-Revisi 1.2 menambah tagihan kerusakan/loss, pembayaran manual, dan pembebasan saldo: target 14 tabel inti dan 2 pendukung. Baseline revisi 1.1 memuat 11 tabel inti dan 2 pendukung dari desain database v1.0. Keputusan teknis yang berubah dijelaskan pada bagian 10.6; pembaruan ini merupakan revisi perancangan, bukan pernyataan bahwa implementasi atau pengujian aplikasi telah selesai.
+Revisi 30 Oktober 2026 (keputusan pemilik proyek): organisasi dimasuki langsung sebagai Member; join request dan undangan dihapus sehingga target menjadi 14 tabel rancangan (tabel infrastruktur framework dihitung terpisah); keputusan lama dipisahkan pada `Riwayat_Keputusan.md`. Revisi 1.2 menambah tagihan kerusakan/loss, pembayaran manual, dan pembebasan saldo: target 14 tabel inti dan 2 pendukung. Baseline revisi 1.1 memuat 11 tabel inti dan 2 pendukung dari desain database v1.0. Keputusan teknis yang berubah dijelaskan pada bagian 10.6; pembaruan ini merupakan revisi perancangan, bukan pernyataan bahwa implementasi atau pengujian aplikasi telah selesai.
 
 ## Daftar Isi
 
@@ -48,7 +48,7 @@ Organization Inventory menjawab masalah pengelolaan barang yang masih manual (sp
 **Dalam lingkup (MVP):**
 
 - Autentikasi (registrasi dengan verifikasi email, login, reset password).
-- Multi-organisasi: Explore, pembuatan organisasi, join request, undangan email.
+- Multi-organisasi: Explore, pembuatan organisasi, gabung langsung sebagai Member.
 - Role per organisasi (Admin, Staff, Member) dan pembatasan akses.
 - Manajemen inventory (aset, kategori) dan QR Code (generate, download, print, scan).
 - Peminjaman, inspeksi, OVERDUE, denda keterlambatan, biaya kerusakan/loss, serta pencatatan pembayaran/pelunasan manual (F12).
@@ -68,8 +68,8 @@ Organization Inventory menjawab masalah pengelolaan barang yang masih manual (sp
 | **Staff** | Pengelola operasional (aset, peminjaman, pengembalian, maintenance), tanpa akses anggota, laporan, dan pengaturan. |
 | **Pengguna terdaftar** | Akun pribadi, termasuk yang belum mempunyai membership; dapat membuat ruang setelah verifikasi. |
 | **Member** | Anggota biasa: melihat katalog, mengajukan peminjaman, scan QR, melapor kerusakan. |
-| **Join Request** | Permintaan user untuk bergabung ke organisasi, perlu persetujuan Admin. |
-| **Undangan (Invitation)** | Ajakan bergabung yang dikirim Admin ke email tertentu, berlaku 7 hari. |
+| **Gabung (Join)** | Aksi user terverifikasi untuk langsung menjadi Member aktif pada organisasi; tanpa persetujuan Admin dan tanpa undangan. |
+| **Borrowing Request** | Permintaan meminjam satu aset; tidak terkait keanggotaan. |
 | **Inspeksi** | Pemeriksaan kondisi aset saat dikembalikan: Good, Minor Damage, Major Damage, Lost. |
 | **OVERDUE** | Status peminjaman yang melewati tanggal estimasi pengembalian dan belum dikembalikan. |
 | **Damage Report** | Catatan kerusakan aset beserta tindak lanjutnya. |
@@ -110,14 +110,14 @@ Seluruh kebutuhan berprioritas **Must** (MVP) kecuali disebutkan lain.
 
 Aplikasi web mandiri (monolit Laravel) dengan basis data relasional. Aplikasi bersifat **multi-organisasi** dalam satu database: data dipisahkan per organisasi lewat `organization_id`, dan role disimpan **per organisasi** pada `organization_user`. Hanya membership berstatus `active` dengan akun/organisasi yang belum soft delete yang memberi akses; baris `revoked` dipertahankan untuk histori. Satu user dapat menjadi Admin di satu organisasi dan Member di organisasi lain.
 
-Aplikasi berinteraksi dengan: (1) server email (SMTP) untuk verifikasi, reset password, undangan, dan notifikasi; (2) kamera perangkat untuk scan QR; (3) scheduler server untuk penandaan OVERDUE otomatis; (4) queue worker untuk pengiriman email.
+Aplikasi berinteraksi dengan: (1) server email (SMTP) untuk verifikasi, reset password, dan notifikasi; (2) kamera perangkat untuk scan QR; (3) scheduler server untuk penandaan OVERDUE otomatis; (4) queue worker untuk pengiriman email.
 
 ### 2.2 Fungsi Utama Produk
 
 | Area | Ringkasan Fungsi |
 | --- | --- |
 | Autentikasi | Register + verifikasi email, login, lupa/reset password |
-| Multi-organisasi | Explore, buat organisasi, join request, undangan email, kelola anggota dan role |
+| Multi-organisasi | Explore, buat organisasi, gabung langsung sebagai Member, kelola anggota dan role |
 | Inventory | CRUD aset dan kategori, foto aset, katalog untuk Member |
 | QR Code | Generate, download PNG/SVG, print stiker, scan via kamera |
 | Peminjaman | Request, approve/reject, borrowed, overdue, return + inspeksi, denda |
@@ -176,7 +176,7 @@ Antarmuka berbasis web, responsif (prioritas mobile karena scan QR dilakukan di 
 
 | Area | Menu / Halaman |
 | --- | --- |
-| Publik (Guest) | Landing, Explore Organization, Profil Publik Organisasi, Login, Register, Lupa Password, Reset Password, Terima Undangan |
+| Publik (Guest) | Landing, Explore Organization, Profil Publik Organisasi, Login, Register, Lupa Password, Reset Password |
 | User (Member) | Home, Organizations (Semua Organisasi / Organisasi Saya), My Borrowing (Active / Pending / History), Notifications, Scan QR, Profile/Settings |
 | Katalog Organisasi (anggota) | Daftar aset, Detail Aset (aksi: Ajukan Peminjaman, Laporkan Kerusakan, History) |
 | Manajemen Organisasi (Admin/Staff) | Dashboard, Inventory, Kategori, Borrowing (Pending Request / Active Borrowing / History), Members, Damage Reports, Reports, Settings |
@@ -195,7 +195,7 @@ Item **Members, Reports, dan Settings** ditampilkan **nonaktif (grayed out)** un
 | Komponen | Antarmuka |
 | --- | --- |
 | Database | MySQL 8.0.16+ / InnoDB via Eloquent ORM |
-| Email | SMTP (verifikasi, reset password, undangan, notifikasi) |
+| Email | SMTP (verifikasi, reset password, notifikasi) |
 | Queue | Driver database untuk pengiriman email dan listener notifikasi |
 | Scheduler | Cron memanggil `php artisan schedule:run` |
 | Storage | Laravel Storage (disk `public`) untuk foto dan logo |
@@ -229,7 +229,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | FR-EXP-01 | Menampilkan daftar organisasi (tidak diarsipkan) dengan pencarian nama, filter kategori, dan pagination. | Must |
 | FR-EXP-02 | Pengguna dapat membuka profil publik organisasi (nama, kategori, deskripsi, logo, jumlah anggota, jumlah aset) tanpa menampilkan daftar aset atau data sensitif. | Must |
 | FR-EXP-03 | Pengguna dapat kembali ke daftar dan ke halaman utama kapan saja. | Must |
-| FR-EXP-04 | Tombol "Ajukan Bergabung" pada profil publik mengarahkan guest ke login (URL tujuan disimpan), lalu menjalankan alur join request. | Must |
+| FR-EXP-04 | Tombol "Gabung" pada profil publik mengarahkan guest ke login (URL tujuan disimpan); akun belum terverifikasi diarahkan ke verifikasi email; akun terverifikasi langsung menjadi Member (FR-ORG-05). Membuka profil publik tidak membuat membership. | Must |
 
 ### 4.3 Organisasi, Keanggotaan, dan Settings
 
@@ -237,19 +237,19 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | --- | --- | --- |
 | FR-ORG-01 | Setiap user terautentikasi dan terverifikasi dapat membuat organisasi. Slug unik otomatis bersifat immutable; organisasi dan membership Admin pembuat dibuat dalam satu transaksi. Default `max_borrow_days` 7 dan `late_fine_per_day` 0. | Must |
 | FR-ORG-02 | Jika pembuatan organisasi gagal, tampilkan "Gagal membuat organisasi" beserta detail validasi. Jika berhasil, kembali ke Organisasi Saya. | Must |
-| FR-ORG-03 | Halaman akun `/my-organizations` memiliki tab Jelajahi Organization (search/filter serta join request) dan Organization Saya (membership aktif). Pergantian tab tetap di area akun dengan sidebar, filter dan pagination berfungsi. `/organizations` dari navbar merupakan daftar publik hanya untuk pencarian/profil, tanpa tab Organization Saya atau aksi pengelolaan, bagi guest maupun akun login. | Must |
+| FR-ORG-03 | Halaman akun `/my-organizations` memiliki tab Jelajahi Organization (search/filter serta aksi Gabung) dan Organization Saya (membership aktif). Pergantian tab tetap di area akun dengan sidebar, filter dan pagination berfungsi. `/organizations` dari navbar merupakan daftar publik hanya untuk pencarian/profil, tanpa tab Organization Saya atau aksi pengelolaan, bagi guest maupun akun login. | Must |
 | FR-ORG-04 | Tombol "Buka" pada organisasi: Admin/Staff menuju dashboard manajemen; Member menuju katalog aset. | Must |
-| FR-ORG-05 | User yang belum menjadi anggota aktif dapat mengirim/membatalkan Join Request. Maksimal satu request PENDING per pasangan user–organisasi; pengajuan ulang setelah keputusan disimpan sebagai baris request baru. | Must |
-| FR-ORG-06 | Admin dapat Approve/Reject Join Request. Approve membuat atau mereaktivasi membership sebagai member dalam transaksi yang sama; keanggotaan aktif yang sudah ada tidak digandakan atau diturunkan rolenya. | Must |
-| FR-ORG-07 | Admin mengundang email dengan role staff/member. Token acak sekali pakai berlaku 7 hari; database menyimpan `token_hash` unik. Kirim ulang merotasi token dan masa berlaku 7 hari; pencabutan dan pengiriman ulang diaudit. | Must |
-| FR-ORG-08 | Penerimaan memvalidasi hash, status PENDING, waktu sebelum expires_at, serta email aktif terverifikasi yang sama. Membership dan accepted_by/accepted_at disimpan atomik. Token tidak valid/kedaluwarsa dan email berbeda ditolak; anggota aktif tidak dibuat ulang atau diubah rolenya oleh penerimaan ulang. | Must |
+| FR-ORG-05 | Setiap organisasi aktif (belum soft delete dan tidak terarsip) terbuka bagi user terautentikasi dan terverifikasi. Aksi Gabung membuat membership aktif dengan role `member` yang ditetapkan backend; payload tidak dapat menentukan role. Operasi idempoten bagi anggota aktif (role dan joined_at tidak berubah). Membership revoked menolak Gabung; user yang dikeluarkan tidak dapat mengaktifkan dirinya. User atau organisasi terhapus dan organisasi terarsip ditolak. Dijalankan dalam transaksi dengan lock user, organisasi, dan membership di bawah UNIQUE (organization_id, user_id), serta dibatasi rate limit. | Must |
+| FR-ORG-06 | Pembuatan membership baru diaudit (`membership.joined`) dan diberitahukan hanya kepada Admin organisasi, bukan seluruh anggota. | Must |
+| FR-ORG-07 | Hanya Admin organisasi terkait yang menaikkan Member menjadi Staff/Admin melalui Policy `administer` di backend, termasuk jika dipanggil langsung melalui endpoint atau Livewire. Perubahan role diaudit; baris revoked tidak dapat diubah. | Must |
+| FR-ORG-08 | Join request dan undangan tidak ada. Endpoint `/invitations/{token}` tidak tersedia dan tidak dapat membuat atau menaikkan membership. Request, approval, rejection, dan cancellation peminjaman barang (borrowing) tetap berlaku. | Must |
 | FR-ORG-09 | Admin melihat anggota, mengubah role admin/staff/member, dan mencabut keanggotaan. Pencabutan mengubah status menjadi revoked, menyimpan revoked_at/revoked_by, dan mempertahankan baris untuk histori. | Must |
 | FR-ORG-10 | Admin aktif terakhir pada organisasi yang belum soft delete, termasuk organisasi terarsip, tidak boleh di-demote, dicabut, atau menghapus akun. Pemeriksaan dilakukan di bawah lock organisasi untuk mencegah perubahan paralel. | Must |
 | FR-ORG-11 | Anggota dengan BORROWED/OVERDUE tidak boleh dicabut. Setelah lolos pemeriksaan, membership menjadi revoked dan borrowing PENDING miliknya pada organisasi tersebut menjadi CANCELLED beserta waktu/alasan pembatalan, log aset, dan audit. | Must |
 | FR-ORG-12 | Admin dapat mengedit profil organisasi (nama, deskripsi, kategori, logo). | Must |
 | FR-ORG-13 | Admin mengatur max_borrow_days >= 1 dan late_fine_per_day >= 0 dalam Rupiah. Perubahan diaudit; pinjaman yang sudah disetujui tetap memakai snapshot kebijakan saat approval. | Must |
 | FR-ORG-14 | Admin mengarsipkan organisasi hanya jika tidak ada pinjaman dan maintenance aktif. Organisasi menjadi read-only dan hilang dari Explore. Pending tetap tersimpan, tidak diproses selama arsip, serta divalidasi ulang setelah unarchive. Unarchive oleh Admin adalah pengecualian eksplisit terhadap read-only. | Must |
-| FR-ORG-15 | Hapus organisasi berupa soft delete, dengan konfirmasi nama dan tanpa pinjaman/maintenance aktif. Batalkan borrowing/join request PENDING dan cabut undangan PENDING dalam transaksi yang sama; histori tetap dipertahankan. | Must |
+| FR-ORG-15 | Hapus organisasi berupa soft delete, dengan konfirmasi nama dan tanpa pinjaman/maintenance aktif. Batalkan borrowing PENDING dalam transaksi yang sama; histori tetap dipertahankan. | Must |
 
 ### 4.4 Hak Akses dan Isolasi Data (RBAC)
 
@@ -284,7 +284,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | FR-QR-03 | Admin/Staff dapat mencetak stiker QR (berisi QR, nama aset, kode, dan nama organisasi). | Must |
 | FR-QR-04 | Halaman Scan QR membuka kamera, membaca URL/identifier dari QR, dan mengirimkannya ke server untuk divalidasi. | Must |
 | FR-QR-05 | QR atau aset tidak valid menampilkan "QR / Aset Invalid" dan memungkinkan scan ulang. | Must |
-| FR-QR-06 | Jika pemindai bukan anggota organisasi, tampil pesan harus bergabung dahulu beserta tombol Ajukan Bergabung. Detail aset tidak ditampilkan. | Must |
+| FR-QR-06 | Jika pemindai bukan anggota organisasi, tampil pesan harus bergabung dahulu beserta tombol Gabung. Detail aset tidak ditampilkan. | Must |
 | FR-QR-07 | Jika pemindai adalah anggota, tampil detail aset dengan aksi Ajukan Peminjaman dan Laporkan Kerusakan. | Must |
 | FR-QR-08 | Tersedia input manual kode aset sebagai alternatif scan. | Must |
 | FR-QR-09 | Jika URL QR dibuka langsung (mis. kamera bawaan HP) oleh guest, sistem meminta login lalu kembali ke URL tujuan dan menerapkan aturan FR-QR-05 sampai FR-QR-07. | Must |
@@ -344,7 +344,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | FR-NTF-05 | Detail notifikasi menampilkan judul, isi, waktu, dan tautan ke resource terkait, serta menandainya sudah dibaca. | Must |
 | FR-NTF-06 | Pop-up toast menampilkan umpan balik setiap aksi dan notifikasi baru yang masuk (sekali tampil per notifikasi). | Must |
 | FR-NTF-07 | User dapat mengatur preferensi email per kategori (membership, borrowing, damage). Notifikasi in-app selalu aktif. | Must |
-| FR-NTF-08 | Email transaksional (verifikasi, reset password, undangan) selalu terkirim terlepas dari preferensi. | Must |
+| FR-NTF-08 | Email transaksional (verifikasi, reset password) selalu terkirim terlepas dari preferensi. | Must |
 | FR-NTF-09 | Event key dan pasangan notifiable mencegah notifikasi in-app ganda. Email dijalankan melalui queue setelah commit, dengan retry dan pemantauan; pengiriman exactly-once tidak diasumsikan. | Must |
 
 ### 4.11 Dashboard
@@ -374,7 +374,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | FR-PRF-02 | Email baru disimpan pada pending_email bersama pending_email_requested_at. Signed URL mengikat user, email, versi permintaan dan expiry. Email lama tetap aktif sampai verifikasi sukses; keunikan users.email diperiksa atomik saat konfirmasi. | Must |
 | FR-PRF-03 | Ubah password: input password lama dan baru; jika gagal tampilkan "Perubahan gagal" atau "Password tidak valid". | Must |
 | FR-PRF-04 | Preferensi notifikasi (lihat FR-NTF-07). | Must |
-| FR-PRF-05 | Hapus akun meminta konfirmasi dan password. Tolak jika sole Admin pada organisasi belum dihapus atau masih memiliki BORROWED/OVERDUE. Soft delete user, revoke membership tanpa menghapus baris, batalkan borrowing/join request PENDING, tulis log/audit, cabut sesi dan logout; histori tetap utuh. | Must |
+| FR-PRF-05 | Hapus akun meminta konfirmasi dan password. Tolak jika sole Admin pada organisasi belum dihapus atau masih memiliki BORROWED/OVERDUE. Soft delete user, revoke membership tanpa menghapus baris, batalkan borrowing PENDING, tulis log/audit, cabut sesi dan logout; histori tetap utuh. | Must |
 | FR-PRF-06 | Logout tersedia dari menu Profile/Settings. | Must |
 
 ---
@@ -413,7 +413,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | UC-02 | Login dan reset password | Guest |
 | UC-03 | Menjelajahi organisasi | Guest, Member |
 | UC-04 | Membuat organisasi | User |
-| UC-05 | Bergabung ke organisasi (join request / undangan) | User, Admin |
+| UC-05 | Bergabung ke organisasi (langsung sebagai Member) | User |
 | UC-06 | Mengelola anggota dan role | Admin |
 | UC-07 | Mengelola aset dan QR Code | Admin, Staff |
 | UC-08 | Memindai QR Code | Member, Staff, Admin |
@@ -436,10 +436,10 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | **UC-18** Pelunasan | Charge issued dan actor berizin | Input pembayaran, verifikasi Admin, konfirmasi dan hitung sisa | Reject, overpayment, duplikasi, void, credit mengikuti BR-11 | Saldo dan histori dapat ditelusuri |
 | **UC-01** Registrasi | Belum memiliki akun | 1) Isi nama, email, password; 2) sistem validasi; 3) akun dibuat, email verifikasi dikirim; 4) diarahkan ke Login; 5) klik link verifikasi | Email sudah terdaftar → "Email sudah terdaftar"; link kedaluwarsa → kirim ulang | Akun terverifikasi |
 | **UC-02** Login | Akun terverifikasi | 1) Isi email dan password; 2) sistem memvalidasi; 3) masuk ke dashboard | Salah → "Email atau password salah"; belum verifikasi → halaman verifikasi; lupa password → input email → link reset → password baru → Login | Sesi aktif |
-| **UC-03** Explore | Tidak ada | 1) Buka Explore; 2) cari/filter; 3) buka profil publik; 4) kembali | Tidak ada hasil → empty state; Ajukan Bergabung oleh guest → login | Tidak ada perubahan data |
+| **UC-03** Explore | Tidak ada | 1) Buka Explore; 2) cari/filter; 3) buka profil publik; 4) kembali | Tidak ada hasil → empty state; Gabung oleh guest → login | Tidak ada perubahan data |
 | **UC-04** Buat organisasi | Login | 1) Isi data organisasi; 2) submit; 3) organisasi dibuat, pembuat menjadi Admin; 4) kembali ke Organisasi Saya | Validasi gagal → "Gagal membuat organisasi" | Organisasi baru dengan 1 Admin |
-| **UC-05** Bergabung | Login, belum anggota | A) Join request: ajukan → Admin approve → user menjadi member. B) Undangan: Admin kirim email → user klik link → terima | Request ditolak/dibatalkan; undangan kedaluwarsa atau email berbeda | User menjadi anggota |
-| **UC-06** Kelola anggota | Role Admin aktif | Tinjau join/undangan, ubah role atau revoke membership; simpan audit | Sole Admin atau pinjaman aktif menolak revoke | Membership active/revoked terbarui; histori tetap ada |
+| **UC-05** Bergabung | Login terverifikasi, belum anggota | 1) Tekan Gabung; 2) backend membuat membership aktif role member dalam satu transaksi; 3) tampil konfirmasi dan tombol Buka Organization | Belum verifikasi diarahkan ke verifikasi; membership revoked, organisasi terarsip/terhapus ditolak; anggota aktif idempoten | User menjadi Member aktif |
+| **UC-06** Kelola anggota | Role Admin aktif | Tinjau anggota, ubah role atau revoke membership; simpan audit | Sole Admin atau pinjaman aktif menolak revoke | Membership active/revoked terbarui; histori tetap ada |
 | **UC-07** Kelola aset dan QR | Admin/Staff, organisasi aktif | 1) Tambah/edit aset; 2) simpan; 3) generate QR; 4) download atau print | Validasi gagal → error form; hapus aset BORROWED ditolak | Aset tersimpan, QR tersedia, log tercatat |
 | **UC-08** Scan QR | Login | 1) Buka Scan; 2) arahkan kamera; 3) server memvalidasi; 4) tampil detail aset | QR invalid → "QR / Aset Invalid"; bukan anggota → diminta bergabung; kamera ditolak → input manual | Detail aset ditampilkan |
 | **UC-09** Ajukan peminjaman | Anggota, aset AVAILABLE | 1) Buka detail aset; 2) isi tanggal dan alasan; 3) submit; 4) status PENDING | Validasi gagal (tanggal/durasi); aset tidak tersedia; duplikat request | Request PENDING, Admin/Staff dinotifikasi |
@@ -508,8 +508,8 @@ Hasil inspeksi historis pada borrowing tidak berubah setelah perbaikan. Kondisi 
 | BR-06a | Role bersifat per organisasi; pembuat organisasi otomatis Admin; Admin boleh lebih dari satu. |
 | BR-06b | Setiap organisasi yang belum soft delete, termasuk arsip, wajib memiliki minimal satu membership Admin active. |
 | BR-06c | Pencabutan dilarang jika masih ada pinjaman aktif. Status membership menjadi revoked dan borrowing PENDING dibatalkan; baris keanggotaan dipertahankan. |
-| BR-06d | Undangan 7 hari, token acak sekali pakai, disimpan sebagai hash. Penerimaan hanya oleh email aktif terverifikasi yang diundang; resend merotasi token/masa berlaku. |
-| BR-06e | Arsip/soft delete organisasi ditolak jika ada pinjaman atau maintenance aktif. Arsip read-only, tidak tampil di Explore; unarchive oleh Admin diperbolehkan. Soft delete membatalkan pengajuan dan mencabut undangan PENDING. |
+| BR-06d | Bergabung langsung sebagai Member tanpa persetujuan. Role awal ditetapkan backend dan tidak diterima dari input user. Hanya Admin organisasi terkait yang menaikkan role. Membership revoked tidak dapat diaktifkan sendiri oleh user. |
+| BR-06e | Arsip/soft delete organisasi ditolak jika ada pinjaman atau maintenance aktif. Arsip read-only, tidak tampil di Explore; unarchive oleh Admin diperbolehkan. Soft delete membatalkan borrowing PENDING. Organisasi terarsip tidak menerima anggota baru. |
 | BR-06f | Hapus akun dilarang jika sole Admin atau masih meminjam; setelah lolos, soft delete akun dan revoke membership dilakukan tanpa menghapus histori. |
 
 ### 6.6 Aturan Aset dan QR (BR-07, BR-08)
@@ -523,10 +523,8 @@ Hasil inspeksi historis pada borrowing tidak berubah setelah perbaikan. Kondisi 
 
 | Event | Penerima |
 | --- | --- |
-| Join request diajukan | Admin organisasi |
-| Join request di-approve/reject | User pengaju |
-| Undangan dikirim | Email target (+ in-app jika user sudah terdaftar) |
-| Undangan diterima | Admin pengundang |
+| Anggota baru bergabung | Admin organisasi (bukan Staff atau seluruh anggota) |
+| Role anggota diubah atau keanggotaan dicabut | Anggota terkait, Admin, dan Staff organisasi |
 | Request peminjaman diajukan | Admin dan Staff organisasi |
 | Peminjaman di-approve/reject | Peminjam |
 | Peminjaman OVERDUE | Peminjam, Admin, dan Staff |
@@ -539,7 +537,7 @@ Hasil inspeksi historis pada borrowing tidak berubah setelah perbaikan. Kondisi 
 | Aksi | Member | Staff | Admin |
 | --- | --- | --- | --- |
 | Explore organisasi, lihat profil publik | Ya | Ya | Ya |
-| Ajukan join (jika belum anggota) | Ya | — | — |
+| Gabung langsung sebagai Member (jika belum anggota) | Ya | - | - |
 | Lihat katalog aset organisasinya | Ya | Ya | Ya |
 | Ajukan peminjaman | Ya | Ya | Ya |
 | Scan QR, lapor kerusakan | Ya | Ya | Ya |
@@ -548,7 +546,7 @@ Hasil inspeksi historis pada borrowing tidak berubah setelah perbaikan. Kondisi 
 | Proses return dan inspeksi | Tidak | Ya | Ya |
 | Kelola damage report dan maintenance | Tidak | Ya | Ya |
 | Dashboard statistik organisasi | Tidak | Ya | Ya |
-| Kelola anggota (join request, undang, role, keluarkan) | Tidak | Tidak | Ya |
+| Kelola anggota (role, keluarkan) | Tidak | Tidak | Ya |
 | Report / export | Tidak | Tidak | Ya |
 | Settings organisasi (profil, durasi dan denda, arsip/hapus) | Tidak | Tidak | Ya |
 
@@ -634,7 +632,7 @@ Arsip/soft delete ruang dan penghapusan akun peminjam ditolak jika masih ada tag
 
 ### 7.1 ERD dan cakupan model
 
-Desain database v1.0 terdiri dari **11 tabel inti** dan **2 tabel pendukung**: notifications dan password_reset_tokens. Satu aset adalah satu unit fisik dan satu borrowing hanya memuat satu aset serta satu inspeksi final. Target revisi 1.2 menambahkan tiga tabel finansial pada 7.10: total 16 tabel. Stok, payment gateway, reservasi, dan transaksi multi-aset tetap di luar MVP.
+Desain database v1.0 terdiri dari **11 tabel inti** dan **2 tabel pendukung**: notifications dan password_reset_tokens. Satu aset adalah satu unit fisik dan satu borrowing hanya memuat satu aset serta satu inspeksi final. Target revisi 1.2 menambahkan tiga tabel finansial pada 7.10. Revisi 30 Oktober 2026 menghapus membership_requests dan organization_invitations: total 14 tabel rancangan (tabel infrastruktur framework dihitung terpisah). Stok, payment gateway, reservasi, dan transaksi multi-aset tetap di luar MVP.
 
 **ERD berikut adalah baseline 13 tabel v1.0; tambahan relasi finansial dijelaskan pada 7.10 dan belum tergambar pada gambar ini.**
 
@@ -654,9 +652,7 @@ Tabel infrastruktur sessions, jobs, job_batches, failed_jobs, cache, dan cache_l
 | --- | --- |
 | users | Akun global; email unik, email_verified_at, password hash, pending_email + waktu permintaan, avatar, notification_preferences, soft delete |
 | organizations | Profil, slug unik immutable, kategori tetap, kebijakan durasi/denda, created_by, archived_at dan soft delete |
-| organization_user | Pasangan organisasi–user unik, role, status active/revoked, joined_at, revoked_at/revoked_by; bukan sumber PENDING join |
-| membership_requests | Pesan/status join, reviewer dan waktu, pembatalan, guard satu pending per user–org |
-| organization_invitations | Email/role, token_hash unik, invited_by, expiry, accepted_by/at, revoked_by/at, guard satu pending per email–org |
+| organization_user | Pasangan organisasi-user unik, role, status active/revoked, joined_at, revoked_at/revoked_by; satu-satunya sumber keanggotaan (tidak ada status pending) |
 | asset_categories | Nama kategori unik per organisasi; target FK gabungan kategori–organisasi |
 | assets | ULID code unik, metadata dan foto/path, kategori/organisasi, status, physical_condition, soft delete |
 | borrowings | Request dan status, approver/rejector/canceller, snapshot kebijakan, overdue, waktu return aktual/pemrosesan, inspeksi dan denda |
@@ -671,7 +667,7 @@ Tabel infrastruktur sessions, jobs, job_batches, failed_jobs, cache, dan cache_l
 | Relasi | Kardinalitas / aturan |
 | --- | --- |
 | users ↔ organizations melalui organization_user | N:M, unik per pasangan; hanya membership active memberi akses |
-| organizations → asset_categories / assets / requests / invitations | 1:0..N |
+| organizations → asset_categories / assets | 1:0..N |
 | asset_categories → assets | 1:0..N; kategori wajib dari organisasi aset yang sama |
 | assets → borrowings | 1:0..N sepanjang waktu, maksimal satu BORROWED/OVERDUE |
 | users → borrowings | 1:0..N; mengacu user global agar revoke membership tidak menghapus histori |
@@ -699,8 +695,6 @@ SQL baseline v1.0 memiliki **35 FK, 39 CHECK dan 19 UNIQUE di luar primary key**
 | --- | --- |
 | Satu membership user–org | UNIQUE organization_id, user_id |
 | Nama kategori per org | UNIQUE organization_id, name |
-| Satu join pending | pending_guard = 1 hanya saat pending; UNIQUE org, user, guard |
-| Satu undangan pending | pending_guard = 1 hanya saat pending; UNIQUE org, email, guard |
 | Satu pinjaman aktif per aset | active_guard = 1 untuk borrowed/overdue; UNIQUE asset_id, guard |
 | Satu pending/aktif per user–aset | open_user_guard = 1 untuk pending/borrowed/overdue; UNIQUE asset_id, user_id, guard |
 | Satu maintenance aktif | maintenance_guard = 1 untuk in_maintenance; UNIQUE asset_id, guard |
@@ -816,7 +810,7 @@ Referensi: FR-EXP-01..04; FR-ORG-01,12..15; BR-06.
 
 Keanggotaan dan role per organisasi; baris dicabut tetap disimpan.
 
-Referensi: FR-ORG-06,08..11; FR-RBAC-01; PRD 8.4; keputusan D02.
+Referensi: FR-ORG-05..11; FR-RBAC-01; PRD 8.4; keputusan D02.
 
 | Kolom | Tipe MySQL | NULL | Default / turunan | Makna |
 |---|---|:---:|---|---|
@@ -844,85 +838,13 @@ Referensi: FR-ORG-06,08..11; FR-RBAC-01; PRD 8.4; keputusan D02.
 **CHECK yang diterapkan di SQL:**
 - `ck_membership_lifecycle`: `(status = 'active' AND revoked_at IS NULL AND revoked_by IS NULL) OR (status = 'revoked' AND revoked_at IS NOT NULL)`.
 
-#### 7.8.4. `membership_requests`
+#### 7.8.4. `membership_requests` (DIHAPUS)
 
-Pengajuan join; setiap pengajuan ulang adalah baris baru.
+Tabel dihapus oleh keputusan produk 30 Oktober 2026 (organisasi dimasuki langsung sebagai Member). Dihapus melalui migration `2026_10_30_000000_drop_membership_requests_and_invitations`. Spesifikasi lama dipindahkan ke `Riwayat_Keputusan.md`.
 
-Referensi: FR-ORG-05..06; FR-PRF-05.
+#### 7.8.5. `organization_invitations` (DIHAPUS)
 
-| Kolom | Tipe MySQL | NULL | Default / turunan | Makna |
-|---|---|:---:|---|---|
-| `id` **PK** | `BIGINT UNSIGNED` | Tidak | AUTO_INCREMENT | Primary key internal; bukan identifier publik. |
-| `organization_id` | `BIGINT UNSIGNED` | Tidak | - | Organisasi tujuan. |
-| `user_id` | `BIGINT UNSIGNED` | Tidak | - | Pengaju. |
-| `message` | `TEXT` | Ya | - | Pesan pengajuan. |
-| `status` | `ENUM('pending','approved','rejected','cancelled')` | Tidak | 'pending' | Status pengajuan. |
-| `reviewed_by` | `BIGINT UNSIGNED` | Ya | - | Admin peninjau. |
-| `reviewed_at` | `DATETIME(6)` | Ya | - | Waktu keputusan approve/reject. |
-| `review_notes` | `TEXT` | Ya | - | Catatan keputusan. |
-| `cancelled_by` | `BIGINT UNSIGNED` | Ya | - | User/Admin pembatal; NULL bila sistem. |
-| `cancelled_at` | `DATETIME(6)` | Ya | - | Waktu pembatalan. |
-| `created_at` | `DATETIME(6)` | Tidak | CURRENT_TIMESTAMP(6) | Waktu pembuatan UTC. |
-| `updated_at` | `DATETIME(6)` | Tidak | CURRENT_TIMESTAMP(6) | Waktu perubahan terakhir UTC. |
-| `pending_guard` | `TINYINT` | Ya | VIRTUAL: CASE WHEN status = 'pending' THEN 1 ELSE NULL END | Kolom turunan untuk mencegah pending ganda; jangan ditulis aplikasi. |
-
-**Keunikan dan index:**
-- UNIQUE `uq_join_pending`: `organization_id, user_id, pending_guard`.
-- INDEX `ix_join_inbox`: `organization_id, status, created_at`.
-- INDEX `ix_join_user`: `user_id, created_at`.
-
-**Foreign key:**
-- `organization_id` → `organizations(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-- `user_id` → `users(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-- `reviewed_by` → `users(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-- `cancelled_by` → `users(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-
-**CHECK yang diterapkan di SQL:**
-- `ck_join_review`: `(status IN ('approved','rejected') AND reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL) OR (status NOT IN ('approved','rejected') AND reviewed_by IS NULL AND reviewed_at IS NULL)`.
-- `ck_join_cancel`: `(status = 'cancelled' AND cancelled_at IS NOT NULL) OR (status <> 'cancelled' AND cancelled_at IS NULL AND cancelled_by IS NULL)`.
-
-#### 7.8.5. `organization_invitations`
-
-Undangan satu email; token mentah hanya dikirim lewat link, bukan disimpan.
-
-Referensi: FR-ORG-07..08; BR-06d; NFR-SEC-06.
-
-| Kolom | Tipe MySQL | NULL | Default / turunan | Makna |
-|---|---|:---:|---|---|
-| `id` **PK** | `BIGINT UNSIGNED` | Tidak | AUTO_INCREMENT | Primary key internal; bukan identifier publik. |
-| `organization_id` | `BIGINT UNSIGNED` | Tidak | - | Organisasi pengundang. |
-| `email` | `VARCHAR(254)` | Tidak | - | Email target yang dinormalisasi. |
-| `role` | `ENUM('staff','member')` | Tidak | - | Role yang diberikan saat penerimaan. |
-| `token_hash` | `CHAR(64) CHARACTER SET ascii COLLATE ascii_bin` | Tidak | - | SHA-256 atas token acak; unik. Token minimal 32 byte acak. |
-| `invited_by` | `BIGINT UNSIGNED` | Tidak | - | Admin pengundang. |
-| `expires_at` | `DATETIME(6)` | Tidak | - | Kedaluwarsa 7 hari setelah pembuatan/rotasi token. |
-| `last_sent_at` | `DATETIME(6)` | Ya | - | Waktu terakhir email berhasil dikirim. |
-| `status` | `ENUM('pending','accepted','expired','revoked')` | Tidak | 'pending' | Status undangan. |
-| `accepted_by` | `BIGINT UNSIGNED` | Ya | - | User penerima yang email aktifnya sesuai target. |
-| `accepted_at` | `DATETIME(6)` | Ya | - | Waktu penerimaan. |
-| `revoked_by` | `BIGINT UNSIGNED` | Ya | - | Admin pencabut; NULL untuk pencabutan sistem. |
-| `revoked_at` | `DATETIME(6)` | Ya | - | Waktu pencabutan. |
-| `created_at` | `DATETIME(6)` | Tidak | CURRENT_TIMESTAMP(6) | Waktu pembuatan UTC. |
-| `updated_at` | `DATETIME(6)` | Tidak | CURRENT_TIMESTAMP(6) | Waktu perubahan terakhir UTC. |
-| `pending_guard` | `TINYINT` | Ya | VIRTUAL: CASE WHEN status = 'pending' THEN 1 ELSE NULL END | Maksimal satu undangan pending per email per organisasi. |
-
-**Keunikan dan index:**
-- UNIQUE `uq_invitation_hash`: `token_hash`.
-- UNIQUE `uq_invitation_pending`: `organization_id, email, pending_guard`.
-- INDEX `ix_invitation_expiry`: `status, expires_at`.
-- INDEX `ix_invitation_inbox`: `organization_id, status, created_at`.
-
-**Foreign key:**
-- `organization_id` → `organizations(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-- `invited_by` → `users(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-- `accepted_by` → `users(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-- `revoked_by` → `users(id)`. Default RESTRICT/NO ACTION; tidak ada cascade penghapusan histori.
-
-**CHECK yang diterapkan di SQL:**
-- `ck_invitation_hash`: `CHAR_LENGTH(token_hash) = 64`.
-- `ck_invitation_expiry`: `expires_at > created_at`.
-- `ck_invitation_accept`: `(status = 'accepted' AND accepted_by IS NOT NULL AND accepted_at IS NOT NULL AND accepted_at < expires_at) OR (status <> 'accepted' AND accepted_by IS NULL AND accepted_at IS NULL)`.
-- `ck_invitation_revoke`: `(status = 'revoked' AND revoked_at IS NOT NULL) OR (status <> 'revoked' AND revoked_at IS NULL AND revoked_by IS NULL)`.
+Tabel dihapus oleh keputusan yang sama. Endpoint `/invitations/{token}` tidak tersedia. Spesifikasi lama dipindahkan ke `Riwayat_Keputusan.md`.
 
 #### 7.8.6. `asset_categories`
 
@@ -1239,7 +1161,7 @@ Khusus baseline v1.0, pemeriksaan struktur dan 38 skenario constraint pada model
 
 ### 7.10 Ekstensi Data Finansial Revisi 1.2
 
-Target total 16 tabel (14 inti, 2 pendukung). Tiga tabel berikut ditambahkan pada baseline 13 tabel. Semua nominal DECIMAL(14,0), Rupiah bulat; ID BIGINT UNSIGNED; timestamp DATETIME(6) UTC. Kolom wajib kecuali disebut opsional. Tidak ada hard delete transaksi finansial.
+Target total 14 tabel (12 inti, 2 pendukung) setelah penghapusan membership_requests dan organization_invitations (30 Oktober 2026). Tiga tabel berikut ditambahkan pada baseline 13 tabel. Semua nominal DECIMAL(14,0), Rupiah bulat; ID BIGINT UNSIGNED; timestamp DATETIME(6) UTC. Kolom wajib kecuali disebut opsional. Tidak ada hard delete transaksi finansial.
 
 #### 7.10.1 borrower_charges
 
@@ -1358,9 +1280,9 @@ Tambahan 7.10 merupakan spesifikasi perancangan, belum migrasi SQL atau hasil pe
 | NFR-SEC-01 | Password disimpan dengan hashing bawaan Laravel (bcrypt/argon). |
 | NFR-SEC-02 | Perlindungan CSRF, escaping output (XSS), dan query terparameter via Eloquent. |
 | NFR-SEC-03 | Otorisasi memakai Policy/Gate di server untuk setiap route dan aksi; akses lintas organisasi ditolak (403/404). |
-| NFR-SEC-04 | Rate limiting pada login, lupa password, kirim ulang verifikasi, join request, dan endpoint scan. |
+| NFR-SEC-04 | Rate limiting pada login, lupa password, kirim ulang verifikasi, aksi Gabung, dan endpoint scan. |
 | NFR-SEC-05 | Upload hanya jpg/jpeg/png/webp maks 2 MB dengan validasi mime dan nama file aman. |
-| NFR-SEC-06 | Token undangan acak minimal 32 byte disimpan sebagai hash SHA-256; sekali pakai dan kedaluwarsa. Signed URL perubahan email mengikat user, pending_email, waktu permintaan dan expiry. |
+| NFR-SEC-06 | Signed URL perubahan email mengikat user, pending_email, waktu permintaan dan expiry. |
 | NFR-SEC-07 | Produksi wajib HTTPS (juga untuk akses kamera). |
 | NFR-SEC-08 | Pesan "Email tidak ditemukan" pada lupa password mengikuti flowchart; risiko enumerasi email dimitigasi dengan rate limiting. |
 
@@ -1406,7 +1328,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 | Sumber kebutuhan | Kebutuhan SRS | Data / mekanisme |
 | --- | --- | --- |
 | PRD F01 Akun & Authentication | FR-AUTH-01..09, FR-PRF | users, password_reset_tokens, sesi framework |
-| PRD F02 Discovery & Join | FR-EXP, FR-ORG-01..08 | organizations, membership_requests, invitations, membership |
+| PRD F02 Discovery & Join | FR-EXP, FR-ORG-01..08 | organizations, organization_user |
 | PRD F03 Role & Authorization | FR-RBAC, FR-ORG-09..11 | organization_user active/revoked, policy, audit |
 | PRD F04 Inventory | FR-INV-01..09 | assets, asset_categories, physical_condition, soft delete |
 | PRD F05 QR Code | FR-QR-01..10 | assets.code dan organizations.slug immutable |
@@ -1417,7 +1339,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 | PRD F10 Reports & Settings | FR-RPT, FR-ORG-12..15 | query CSV, settings dan snapshot, audit |
 | PRD F11 Account Settings | FR-PRF, FR-NTF-07..08 | users, preferensi JSON, pending email, soft delete |
 | Flowchart yang dirujuk SRS 1.0: kerusakan | FR-DMG-01..09 | source/severity, maintenance, laporan inspeksi |
-| Flowchart yang dirujuk SRS 1.0: notifikasi/undangan | FR-NTF-01..09, FR-ORG-07..08 | notifications, token_hash, queue, event_key |
+| Flowchart yang dirujuk SRS 1.0: notifikasi | FR-NTF-01..09 | notifications, queue, event_key |
 | PRD F12 dan AC12 | FR-CHG-01..19, BR-11, bagian 7.10 | borrower_charges, charge_payments, charge_credits; tambahan snapshot kebijakan |
 | Desain Database v1.0 D01..D12 | Bagian 7 dan 10.6 | 11 tabel inti + 2 pendukung, FK/CHECK/UNIQUE dan kontrak Action |
 
@@ -1429,7 +1351,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 
 | Area | Route |
 | --- | --- |
-| Publik | `/`, `/explore`, `/explore/{slug}`, `/login`, `/register`, `/forgot-password`, `/reset-password/{token}`, `/invitations/{token}` |
+| Publik | `/`, `/explore`, `/explore/{slug}`, `/login`, `/register`, `/forgot-password`, `/reset-password/{token}` |
 | User | `/dashboard`, `/organizations`, `/organizations/create`, `/o/{slug}`, `/o/{slug}/assets/{code}`, `/my-borrowings`, `/notifications`, `/scan`, `/profile` |
 | Manajemen (Admin/Staff) | `/o/{slug}/manage/dashboard`, `/inventory`, `/categories`, `/borrowings`, `/members`, `/damage-reports`, `/reports`, `/settings` |
 
@@ -1454,7 +1376,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 | --- | --- | --- |
 | 1 | Menu Member | Digabung: Home, Organizations (Semua + Saya), My Borrowing, Notifications, Scan QR, Profile/Settings. |
 | 2 | Pembuatan organisasi | Semua user boleh membuat organisasi dan otomatis menjadi Admin. |
-| 3 | Cara masuk organisasi | Join request (disetujui Admin) dan undangan email (diundang Admin). |
+| 3 | Cara masuk organisasi | Gabung langsung sebagai Member oleh user terverifikasi (keputusan 30 Oktober 2026; menggantikan join request dan undangan). |
 | 4 | Menu Admin | Semua masuk MVP: Damage Reports, Settings, dan Report (export CSV). |
 | 5 | Denda dan pembayaran | Denda keterlambatan terpisah dari charge kerusakan; pembayaran manual mengikuti FR-CHG. |
 | 6 | Minor Damage | Aset tetap AVAILABLE; damage report dicatat. |
@@ -1488,6 +1410,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 | 1.0 | 3 Oktober 2026 | Draf awal berdasarkan PRD, flowchart, dan klarifikasi pemilik produk |
 | 1.2 | 27 Oktober 2026 | Biaya kerusakan/loss, pembayaran manual sebagian/penuh, credit, saldo, koreksi, FR-CHG dan tiga tabel target tambahan; acuan PRD v0.4 |
 | 1.1 | 20 Oktober 2026 | Integrasi Desain Database v1.0: 13 tabel, kamus data lengkap, ERD baru, audit, kondisi fisik, snapshot denda, integritas/concurrency dan penyelarasan FR/BR/traceability. |
+| 1.3 | 30 Oktober 2026 | Keputusan pemilik proyek: gabung langsung sebagai Member; join request dan undangan dihapus; migration penghapusan tabel; 14 tabel rancangan. Keputusan lama: `Riwayat_Keputusan.md` |
 
 
 ### 10.6 Keputusan desain database yang diintegrasikan pada revisi 1.1
@@ -1497,7 +1420,7 @@ Keputusan berikut diintegrasikan atas permintaan pemilik proyek. Riwayat persetu
 | ID | Keputusan | Dasar / dampak |
 | --- | --- | --- |
 | D01 | Tambah `audit_logs`, terpisah dari `asset_logs` | PRD F03/F08/F10 dan 8.6 meminta audit membership/settings yang tidak terikat aset |
-| D02 | `organization_user.status` hanya `active`/`revoked`; pasangan user–org tetap satu baris | Menyatukan kebutuhan status membership PRD 8.4 dengan join request terpisah pada SRS. PENDING/REJECTED ada pada request, bukan membership. Pencabutan menggantikan penghapusan fisik pivot; ajukan ulang mereaktivasi baris lama dengan audit baru |
+| D02 | `organization_user.status` hanya `active`/`revoked`; pasangan user-org tetap satu baris | Tidak ada status pending karena join request dihapus (30 Oktober 2026). Pencabutan menggantikan penghapusan fisik pivot; user yang dicabut tidak dapat mengaktifkan dirinya kembali melalui Gabung |
 | D03 | Tambah `assets.physical_condition`; AVAILABLE hanya untuk kondisi good/minor_damage | PRD F04 membedakan kondisi fisik dan status operasional. Penetapan kondisi fisik major pada aset tersedia harus disertai maintenance; ini memperketat opsi noted pada SRS untuk kerusakan major yang telah dikonfirmasi |
 | D04 | `organizations.slug`, `assets.code`, dan organisasi pemilik aset immutable | QR berisi `/o/{slug}/assets/{code}` sehingga mengganti slug juga dapat merusak QR; mengubah nama organisasi tidak mengganti slug |
 | D05 | Maksimal satu damage report berstatus `in_maintenance` per aset | Mencegah satu perbaikan selesai membuat aset tersedia ketika perbaikan lain masih aktif. Laporan open/noted tetap boleh lebih dari satu |
@@ -1506,7 +1429,7 @@ Keputusan berikut diintegrasikan atas permintaan pemilik proyek. Riwayat persetu
 | D08 | Member melihat timeline aset yang disaring; rincian pinjaman pribadi hanya pada My Borrowing | Menyatukan FR-HIS-02 dengan pembatasan histori PRD. Sembunyikan identitas/data pribadi peminjam lain, alasan, denda, dan diff audit. Admin/Staff melihat detail operasional; audit umum hanya Admin |
 | D09 | Snapshot tarif dan batas durasi dibuat saat approve | Denda pinjaman berjalan tidak berubah ketika Admin mengubah pengaturan organisasi. Snapshot tidak berubah setelah approve |
 | D10 | Semua timestamp disimpan UTC; tanggal pinjam/jatuh tempo adalah tanggal kalender Asia/Jakarta | Mengikuti zona waktu produk pada SRS; zona waktu perangkat pengguna tidak mengubah perhitungan denda |
-| D11 | Token undangan disimpan sebagai `token_hash`, bukan token mentah | Tetap memenuhi token unik/sekali pakai. Kirim ulang merotasi token dan memberi masa berlaku 7 hari baru, disertai audit |
+| D11 | (Dibatalkan 30 Oktober 2026) Token undangan disimpan sebagai `token_hash` | Tabel organization_invitations dihapus; spesifikasi lama ada pada `Riwayat_Keputusan.md` |
 | D12 | Satu borrowing untuk satu aset dan satu inspeksi final | Sesuai alur detail aset SRS dan rancangan awal. Tidak ada tabel detail peminjaman, stok, atau reservasi; tabel pembayaran ditambahkan pada revisi 1.2 |
 
 ### 10.7 Paket pendamping

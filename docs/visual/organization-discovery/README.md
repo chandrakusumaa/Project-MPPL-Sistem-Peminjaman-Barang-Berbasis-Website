@@ -4,7 +4,7 @@ Revisi 30 Oktober 2026 atas pemisahan navigasi yang diminta pemilik proyek. Peme
 
 ## Perilaku terbaru
 
-- **Organization Saya** pada `/my-organizations` adalah area akun terverifikasi. Tab Jelajahi Organization membuka daftar untuk mengajukan bergabung pada halaman yang sama; sidebar tetap tampil. Tab terpilih dipertahankan setelah reload; pencarian, filter, dan pagination tetap berfungsi.
+- **Organization Saya** pada `/my-organizations` adalah area akun terverifikasi. Tab Jelajahi Organization membuka daftar untuk bergabung langsung (tombol Gabung; sejak 30 Oktober 2026 tanpa pengajuan/persetujuan) pada halaman yang sama; sidebar tetap tampil. Tab terpilih dipertahankan setelah reload; pencarian, filter, dan pagination tetap berfungsi.
 - **Jelajahi Organization** pada navbar membuka `/organizations`, daftar publik untuk guest maupun akun login. Halaman ini tidak mempunyai tab Organization Saya, tombol buat, atau aksi membership langsung; kartu menuju profil publik.
 - Label/pesan bawaan di frontend dan email memakai **Organization**, termasuk tombol, kategori, konteks role, form, notifikasi, dan pesan arsip. Data nama/deskripsi yang dimasukkan pengguna tetap ditampilkan dari backend.
 - Tulisan penjelasan di bawah sidebar dihapus. Lonceng, profil, navigasi mobile, dan role per Organization tetap berfungsi.

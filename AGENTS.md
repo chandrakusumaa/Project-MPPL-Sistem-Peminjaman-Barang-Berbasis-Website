@@ -11,7 +11,8 @@ PRD/SRS adalah spesifikasi aktif. Proposal di `Pedoman/Arsip/` adalah historis. 
 - Istilah antarmuka yang dipilih pemilik proyek pada 30 Oktober 2026 adalah **Organization**, menggantikan label bawaan Ruang Inventaris/ruang. Istilah lama pada source prototipe dan spesifikasi historis mengacu konsep data yang sama.
 - Ruang Inventaris dapat dibuat individu/kelompok; satu akun dapat Admin di ruang sendiri dan Member di ruang lain.
 - Role melekat pada membership per ruang, bukan user global atau halaman yang dibuka.
-- Katalog membutuhkan membership aktif. Join request berbeda dari borrowing request.
+- Keputusan pemilik proyek 30 Oktober 2026: Organization dimasuki **langsung sebagai Member** oleh pengguna terverifikasi (tombol Gabung). Tidak ada join request, persetujuan bergabung, maupun undangan; role awal `member` ditetapkan backend, hanya Admin Organization terkait yang menaikkan role, dan membership `revoked` menolak Gabung. Keputusan lama ada di `Pedoman/Riwayat_Keputusan.md` (historis, bukan acuan). Borrowing request/approval/rejection/cancellation tetap ada.
+- Katalog membutuhkan membership aktif.
 - Satu aset = satu unit fisik dengan kode/QR stabil; tidak ada sistem stok.
 - Pengajuan masa depan bukan reservasi. Approval, pengembalian dan inspeksi mengikuti SRS.
 - Tagihan late_fee/damage/loss terpisah. Pembayaran manual, tanpa gateway; hanya confirmed mengurangi saldo. Credit/void tidak menghapus histori.

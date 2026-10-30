@@ -39,7 +39,7 @@ if (($argv[1] ?? '') === 'cleanup') {
         if (DB::table('organizations')->whereIn('id', $fixture['organizationIds'])->whereNotIn('created_by', $fixture['userIds'])->exists()) {
             throw new RuntimeException('Refusing to delete an organization outside this browser run.');
         }
-        foreach (['notifications', 'asset_logs', 'audit_logs', 'charge_credits', 'charge_payments', 'borrower_charges', 'damage_reports', 'borrowings', 'assets', 'asset_categories', 'membership_requests', 'organization_invitations', 'organization_user'] as $table) {
+        foreach (['notifications', 'asset_logs', 'audit_logs', 'charge_credits', 'charge_payments', 'borrower_charges', 'damage_reports', 'borrowings', 'assets', 'asset_categories', 'organization_user'] as $table) {
             DB::table($table)->whereIn('organization_id', $fixture['organizationIds'])->delete();
         }
         DB::table('organizations')->whereIn('id', $fixture['organizationIds'])->delete();

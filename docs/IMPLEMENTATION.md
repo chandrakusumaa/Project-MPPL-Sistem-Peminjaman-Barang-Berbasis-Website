@@ -9,7 +9,7 @@ Dokumen membedakan kode yang tersedia, skenario yang benar-benar diperiksa, dan 
 | Lingkup | Frontend–backend | Bukti utama |
 | --- | --- | --- |
 | F01 Akun | Register, normalisasi email, signed verification, login/logout, reset, rate limit | Pest register/unverified/signed/forged URL/reset; Chromium login/logout |
-| F02 Ruang & membership | Buat ruang + Admin atomik, discovery/filter, profil publik, Ruang Saya, join/review/cancel, undangan hash/resend/expiry/revoke, role | Pest pembuatan ruang Livewire, join/review, undangan email berbeda, last Admin; profil publik tanpa katalog |
+| F02 Ruang & membership | Buat ruang + Admin atomik, discovery/filter, profil publik, Ruang Saya, gabung langsung sebagai Member (idempoten, tolak revoked/arsip), perubahan role oleh Admin | Pest pembuatan ruang Livewire, join langsung, idempotensi, revoked/arsip/terhapus/belum verifikasi, role hanya Admin, last Admin; profil publik tanpa katalog |
 | F03 Otorisasi | Policy server, role lokal, membership aktif, scope resource, menu Admin nonaktif untuk Staff, arsip read-only | Pest lintas akun/ruang, mutasi Member, export Staff, arsip/unarchive |
 | F04 Inventaris | Kategori, metadata/foto, filter/sort/pagination, soft delete, ULID immutable, damage report, penilaian, maintenance, ditemukan kembali | Pest FK lintas ruang, identifier, inspeksi major/perbaikan; Chromium membuat aset |
 | F05 QR | Simple QrCode SVG/PNG, stiker, html5-qrcode, kode manual, URL stabil | Pest SVG, signature PNG asli, stiker, pembatasan anggota |
