@@ -15,6 +15,6 @@ try{
  await page.screenshot({path:'/tmp/orginventory-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/orginventory-mobile.png',fullPage:true});
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false,'mobile page must not overflow horizontally');
- await page.getByRole('button',{name:'Keluar',exact:true}).click();await page.waitForURL(base+'/');
+ await page.getByRole('button',{name:'Buka menu ruang'}).click();await page.locator('.oi-sidebar.is-open').waitFor({state:'visible'});await page.getByRole('button',{name:'Keluar',exact:true}).click();await page.waitForURL(base+'/');
  assert.deepEqual(errors,[]);console.log('PASS: real Chromium login, database-backed Livewire navigation, asset creation, logout, desktop/mobile layouts');
 }finally{await browser.close();}

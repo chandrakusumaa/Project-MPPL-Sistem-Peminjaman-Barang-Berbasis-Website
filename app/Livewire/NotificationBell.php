@@ -6,6 +6,8 @@ use Livewire\Component;
 
 class NotificationBell extends Component
 {
+    public string $variant = 'account';
+
     public function render()
     {
         return view('livewire.notification-bell', ['count' => auth()->user()->unreadNotifications()->count(), 'recent' => auth()->user()->notifications()->limit(5)->get()]);

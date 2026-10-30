@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\SwitchesWorkspaces;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Locked;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 class Reports extends Component
 {
+    use SwitchesWorkspaces;
+
     #[Locked]
     public int $organizationId;
 
@@ -29,6 +32,6 @@ class Reports extends Component
         $org = Organization::findOrFail($this->organizationId);
         Gate::authorize('administer', $org);
 
-        return view('livewire.reports', ['org' => $org])->layout('components.layout');
+        return view('livewire.reports', ['org' => $org, 'workspaces' => $this->availableWorkspaces()])->layout('components.layout', ['context' => 'workspace']);
     }
 }

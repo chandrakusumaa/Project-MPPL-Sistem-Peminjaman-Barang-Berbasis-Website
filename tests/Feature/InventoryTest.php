@@ -372,3 +372,44 @@ it('documents loss without automatic damage billing or inventing a known physica
     app(SettleCharge::class)->change($this->admin, $this->org, $c->id, 'issue');
     expect($c->fresh()->status)->toBe('issued');
 });
+
+it('renders the management dashboard from scoped live data instead of the catalog', function () {
+    $pending = requestFor($this);
+    $this->actingAs($this->admin);
+    Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->assertSet('tab', 'dashboard')
+        ->assertSee('Total aset')->assertSee('Permintaan peminjaman')
+        ->assertDontSee('Katalog aset')
+        ->assertViewHas('summary', fn ($s) => $s['pending'] === 1 && $s['members'] === 3 && $s['pendingRequests']->first()->id === $pending->id);
+    $this->get('/o/'.$this->org->slug.'?tab=inventory')->assertOk()->assertSee('Katalog aset');
+});
+it('preserves member catalog entry and prevents member access to management summaries', function () {
+    $this->actingAs($this->member);
+    Livewire::test(Workspace::class, ['organization' => $this->org])->assertSet('tab', 'inventory')->assertSee('Katalog aset')->set('tab', 'dashboard')->assertForbidden();
+});
+it('switches only to active memberships and keeps roles local to the selected workspace', function () {
+    $otherOrg = app(ManageWorkspace::class)->create($this->other, ['name' => 'Ruang Kedua', 'category' => 'lainnya']);
+    Membership::create(['organization_id' => $otherOrg->id, 'user_id' => $this->admin->id, 'role' => 'member', 'status' => 'active', 'joined_at' => now()]);
+    $this->actingAs($this->admin);
+    Livewire::test(Workspace::class, ['organization' => $this->org])->call('switchWorkspace', $otherOrg->slug)->assertRedirect(route('workspace', $otherOrg));
+    $this->get(route('workspace', $otherOrg))->assertOk()->assertSee('MEMBER')->assertSee('Katalog aset')->assertDontSee('Permintaan peminjaman');
+    expect(Membership::where('organization_id', $this->org->id)->where('user_id', $this->admin->id)->value('role'))->toBe('admin');
+    $this->actingAs($this->staff);
+    Livewire::test(Workspace::class, ['organization' => $this->org])->call('switchWorkspace', $otherOrg->slug)->assertNotFound();
+});
+it('uses existing asset and review forms for dashboard actions without mutating transactions', function () {
+    $pending = requestFor($this);
+    $this->actingAs($this->admin);
+    Livewire::test(Workspace::class, ['organization' => $this->org])->call('openAssetForm')->assertSet('tab', 'inventory')->assertSet('assetFormOpen', true)->assertHasNoErrors();
+    Livewire::test(Workspace::class, ['organization' => $this->org])->set('borrowSearch', 'no match')->call('reviewBorrowing', $pending->id)->assertSet('tab', 'borrowings')->assertSet('borrowSearch', '')->assertSee($this->member->name);
+    expect($pending->fresh()->status)->toBe('pending');
+    $this->actingAs($this->staff)->get(route('workspace', $this->org).'?tab=members')->assertForbidden();
+});
+it('shows the correct outstanding and pending payments in the room summary', function () {
+    $c = chargeFor($this);
+    $paid = paymentFor($this, $c, 50000, 'dash-paid');
+    paymentFor($this, $c, 100000, 'dash-pending');
+    app(SettleCharge::class)->change($this->admin, $this->org, $c->id, 'confirm', ['payment_id' => $paid->id]);
+    $this->actingAs($this->admin);
+    Livewire::test(Workspace::class, ['organization' => $this->org])->assertViewHas('summary',fn ($s) => $s['balance'] === 100000 && $s['pendingPayments'] === 1)->assertSee('Rp100.000');
+});
