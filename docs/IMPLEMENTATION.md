@@ -70,3 +70,13 @@ Halaman publik `/organizations` sebelumnya menampilkan form pembuatan ruang kepa
 - Chromium memeriksa registrasi akun belum terverifikasi, login, petunjuk pada halaman publik, serta pengalihan aksi Livewire tanpa popup Forbidden.
 - Login `other@example.test` dan pembuatan ruang melalui UI Livewire diperiksa di Chromium; pembuat mendapat role Admin. Ruang pengujian dihapus melalui pengaturan Admin sesudah pemeriksaan.
 - Akun dummy terverifikasi sudah disediakan seeder; README kini menjelaskan pemakaian dengan PHP langsung serta verifikasi akun development melalui mail log. Database pada laptop pengguna tidak diakses atau diubah dari environment cloud.
+
+## Dashboard pribadi dan navigasi — 30 Oktober 2026
+
+`/dashboard` sekarang merender `PersonalDashboard`, terpisah dari discovery `Home` pada `/organizations`. Ringkasan, Organization yang dibuat/diikuti, pinjaman berjalan, dan riwayat terbaru berasal dari data akun sendiri. Daftar Organization pada sidebar akun/ruang memakai dropdown. Header bersama menyediakan Beranda, Jelajahi Organization, Dashboard, dan lonceng di samping profil; Beranda tetap membuka landing page setelah login.
+
+`/my-charges` menambahkan Tagihan Saya dengan total terbit, pembayaran terkonfirmasi, pembebasan, sisa, keterangan, filter tagihan, serta riwayat pembayaran dengan pagination independen. Relasi dan query baca baru tidak mengubah schema atau otorisasi finansial/ruang.
+
+- Suite: **62 pengujian Pest lulus, 275 assertion**. Build frontend dan Pint lulus.
+- Browser akun baru, regresi manajemen ruang, dan smoke test inventaris lulus, termasuk perpindahan role lokal dan mobile 390×844.
+- Screenshot sebelum/referensi/hasil, pengukuran desktop, daftar pemeriksaan dan perbedaan visual: [laporan dashboard pribadi](visual/account-dashboard/README.md).

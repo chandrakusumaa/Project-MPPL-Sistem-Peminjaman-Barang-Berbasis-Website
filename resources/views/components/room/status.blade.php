@@ -7,6 +7,9 @@
         'maintenance' => ['Maintenance', 'amber'],
         'lost' => ['Hilang', 'red'],
         'pending' => ['Menunggu', 'amber'],
+        'returned' => ['Dikembalikan', 'green'],
+        'rejected' => ['Ditolak', 'red'],
+        'cancelled' => ['Dibatalkan', 'neutral'],
         default => [ucfirst($value), 'neutral'],
     };
 @endphp

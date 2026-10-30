@@ -28,6 +28,8 @@
         'close' => 'M6 6l12 12 M18 6L6 18',
         'external' => 'M14 3h7v7 M21 3l-11 11 M10 3H3v18h18v-7',
         'arrow-left' => 'M19 12H5 M11 6l-6 6 6 6',
+        'chevron-down' => 'M6 9l6 6 6-6',
+        'qr' => 'M3 3h6v6H3z M15 3h6v6h-6z M3 15h6v6H3z M15 15h3v3h3v3h-6z M12 3v6 M3 12h6 M12 12h6v-1 M12 15v6 M21 12v3',
     ];
 @endphp
 <svg {{ $attributes->merge(['class' => 'oi-icon']) }} viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ $paths[$name] ?? $paths['grid'] }}"/></svg>

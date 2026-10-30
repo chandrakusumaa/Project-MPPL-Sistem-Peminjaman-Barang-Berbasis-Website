@@ -61,6 +61,7 @@ try {
 
     // Create and remove only this test's own empty development room via existing UI.
     await page.goto(base + '/dashboard');
+    await page.locator('.oi-head-actions').getByRole('link', { name: 'Buat Organization', exact: true }).click();
     const name = 'Uji visual ' + Date.now();
     await page.getByLabel('Nama ruang', { exact: true }).fill(name);
     await page.getByRole('button', { name: 'Buat ruang', exact: true }).click();
@@ -165,7 +166,7 @@ try {
     await logout();
     assert.deepEqual(errors, []);
     fs.writeFileSync(path.join(output, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n');
-    console.log('PASS: reference geometry, desktop/mobile screenshots, mobile navigation, asset CTA, room switch, personal context, reports, and Admin/Staff/Member permissions');
+    console.log('PASS: ' + (metrics.reference ? 'reference geometry, ' : '') + 'desktop/mobile screenshots, mobile navigation, asset CTA, room switch, personal context, reports, and Admin/Staff/Member permissions');
 } finally {
     if (temporaryRoom) {
         // Best effort: only remove the uniquely named empty room created above.

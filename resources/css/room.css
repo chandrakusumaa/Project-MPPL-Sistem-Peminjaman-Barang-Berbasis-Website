@@ -1,5 +1,5 @@
-/* Management shell: dimensions/tokens from Pedoman/Desain/source/OrgInventory.css.
-   Selectors are scoped to .oi-room; legacy account pages keep their own styles. */
+/* Shared shell: dimensions/tokens from Pedoman/Desain/source/OrgInventory.css.
+   Public, account, and room layouts opt in through .oi-room. */
 .oi-room{--oi-red:#dc2626;--oi-red-dark:#b91c1c;--oi-red-pale:#fff1f2;--oi-ink:#172033;--oi-muted:#667085;--oi-line:#e9edf3;--oi-bg:#f7f8fb;background:var(--oi-bg);color:var(--oi-ink);font:14px/1.55 Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
 .oi-room *{box-sizing:border-box}
 .oi-room a{color:inherit;text-decoration:none}
@@ -99,8 +99,8 @@
 @media(max-width:1100px){.oi-room .oi-head-actions{flex-shrink:1}.oi-room .oi-select{max-width:210px}}
 @media(max-width:940px){.oi-room .oi-topnav{gap:13px}.oi-room .oi-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.oi-room .oi-app-layout{grid-template-columns:205px minmax(0,1fr)}}
 @media(max-width:700px){
-.oi-room .oi-wrap{width:calc(100% - 28px)}.oi-room .oi-topbar-inner{gap:10px}.oi-room .oi-topnav,.oi-room .oi-hide-mobile{display:none}.oi-room .oi-top-actions{gap:8px}.oi-room .oi-brand{font-size:17px}.oi-room .oi-brand-mark{width:34px;height:34px}
-.oi-room .oi-mobile-toggle{display:inline-flex}.oi-room .oi-mobile-only{display:block}.oi-room .oi-sidebar-backdrop{display:block;position:fixed;inset:74px 0 0;border:0;border-radius:0;background:#17203340;z-index:24}.oi-room .oi-app-layout{display:block}.oi-room .oi-sidebar{display:none;position:fixed;top:74px;bottom:0;left:0;width:265px;max-width:calc(100vw - 32px);z-index:25;box-shadow:12px 0 36px #11182720;overflow:auto;overscroll-behavior:contain}.oi-room .oi-sidebar.is-open{display:flex}
+.oi-room .oi-wrap{width:calc(100% - 28px)}.oi-room .oi-topbar{height:118px}.oi-room .oi-topbar-inner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}.oi-room .oi-topnav{display:flex;grid-row:2;grid-column:1/-1;justify-content:space-between;gap:10px;font-size:12px}.oi-room .oi-topnav a{padding:4px 0}.oi-room .oi-hide-mobile{display:none}.oi-room .oi-top-actions{gap:8px;grid-column:2;grid-row:1}.oi-room .oi-brand{font-size:17px}.oi-room .oi-brand-mark{width:34px;height:34px}
+.oi-room .oi-mobile-toggle{display:inline-flex}.oi-room .oi-mobile-only{display:block}.oi-room .oi-sidebar-backdrop{display:block;position:fixed;inset:118px 0 0;border:0;border-radius:0;background:#17203340;z-index:24}.oi-room .oi-app-layout{display:block;min-height:calc(100vh - 118px)}.oi-room .oi-sidebar{display:none;position:fixed;top:118px;bottom:0;left:0;width:265px;max-width:calc(100vw - 32px);z-index:25;box-shadow:12px 0 36px #11182720;overflow:auto;overscroll-behavior:contain}.oi-room .oi-sidebar.is-open{display:flex}
 .oi-room .oi-main{padding:23px 14px 46px}.oi-room .oi-context{align-items:flex-start;flex-direction:column;gap:8px}.oi-room .oi-page-head{flex-direction:column}.oi-room .oi-head-actions{width:100%;flex-shrink:1}.oi-room .oi-select{flex:1;max-width:none;width:100%;min-width:0}
 .oi-room .oi-stats{gap:10px}.oi-room .oi-stat-card{padding:13px}.oi-room .oi-stat-number{font-size:25px}.oi-room .oi-cols-2,.oi-room .oi-cols-3{grid-template-columns:1fr}.oi-room .oi-table{min-width:440px}.oi-room .oi-panel-head{padding:17px 16px}.oi-room .oi-panel-head .oi-btn{padding:7px 5px}.oi-room .oi-secondary-metrics{gap:8px}
 .oi-public .oi-public-header{padding:12px 14px}.oi-public .oi-public-header nav{display:none}.oi-public .oi-public-actions{gap:12px}.oi-public .oi-public-content{padding:24px 15px}
