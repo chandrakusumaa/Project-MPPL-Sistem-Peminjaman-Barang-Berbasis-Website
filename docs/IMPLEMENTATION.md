@@ -100,3 +100,15 @@ Target aktif **14 tabel**. Migration baru mengarsipkan histori privat sebelum me
 - Migration diterapkan ke cloud development tanpa reset. `.env` pengguna tidak diubah.
 
 Bagian hasil task terdahulu pada dokumen ini merupakan histori versi sebelumnya.
+
+## Form laporan kerusakan melalui tombol — 30 Oktober 2026
+
+Katalog dan detail aset menampilkan tombol **Laporkan Kerusakan** pada tiap aset. Form baru ditampilkan sesudah tombol ditekan, menyebut aset yang dipilih, dan menyediakan uraian wajib, peminjaman terkait opsional, serta foto opsional. Batal menutup dan membersihkan draft; pengiriman berhasil juga menutup form dengan pesan sukses. Fokus diarahkan ke uraian ketika membuka form dan kembali ke tombol aset ketika ditutup.
+
+State laporan dipisahkan dari pengajuan peminjaman dan formulir operasional lain. Pilihan peminjaman berasal dari aset yang dipilih pada Organization aktif, dengan pembatasan pemilik untuk Member. Identitas aset dikunci oleh Livewire dan diperiksa ulang pada backend; penyimpanan tetap melalui `MaintainAsset`, termasuk permission, transaksi, audit, dan storage foto privat yang sudah ada. Tidak ada perubahan skema atau migration.
+
+Berkas aplikasi yang berubah: `app/Livewire/Workspace.php`, `resources/views/livewire/workspace.blade.php`, dan partial baru `resources/views/livewire/damage-report-form.blade.php`.
+
+- **43 pengujian inventaris lulus, 173 assertion**; build frontend, Pint, dan pemeriksaan diff lulus.
+- Chromium nyata dengan fixture terisolasi memeriksa Member/Admin: form awal tidak ada, buka tanpa membuat laporan, fokus, Batal/reset, validasi server, peminjaman terkait, unggah foto privat, penyimpanan, serta laporan muncul di daftar. Isian pengajuan peminjaman tetap terjaga. Fixture dan foto uji dibersihkan sesudah pemeriksaan.
+- Screenshot desktop 1440×1000 dan mobile 390×844 telah dilihat; form terbaca dan halaman tidak melebar. Tabel tetap memiliki area scroll horizontal tersendiri. Pemeriksaan ini memakai aplikasi berjalan, tanpa membandingkan ulang canvas MagicPath live.

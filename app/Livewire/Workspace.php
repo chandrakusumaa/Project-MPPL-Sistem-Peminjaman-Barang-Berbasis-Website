@@ -57,6 +57,15 @@ class Workspace extends Component
 
     public bool $assetFormOpen = false;
 
+    #[Locked]
+    public int $reportAssetId = 0;
+
+    public string $reportDescription = '';
+
+    public int $reportBorrowingId = 0;
+
+    public $reportPhoto;
+
     public string $search = '';
 
     public string $categoryName = '';
@@ -189,15 +198,41 @@ class Workspace extends Component
 
     public int $dailyFine = 0;
 
-    public function report(int $assetId): void
+    public function openDamageReport(int $assetId): void
+    {
+        Asset::where('organization_id', $this->org()->id)->findOrFail($assetId);
+        $this->reset('reportDescription', 'reportBorrowingId', 'reportPhoto');
+        $this->resetValidation();
+        $this->reportAssetId = $assetId;
+        $this->dispatch('oi-focus-field', field: 'reportDescription');
+    }
+
+    public function closeDamageReport(): void
+    {
+        $assetId = $this->reportAssetId;
+        $this->reset('reportAssetId', 'reportDescription', 'reportBorrowingId', 'reportPhoto');
+        $this->resetValidation();
+        $this->dispatch('oi-focus-field', field: 'report-button-'.$assetId);
+    }
+
+    public function report(): void
     {
         $org = $this->org();
-        $path = null;
-        if ($this->evidence) {
-            $this->validate(['evidence' => 'file|mimes:jpg,jpeg,png|max:2048']);
-            $path = $this->evidence->store('evidence/'.$org->id, 'local');
-        }app(MaintainAsset::class)->report(auth()->user(), $org, $assetId, $this->notes, $path, $this->borrowingId ?: null);
+        Asset::where('organization_id', $org->id)->findOrFail($this->reportAssetId);
+        $this->reportDescription = trim($this->reportDescription);
+        $this->validate([
+            'reportDescription' => 'required|string|min:10',
+            'reportBorrowingId' => 'required|integer|min:0',
+            'reportPhoto' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'reportDescription.required' => 'Uraian kerusakan wajib diisi.',
+            'reportDescription.min' => 'Uraian kerusakan minimal 10 karakter.',
+        ]);
+        $path = $this->reportPhoto?->store('evidence/'.$org->id, 'local');
+        app(MaintainAsset::class)->report(auth()->user(), $org, $this->reportAssetId, $this->reportDescription, $path, $this->reportBorrowingId ?: null);
+        $this->closeDamageReport();
         $this->success();
+        session()->flash('status', 'Laporan kerusakan berhasil dikirim.');
     }
 
     public function maintain(int $id, string $action): void
@@ -388,6 +423,15 @@ class Workspace extends Component
         }
         $top = DB::table('borrowings')->join('assets', 'assets.id', '=', 'borrowings.asset_id')->where('borrowings.organization_id', $org->id)->whereNotNull('borrowings.approved_at')->groupBy('assets.id', 'assets.name')->selectRaw('assets.name, COUNT(*) as total')->orderByDesc('total')->limit(5)->pluck('total', 'name');
 
+        $reportAsset = $this->tab === 'inventory' && $this->reportAssetId
+            ? Asset::where('organization_id', $org->id)->find($this->reportAssetId)
+            : null;
+        $reportBorrowings = $reportAsset
+            ? Borrowing::where('organization_id', $org->id)->where('asset_id', $reportAsset->id)
+                ->when(! $operator, fn ($query) => $query->where('user_id', auth()->id()))
+                ->with('borrower')->latest()->get()
+            : collect();
+
         $summary = [];
         if ($operator && $this->tab === 'dashboard') {
             $borrowingCounts = Borrowing::where('organization_id', $org->id)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
@@ -407,6 +451,6 @@ class Workspace extends Component
             ];
         }
 
-        return view('livewire.workspace', ['summary' => $summary, 'workspaces' => $this->availableWorkspaces(), 'monthly' => $monthly, 'top' => $top, 'reports' => DamageReport::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))->latest()->paginate(20, ['*'], 'reportsPage'), 'org' => $org, 'operator' => $operator, 'admin' => $admin, 'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12), 'categories' => AssetCategory::where('organization_id', $org->id)->get(), 'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'), 'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'), 'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(), 'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(), 'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status')])->layout('components.layout', ['context' => 'workspace']);
+        return view('livewire.workspace', ['reportAsset' => $reportAsset, 'reportBorrowings' => $reportBorrowings, 'summary' => $summary, 'workspaces' => $this->availableWorkspaces(), 'monthly' => $monthly, 'top' => $top, 'reports' => DamageReport::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))->latest()->paginate(20, ['*'], 'reportsPage'), 'org' => $org, 'operator' => $operator, 'admin' => $admin, 'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12), 'categories' => AssetCategory::where('organization_id', $org->id)->get(), 'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'), 'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'), 'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(), 'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(), 'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status')])->layout('components.layout', ['context' => 'workspace']);
     }
 }
