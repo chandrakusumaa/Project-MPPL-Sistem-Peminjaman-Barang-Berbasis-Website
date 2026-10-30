@@ -23,6 +23,6 @@ class ActivityMail extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)->subject('Organization Inventory: '.$this->event)->line('Ada pembaruan aktivitas di Ruang Inventaris Anda.')->action('Lihat ruang', $this->url);
+        return (new MailMessage)->subject('Organization Inventory: '.$this->event)->line('Ada pembaruan aktivitas di Organization Anda.')->action('Lihat Organization', $this->url);
     }
 }

@@ -1,1 +1,1 @@
-<x-layout><section class="card"><h1>Undangan Ruang Inventaris</h1><p>Penerimaan hanya berlaku untuk akun terverifikasi dengan email yang diundang.</p><form method="POST">@csrf<button class="primary">Terima undangan</button></form></section></x-layout>
+<x-layout><section class="card"><h1>Undangan Organization</h1><p>Penerimaan hanya berlaku untuk akun terverifikasi dengan email yang diundang.</p><form method="POST">@csrf<button class="primary">Terima undangan</button></form></section></x-layout>

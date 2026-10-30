@@ -5,6 +5,7 @@ use App\Actions\ManageWorkspace;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\QrController;
+use App\Livewire\ExploreOrganizations;
 use App\Livewire\Home;
 use App\Livewire\Notifications;
 use App\Livewire\PersonalBorrowings;
@@ -26,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/', fn () => view('landing'))->name('landing');
-Route::get('/organizations', Home::class)->name('organizations');
+Route::get('/organizations', ExploreOrganizations::class)->name('organizations');
 Route::middleware('guest')->group(function () {
     Route::get('/login', fn () => view('auth', ['mode' => 'login']))->name('login');
     Route::get('/register', fn () => view('auth', ['mode' => 'register']))->name('register');
@@ -53,6 +54,7 @@ Route::middleware('auth')->group(function () {
 });
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', PersonalDashboard::class)->name('dashboard');
+    Route::get('/my-organizations', Home::class)->name('personal.organizations');
     Route::get('/my-charges', PersonalCharges::class)->name('personal.charges');
     Route::get('/o/{organization:slug}', Workspace::class)->name('workspace');
     Route::get('/o/{organization:slug}/assets/{asset:code}/qr', QrController::class)->name('asset.qr');
@@ -114,7 +116,7 @@ Route::post('/ruang/{organization:slug}/join', function (Organization $organizat
     app(ManageWorkspace::class)->join(auth()->user(), $organization);
 
     return back()->with('status', 'Pengajuan bergabung dikirim.');
-})->middleware(['auth', 'verified']);
+})->middleware(['auth', 'verified'])->name('organization.join');
 Route::get('/o/{organization:slug}/assets/{asset:code}', Workspace::class)->middleware(['auth', 'verified'])->name('asset.show');
 Route::get('/my-borrowings', PersonalBorrowings::class)->middleware(['auth', 'verified'])->name('personal.borrowings');
 Route::get('/o/{organization:slug}/reports', Reports::class)->middleware(['auth', 'verified'])->name('reports');

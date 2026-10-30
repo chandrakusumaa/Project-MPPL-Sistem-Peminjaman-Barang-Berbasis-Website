@@ -23,7 +23,7 @@ abstract class WorkspaceAction
             $organization = Organization::whereKey($organization->id)->lockForUpdate()->firstOrFail();
             Membership::where('organization_id', $organization->id)->where('user_id', $actor->id)->lockForUpdate()->first();
             Gate::forUser($actor)->authorize($ability, $organization);
-            $this->check(! $organization->archived_at, 'Ruang diarsipkan dan hanya dapat dibaca.');
+            $this->check(! $organization->archived_at, 'Organization diarsipkan dan hanya dapat dibaca.');
 
             return $action($organization);
         }, 3);

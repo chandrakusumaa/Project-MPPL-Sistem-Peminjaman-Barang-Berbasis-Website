@@ -3,6 +3,7 @@
 use App\Actions\BorrowAsset;
 use App\Actions\ManageWorkspace;
 use App\Actions\SettleCharge;
+use App\Livewire\ExploreOrganizations;
 use App\Livewire\Home;
 use App\Livewire\PersonalCharges;
 use App\Livewire\PersonalDashboard;
@@ -68,7 +69,7 @@ function personalPayment($test, BorrowerCharge $charge, int $amount, string $sta
 
 it('separates the personal dashboard, discovery, and landing for signed-in users', function () {
     $this->actingAs($this->admin)->get('/dashboard')->assertOk()->assertSeeLivewire(PersonalDashboard::class)->assertSee('Peminjaman terbaru')->assertDontSee('wire:submit="create"', false);
-    $this->get('/organizations')->assertOk()->assertSeeLivewire(Home::class)->assertSee('Cari Organization')->assertDontSee('Peminjaman terbaru');
+    $this->get('/organizations')->assertOk()->assertSeeLivewire(ExploreOrganizations::class)->assertSee('Cari Organization')->assertDontSee('Peminjaman terbaru');
     $this->get('/')->assertOk()->assertSee('Barang tertata.')->assertDontSee('id="account-sidebar"', false);
     $this->get('/my-charges')->assertOk()->assertSeeLivewire(PersonalCharges::class);
 });
@@ -99,7 +100,7 @@ it('provides an empty personal dashboard and protects account routes before veri
         ->assertViewHas('summary', ['organizations' => 0, 'borrowings' => 0, 'active' => 0, 'pending' => 0])
         ->assertSee('Belum mengikuti Organization')->assertSee('Belum ada peminjaman');
     $user = User::factory()->unverified()->create();
-    foreach (['/dashboard', '/my-charges'] as $path) {
+    foreach (['/dashboard', '/my-charges', '/my-organizations'] as $path) {
         $this->actingAs($user)->get($path)->assertRedirect(route('verification.notice'));
     }
 });

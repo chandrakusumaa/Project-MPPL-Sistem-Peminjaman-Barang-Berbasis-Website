@@ -63,24 +63,24 @@ try {
     await page.goto(base + '/dashboard');
     await page.locator('.oi-head-actions').getByRole('link', { name: 'Buat Organization', exact: true }).click();
     const name = 'Uji visual ' + Date.now();
-    await page.getByLabel('Nama ruang', { exact: true }).fill(name);
-    await page.getByRole('button', { name: 'Buat ruang', exact: true }).click();
+    await page.getByLabel('Nama Organization', { exact: true }).fill(name);
+    await page.getByRole('button', { name: 'Buat Organization', exact: true }).click();
     const card = page.locator('article').filter({ has: page.getByRole('heading', { name, exact: true }) });
-    const link = card.getByRole('link', { name: 'Buka ruang' });
+    const link = card.getByRole('link', { name: 'Buka Organization' });
     await link.waitFor();
     temporaryRoom = { name, url: await link.getAttribute('href') };
     const slug = new URL(temporaryRoom.url, base).pathname.split('/').pop();
     await page.goto(room);
-    await page.getByLabel('Ruang Inventaris aktif', { exact: true }).selectOption(slug);
+    await page.getByLabel('Organization aktif', { exact: true }).selectOption(slug);
     await page.waitForURL('**/o/' + slug);
     await page.getByRole('heading', { name, exact: true }).waitFor();
-    await page.getByLabel('Ruang Inventaris aktif', { exact: true }).selectOption('peralatan-raka');
+    await page.getByLabel('Organization aktif', { exact: true }).selectOption('peralatan-raka');
     await page.waitForURL('**/o/peralatan-raka');
 
     await page.goto(temporaryRoom.url + '?tab=settings');
-    await page.getByLabel('Konfirmasi nama ruang untuk hapus').fill(name);
+    await page.getByLabel('Konfirmasi nama Organization untuk hapus').fill(name);
     page.once('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: 'Hapus ruang', exact: true }).click();
+    await page.getByRole('button', { name: 'Hapus Organization', exact: true }).click();
     await page.waitForURL('**/dashboard');
     temporaryRoom = null;
 
@@ -126,24 +126,24 @@ try {
     await screenshot('after-mobile.png');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
     assert.ok(await page.locator('.oi-table-wrap').first().evaluate(el => el.scrollWidth > el.clientWidth));
-    await page.getByRole('button', { name: 'Buka menu ruang' }).click();
+    await page.getByRole('button', { name: 'Buka menu Organization' }).click();
     await page.locator('.oi-sidebar.is-open').waitFor({ state: 'visible' });
     await screenshot('after-mobile-menu.png');
-    await page.getByRole('button', { name: 'Tutup menu ruang', exact: true }).click({ position: { x: 380, y: 16 } });
+    await page.getByRole('button', { name: 'Tutup menu Organization', exact: true }).click({ position: { x: 380, y: 16 } });
     await page.locator('.oi-sidebar').waitFor({ state: 'hidden' });
-    await page.getByRole('button', { name: 'Buka menu ruang' }).click();
+    await page.getByRole('button', { name: 'Buka menu Organization' }).click();
     await page.locator('.oi-sidebar.is-open').waitFor({ state: 'visible' });
     await page.keyboard.press('Escape');
     await page.locator('.oi-sidebar').waitFor({ state: 'hidden' });
-    await page.getByRole('button', { name: 'Buka menu ruang' }).click();
+    await page.getByRole('button', { name: 'Buka menu Organization' }).click();
     await page.locator('#room-sidebar').getByRole('button', { name: 'Peminjaman', exact: true }).click();
     await page.getByRole('heading', { name: 'Pengelolaan peminjaman' }).waitFor();
     await page.locator('.oi-sidebar').waitFor({ state: 'hidden' });
-    await page.getByRole('button', { name: 'Buka menu ruang' }).click();
+    await page.getByRole('button', { name: 'Buka menu Organization' }).click();
     await page.locator('#room-sidebar').getByRole('link', { name: 'Beranda pengguna' }).click();
     await page.waitForURL('**/dashboard');
     await page.goto(room);
-    await page.getByRole('button', { name: 'Buka menu ruang' }).click();
+    await page.getByRole('button', { name: 'Buka menu Organization' }).click();
     await logout();
 
     await page.setViewportSize({ width: 1440, height: 1000 });
@@ -172,9 +172,9 @@ try {
         // Best effort: only remove the uniquely named empty room created above.
         try {
             await page.goto(temporaryRoom.url + '?tab=settings');
-            await page.getByLabel('Konfirmasi nama ruang untuk hapus').fill(temporaryRoom.name);
+            await page.getByLabel('Konfirmasi nama Organization untuk hapus').fill(temporaryRoom.name);
             page.once('dialog', dialog => dialog.accept());
-            await page.getByRole('button', { name: 'Hapus ruang', exact: true }).click();
+            await page.getByRole('button', { name: 'Hapus Organization', exact: true }).click();
             await page.waitForURL('**/dashboard');
         } catch { console.error('Temporary test room cleanup needs review:', temporaryRoom.name); }
     }

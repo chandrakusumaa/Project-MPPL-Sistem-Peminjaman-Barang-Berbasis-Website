@@ -14,6 +14,6 @@ class InvitationMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Undangan Ruang Inventaris')->view('mail.invitation');
+        return $this->subject('Undangan Organization')->view('mail.invitation');
     }
 }

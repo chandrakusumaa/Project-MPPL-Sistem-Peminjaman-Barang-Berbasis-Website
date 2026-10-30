@@ -31,8 +31,8 @@ it('keeps public exploration accessible but does not offer an unverified create 
 
     $this->actingAs($user)->get(route('organizations'))
         ->assertOk()
-        ->assertSee('Verifikasi email untuk membuat ruang')
-        ->assertSee(route('verification.notice'))
+        ->assertSee('Jelajahi Organization')
+        ->assertDontSee('Buat Organization')
         ->assertDontSee('wire:submit="create"', false);
     $this->get(route('dashboard'))->assertRedirect(route('verification.notice'));
 });

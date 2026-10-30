@@ -8,6 +8,7 @@ PRD/SRS adalah spesifikasi aktif. Proposal di `Pedoman/Arsip/` adalah historis. 
 
 ## Konsep produk
 
+- Istilah antarmuka yang dipilih pemilik proyek pada 30 Oktober 2026 adalah **Organization**, menggantikan label bawaan Ruang Inventaris/ruang. Istilah lama pada source prototipe dan spesifikasi historis mengacu konsep data yang sama.
 - Ruang Inventaris dapat dibuat individu/kelompok; satu akun dapat Admin di ruang sendiri dan Member di ruang lain.
 - Role melekat pada membership per ruang, bukan user global atau halaman yang dibuka.
 - Katalog membutuhkan membership aktif. Join request berbeda dari borrowing request.

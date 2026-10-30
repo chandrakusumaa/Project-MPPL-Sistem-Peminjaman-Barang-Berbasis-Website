@@ -1,5 +1,7 @@
 # Dashboard pribadi, sidebar, navbar, dan tagihan
 
+Pemisahan Jelajahi publik dan tab akun serta penyesuaian istilah setelah laporan ini dicatat pada [laporan Organization discovery](../organization-discovery/README.md). Screenshot di sini merekam versi sebelumnya.
+
 Pemeriksaan 30 Oktober 2026, Chromium pada viewport **1440×1000** dan **390×844**. Acuan adalah snapshot MagicPath dalam `Pedoman/Desain/source/InventoryEngine.ts` (`renderUserDashboard`, `shell`, `userSidebar`) dan `OrgInventory.css`, ditampilkan melalui harness React lokal. Akses link MagicPath live dari environment ini tidak berhasil; pemeriksaan visual memakai snapshot source lokal, bukan canvas live terbaru.
 
 ## Masalah sebelum perubahan

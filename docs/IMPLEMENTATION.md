@@ -80,3 +80,12 @@ Halaman publik `/organizations` sebelumnya menampilkan form pembuatan ruang kepa
 - Suite: **62 pengujian Pest lulus, 275 assertion**. Build frontend dan Pint lulus.
 - Browser akun baru, regresi manajemen ruang, dan smoke test inventaris lulus, termasuk perpindahan role lokal dan mobile 390×844.
 - Screenshot sebelum/referensi/hasil, pengukuran desktop, daftar pemeriksaan dan perbedaan visual: [laporan dashboard pribadi](visual/account-dashboard/README.md).
+
+## Pemisahan discovery dan istilah Organization — 30 Oktober 2026
+
+Jelajahi Organization dari navbar kini memakai komponen publik `ExploreOrganizations` pada `/organizations`: pencarian, filter, dan profil tanpa tab Organization Saya atau tombol pengelolaan. Area akun `/my-organizations` tetap memakai `Home`, dengan tab Jelajahi dan Organization Saya yang berpindah melalui Livewire tanpa meninggalkan layout akun. Link lama `/organizations?listing=mine` dan form create dialihkan ke URL akun yang baru.
+
+Label/pesan bawaan di halaman, kontrol aksesibilitas, validasi bisnis yang tampil ke pengguna, serta email menggunakan Organization. Tulisan penjelasan di bawah sidebar dihapus. Permission, binding Livewire, aturan pembayaran/peminjaman, dan skema data tetap sama.
+
+- **67 pengujian Pest lulus, 328 assertion**. Build frontend dan pemeriksaan browser akun lulus, termasuk tab akun yang tetap berada di URL privat, reload tab, daftar publik untuk guest/login, dan viewport desktop/mobile.
+- Detail screenshot serta hasil pemeriksaan: [laporan Organization discovery](visual/organization-discovery/README.md).

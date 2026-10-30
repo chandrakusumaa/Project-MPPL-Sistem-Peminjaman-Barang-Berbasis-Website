@@ -14,8 +14,8 @@ class Home extends Component
 {
     use WithPagination;
 
-    #[Url(except: 'all')]
-    public string $listing = 'all';
+    #[Url(except: 'mine')]
+    public string $listing = 'mine';
 
     public string $filterCategory = '';
 
@@ -29,6 +29,13 @@ class Home extends Component
 
     #[Url(as: 'create', except: false)]
     public bool $creating = false;
+
+    public function showListing(string $listing): void
+    {
+        validator(['listing' => $listing], ['listing' => 'required|in:mine,all'])->validate();
+        $this->listing = $listing;
+        $this->resetPage();
+    }
 
     public function updatedSearch(): void
     {
@@ -50,8 +57,8 @@ class Home extends Component
         $this->reset('name', 'description');
         $this->creating = false;
         $this->resetPage();
-        session()->flash('status', 'Ruang berhasil dibuat. Anda menjadi Admin.');
-        $this->redirectRoute('organizations', ['listing' => 'mine']);
+        session()->flash('status', 'Organization berhasil dibuat. Anda menjadi Admin.');
+        $this->redirectRoute('personal.organizations');
     }
 
     public function join(int $id): void
@@ -97,6 +104,6 @@ class Home extends Component
                 ->when($this->filterCategory, fn ($query) => $query->where('category', $this->filterCategory))
                 ->where('name', 'like', '%'.$this->search.'%')->withCount('assets')->latest('id')->paginate(12),
             'memberships' => auth()->check() ? Membership::where('user_id', auth()->id())->where('status', 'active')->get()->keyBy('organization_id') : collect(),
-        ])->layout('components.layout', ['context' => $this->listing === 'mine' && auth()->check() ? 'account' : 'public', 'showFeedback' => false]);
+        ])->layout('components.layout', ['context' => 'account', 'showFeedback' => false]);
     }
 }

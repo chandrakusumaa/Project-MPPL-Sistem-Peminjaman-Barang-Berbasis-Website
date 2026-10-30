@@ -4,7 +4,7 @@
         <a href="{{ route('landing') }}" class="oi-brand" aria-label="Organization Inventory"><span class="oi-brand-mark">O</span><span>OrgInventory</span></a>
         <nav class="oi-topnav" aria-label="Navigasi utama">
             <a href="{{ route('landing') }}" @if(request()->routeIs('landing')) aria-current="page" @endif>Beranda</a>
-            <a href="{{ route('organizations') }}" @if(request()->routeIs('organizations') && request('listing') !== 'mine') aria-current="page" @endif>Jelajahi Organization</a>
+            <a href="{{ route('organizations') }}" @if(request()->routeIs('organizations')) aria-current="page" @endif>Jelajahi Organization</a>
             <a href="{{ route('dashboard') }}" @if(request()->routeIs('dashboard')) aria-current="page" @endif>Dashboard</a>
         </nav>
         <div class="oi-top-actions">

@@ -23,7 +23,7 @@ class BorrowAsset extends WorkspaceAction
             $this->check($asset->status === 'available', 'Aset tidak tersedia.');
             $this->check($start->gte(CarbonImmutable::today('Asia/Jakarta')) && $due->gt($start) && $start->diffInDays($due) <= $org->max_borrow_days, 'Tanggal atau durasi pinjaman tidak valid.');
             $this->check(mb_strlen(trim($data['reason'])) >= 10, 'Alasan minimal 10 karakter.');
-            $this->check(! $org->damage_charge_policy || ($data['acknowledged'] ?? false), 'Setujui kebijakan ruang sebelum mengajukan.');
+            $this->check(! $org->damage_charge_policy || ($data['acknowledged'] ?? false), 'Setujui kebijakan Organization sebelum mengajukan.');
             $this->check(! Borrowing::where('asset_id', $assetId)->where('user_id', $actor->id)->whereIn('status', ['pending', 'borrowed', 'overdue'])->exists(), 'Sudah ada pengajuan aktif.');
             $b = Borrowing::create(['organization_id' => $org->id, 'asset_id' => $asset->id, 'user_id' => $actor->id, 'status' => BorrowingStatus::Pending->value, 'borrow_date' => $start->toDateString(), 'due_date' => $due->toDateString(), 'reason' => trim($data['reason']), 'damage_policy_snapshot' => $org->damage_charge_policy, 'damage_policy_acknowledged_at' => $org->damage_charge_policy ? now() : null]);
             $this->log($actor, $org, $asset, 'borrow_requested', $b->id);
