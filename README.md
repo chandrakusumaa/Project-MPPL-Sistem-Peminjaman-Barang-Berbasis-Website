@@ -33,6 +33,12 @@ Installer Composer memakai jaringan host dan meneruskan variabel proxy yang ters
 
 Password demo: DemoPassword123! Akun demo telah diverifikasi; gunakan akun baru untuk menguji registrasi/verifikasi. Seeder idempotent mempertahankan data yang sudah ada.
 
+Jika menjalankan aplikasi dengan PHP langsung (misalnya `php artisan serve`), tambahkan akun demo ke database lokal dengan:
+
+    php artisan db:seed
+
+Keluar dari akun yang belum terverifikasi, lalu masuk sebagai `other@example.test` dengan password demo di atas untuk mencoba membuat ruang dari akun tanpa keanggotaan. Pembuat ruang otomatis menjadi Admin pada ruang barunya. Gunakan `admin@example.test` untuk langsung mengelola ruang demo Peralatan Raka. Seeder tidak mengganti password akun demo yang sudah ada.
+
 ## Database dan storage
 
 Migration membuat **16 tabel domain/pendukung v1.2**, termasuk users, notifications, dan password_reset_tokens, tanpa migration framework ganda. Tabel infrastruktur tambahan: migrations, sessions, jobs/job_batches/failed_jobs, cache/cache_locks.
@@ -62,6 +68,15 @@ Alternatif dengan PHP terpasang:
 Pada server dengan cron, jalankan php artisan schedule:run setiap menit menggantikan schedule:work. Kalender bisnis Asia/Jakarta; timestamp UTC.
 
 Email development menggunakan MAIL_MAILER=log. Tautan verifikasi/reset/undangan berada di log development. Untuk pengiriman nyata, isi pengaturan SMTP secara aman di lingkungan deployment; jangan commit .env.
+
+Untuk memverifikasi akun development yang memakai email contoh tanpa kotak masuk:
+
+1. Pastikan `.env` lokal memakai `MAIL_MAILER=log`. Jika baru mengubah konfigurasi, jalankan `php artisan config:clear`.
+2. Jalankan `php artisan queue:work` di terminal terpisah agar email diproses. Worker sudah tersedia bila memakai Compose.
+3. Masuk ke akun tersebut, buka `/email/verify`, lalu kirim ulang email verifikasi.
+4. Buka tautan verifikasi terbaru dari `storage/logs/laravel.log` di browser yang masih masuk sebagai akun yang sama. Pastikan `APP_URL` sesuai alamat aplikasi. Jika tautan kedaluwarsa, kirim ulang.
+
+Pada halaman Jelajahi Ruang, akun belum terverifikasi mendapat petunjuk menuju verifikasi email. Aksi membuat ruang, bergabung, atau membatalkan pengajuan juga mengarahkan ke verifikasi; sesi yang sudah keluar diarahkan ke login. Syarat verifikasi tetap berlaku di backend.
 
 ## Pengujian
 

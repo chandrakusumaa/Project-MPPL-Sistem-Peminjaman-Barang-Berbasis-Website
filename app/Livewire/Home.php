@@ -30,7 +30,9 @@ class Home extends Component
 
     public function create(): void
     {
-        abort_unless(auth()->user()?->hasVerifiedEmail(), 403);
+        if (! $this->requireVerifiedAccount()) {
+            return;
+        }
         $data = $this->validate(['name' => 'required|string|max:150', 'description' => 'nullable|string|max:3000', 'category' => 'required|in:kampus,sekolah,komunitas,perusahaan,lainnya']);
         app(ManageWorkspace::class)->create(auth()->user(), $data);
         $this->reset('name', 'description');
@@ -39,16 +41,36 @@ class Home extends Component
 
     public function join(int $id): void
     {
-        abort_unless(auth()->user()?->hasVerifiedEmail(), 403);
+        if (! $this->requireVerifiedAccount()) {
+            return;
+        }
         app(ManageWorkspace::class)->join(auth()->user(), Organization::findOrFail($id));
         session()->flash('status', 'Pengajuan bergabung dikirim.');
     }
 
     public function cancelJoin(int $id): void
     {
-        abort_unless(auth()->user()?->hasVerifiedEmail(), 403);
+        if (! $this->requireVerifiedAccount()) {
+            return;
+        }
         app(ManageWorkspace::class)->cancelJoin(auth()->user(), Organization::findOrFail($id));
         session()->flash('status', 'Pengajuan dibatalkan.');
+    }
+
+    protected function requireVerifiedAccount(): bool
+    {
+        if (! auth()->check()) {
+            $this->redirectRoute('login');
+
+            return false;
+        }
+        if (! auth()->user()->hasVerifiedEmail()) {
+            $this->redirectRoute('verification.notice');
+
+            return false;
+        }
+
+        return true;
     }
 
     public function render()

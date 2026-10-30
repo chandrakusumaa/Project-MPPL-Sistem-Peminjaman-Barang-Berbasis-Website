@@ -61,3 +61,12 @@ Keterbatasan ini dipisahkan dari integrasi development yang sudah diperiksa. SQL
 - Satu paket QR benar-benar diunduh ulang dari lockfile melalui jaringan host/proxy dengan verifikasi TLS tetap aktif; pemeriksaan ini tidak hanya mengandalkan vendor/cache hangat.
 - Semua 24 checksum pedoman lulus setelah sinkronisasi OD17.
 - install_script dan start_skill cloud disimpan sebagai draft baru untuk workflow Laravel. Penyimpanan draft tidak memublikasikan environment; fresh-task restoration belum divalidasi.
+
+## Perbaikan onboarding ruang — 30 Oktober 2026
+
+Halaman publik `/organizations` sebelumnya menampilkan form pembuatan ruang kepada akun belum terverifikasi, sedangkan aksi Livewire menolak dengan 403. Sekarang halaman menampilkan petunjuk verifikasi dan menyembunyikan form tersebut. Aksi create/join/cancelJoin mengarahkan akun belum terverifikasi ke halaman verifikasi dan tamu ke login sebelum melakukan perubahan data. Aturan pada action backend tetap mewajibkan verifikasi email.
+
+- Regresi 403 direproduksi sebelum perbaikan. Suite setelah perbaikan: **55 pengujian Pest lulus, 214 assertion**; build frontend dan Pint lulus.
+- Chromium memeriksa registrasi akun belum terverifikasi, login, petunjuk pada halaman publik, serta pengalihan aksi Livewire tanpa popup Forbidden.
+- Login `other@example.test` dan pembuatan ruang melalui UI Livewire diperiksa di Chromium; pembuat mendapat role Admin. Ruang pengujian dihapus melalui pengaturan Admin sesudah pemeriksaan.
+- Akun dummy terverifikasi sudah disediakan seeder; README kini menjelaskan pemakaian dengan PHP langsung serta verifikasi akun development melalui mail log. Database pada laptop pengguna tidak diakses atau diubah dari environment cloud.
