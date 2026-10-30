@@ -7,7 +7,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        foreach (explode(';', file_get_contents(database_path('schema/inventory-v1.2.sql'))) as $sql) {
+        foreach (explode(';', file_get_contents(database_path('schema/2026-10-27-inventory-legacy.sql'))) as $sql) {
             if (trim($sql)) {
                 DB::unprepared($sql);
             }

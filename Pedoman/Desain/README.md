@@ -19,6 +19,8 @@ Jelajahi Organization pada navbar merupakan daftar publik tanpa tab Organization
 
 Source merupakan bahan implementasi, bukan aplikasi produksi atau paket siap deploy. Untuk mencobanya, diperlukan project React/TypeScript yang menyediakan dependency React dan mengimpor entry tersebut. Folder ini tidak menyertakan package manifest, bundler, atau backend.
 
+Keputusan pemilik proyek 30 Oktober 2026 mengganti keanggotaan menjadi Gabung langsung member/active. Snapshot React lama masih dapat memperlihatkan simulasi request/invitation; gunakan hanya referensi visualnya. Perilaku aktif mengikuti PRD/SRS terbaru: tanpa persetujuan anggota atau undangan, sementara request/approval/rejection/cancellation peminjaman tetap ada.
+
 Simulasi memakai localStorage dan akun demo; ini bukan mekanisme login/permission produksi. Saat implementasi, pecah UI menjadi komponen/rute yang terpelihara; ganti sumber data dan event simulasi dengan API. Kontrol pratinjau Desain/Wireframe bukan fitur produk yang wajib dibawa ke aplikasi.
 
 Akun `demo@orginventory.id` / `demo123` dan `sinta@example.test` / `demo123` adalah kredensial simulasi, bukan kredensial layanan nyata. Jangan gunakan data sensitif dalam prototipe.

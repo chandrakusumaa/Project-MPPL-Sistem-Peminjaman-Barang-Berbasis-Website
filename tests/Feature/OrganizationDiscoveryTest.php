@@ -3,7 +3,7 @@
 use App\Actions\ManageWorkspace;
 use App\Livewire\ExploreOrganizations;
 use App\Livewire\Home;
-use App\Models\MembershipRequest;
+use App\Models\Membership;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
@@ -39,16 +39,15 @@ it('protects the account organization page and displays only memberships by defa
     $this->get(route('personal.organizations', ['listing' => 'all']))->assertOk()->assertSee('Peralatan Raka')->assertSee('id="account-sidebar"', false);
 });
 
-it('switches account exploration in place and still allows joining and cancellation', function () {
+it('switches account exploration in place and joins directly as a member', function () {
     $component = Livewire::actingAs($this->other)->test(Home::class)
         ->assertSet('listing', 'mine')->assertViewHas('organizations', fn ($rows) => $rows->isEmpty())
         ->call('showListing', 'all')->assertSet('listing', 'all')
         ->assertViewHas('organizations', fn ($rows) => $rows->pluck('id')->all() === [$this->org->id])
-        ->assertSee('Ajukan bergabung')->assertNoRedirect();
-    $component->call('join', $this->org->id)->assertSee('Pengajuan bergabung dikirim.');
-    expect(MembershipRequest::where('user_id', $this->other->id)->value('status'))->toBe('pending');
-    $component->call('cancelJoin', $this->org->id)->assertSee('Pengajuan dibatalkan.')
-        ->call('showListing', 'mine')->assertViewHas('organizations', fn ($rows) => $rows->isEmpty())->assertNoRedirect();
+        ->assertSee('Gabung')->assertNoRedirect();
+    $component->call('join', $this->org->id)->assertSee('Berhasil bergabung.');
+    expect(Membership::where('user_id', $this->other->id)->value('role'))->toBe('member');
+    $component->call('showListing', 'mine')->assertViewHas('organizations', fn ($rows) => $rows->count() === 1)->assertSee('Buka Organization')->assertNoRedirect();
 });
 
 it('resets account pagination when changing tabs and keeps discovery filters scoped', function () {

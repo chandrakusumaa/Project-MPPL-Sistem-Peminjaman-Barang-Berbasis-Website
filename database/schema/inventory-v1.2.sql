@@ -1,4 +1,4 @@
--- Organization Inventory v1.2. Derived from active data dictionary, ERD and SRS.
+-- Organization Inventory: direct membership decision, 30 October 2026, 14 domain/support tables.
 -- MySQL 8.0.16+, strict mode, all historical FKs RESTRICT.
 CREATE TABLE `users` (
   `id` BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
@@ -64,54 +64,6 @@ CREATE TABLE `organization_user` (
   UNIQUE KEY `uq_organization_user_0` (organization_id,user_id),
   FOREIGN KEY (organization_id) REFERENCES `organizations` (id),
   FOREIGN KEY (user_id) REFERENCES `users` (id),
-  FOREIGN KEY (revoked_by) REFERENCES `users` (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE `membership_requests` (
-  `id` BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  `organization_id` BIGINT UNSIGNED  NOT NULL,
-  `user_id` BIGINT UNSIGNED  NOT NULL,
-  `message` TEXT  NULL,
-  `status` ENUM('pending','approved','rejected','cancelled')  NOT NULL,
-  `reviewed_by` BIGINT UNSIGNED  NULL,
-  `reviewed_at` DATETIME(6)  NULL,
-  `review_notes` TEXT  NULL,
-  `cancelled_by` BIGINT UNSIGNED  NULL,
-  `cancelled_at` DATETIME(6)  NULL,
-  `created_at` DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `updated_at` DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `pending_guard` TINYINT  GENERATED ALWAYS AS (CASE WHEN status = 'pending' THEN 1 ELSE NULL END) VIRTUAL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_membership_requests_0` (organization_id,user_id,pending_guard),
-  FOREIGN KEY (organization_id) REFERENCES `organizations` (id),
-  FOREIGN KEY (user_id) REFERENCES `users` (id),
-  FOREIGN KEY (reviewed_by) REFERENCES `users` (id),
-  FOREIGN KEY (cancelled_by) REFERENCES `users` (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE `organization_invitations` (
-  `id` BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  `organization_id` BIGINT UNSIGNED  NOT NULL,
-  `email` VARCHAR(254)  NOT NULL,
-  `role` ENUM('staff','member')  NOT NULL,
-  `token_hash` CHAR(64) CHARACTER SET ascii COLLATE ascii_bin  NOT NULL,
-  `invited_by` BIGINT UNSIGNED  NOT NULL,
-  `expires_at` DATETIME(6)  NOT NULL,
-  `last_sent_at` DATETIME(6)  NULL,
-  `status` ENUM('pending','accepted','expired','revoked')  NOT NULL,
-  `accepted_by` BIGINT UNSIGNED  NULL,
-  `accepted_at` DATETIME(6)  NULL,
-  `revoked_by` BIGINT UNSIGNED  NULL,
-  `revoked_at` DATETIME(6)  NULL,
-  `created_at` DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `updated_at` DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `pending_guard` TINYINT  GENERATED ALWAYS AS (CASE WHEN status = 'pending' THEN 1 ELSE NULL END) VIRTUAL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_organization_invitations_0` (token_hash),
-  UNIQUE KEY `uq_organization_invitations_1` (organization_id,email,pending_guard),
-  FOREIGN KEY (organization_id) REFERENCES `organizations` (id),
-  FOREIGN KEY (invited_by) REFERENCES `users` (id),
-  FOREIGN KEY (accepted_by) REFERENCES `users` (id),
   FOREIGN KEY (revoked_by) REFERENCES `users` (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -405,3 +357,19 @@ CREATE TABLE `charge_credits` (
   CONSTRAINT `ck_charge_credits_0` CHECK (amount > 0),
   CONSTRAINT `ck_charge_credits_1` CHECK (CHAR_LENGTH(TRIM(reason)) > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Lifecycle checks retained by the complete migration chain.
+ALTER TABLE `organization_user` ADD CONSTRAINT `hard_organization_user_0` CHECK ((status='active' AND revoked_at IS NULL AND revoked_by IS NULL) OR (status='revoked' AND revoked_at IS NOT NULL));
+ALTER TABLE `assets` ADD CONSTRAINT `hard_assets_0` CHECK (CHAR_LENGTH(TRIM(name))>0);
+ALTER TABLE `assets` ADD CONSTRAINT `hard_assets_1` CHECK (CHAR_LENGTH(TRIM(location))>0);
+ALTER TABLE `asset_categories` ADD CONSTRAINT `hard_asset_categories_0` CHECK (CHAR_LENGTH(TRIM(name))>0);
+ALTER TABLE `borrowings` ADD CONSTRAINT `hard_borrowings_0` CHECK (status NOT IN ('borrowed','overdue','returned') OR (max_borrow_days_snapshot IS NOT NULL AND late_fine_per_day_snapshot IS NOT NULL));
+ALTER TABLE `borrowings` ADD CONSTRAINT `hard_borrowings_1` CHECK (status <> 'overdue' OR overdue_at IS NOT NULL);
+ALTER TABLE `borrowings` ADD CONSTRAINT `hard_borrowings_2` CHECK (status <> 'returned' OR (late_days IS NOT NULL AND calculated_fine_amount IS NOT NULL AND fine_amount IS NOT NULL AND returned_at >= approved_at AND return_processed_at >= returned_at));
+ALTER TABLE `borrowings` ADD CONSTRAINT `hard_borrowings_3` CHECK (fine_amount IS NULL OR calculated_fine_amount=fine_amount OR CHAR_LENGTH(TRIM(fine_override_reason))>0);
+ALTER TABLE `damage_reports` ADD CONSTRAINT `hard_damage_reports_0` CHECK (severity IS NULL OR (assessed_at IS NOT NULL AND handled_by IS NOT NULL));
+ALTER TABLE `damage_reports` ADD CONSTRAINT `hard_damage_reports_1` CHECK (status <> 'noted' OR resolution_notes IS NOT NULL);
+ALTER TABLE `borrower_charges` ADD CONSTRAINT `hard_borrower_charges_0` CHECK (CHAR_LENGTH(TRIM(reason))>0 AND CHAR_LENGTH(TRIM(policy_basis))>0);
+ALTER TABLE `borrower_charges` ADD CONSTRAINT `hard_borrower_charges_1` CHECK (charge_type='late_fee' OR created_by IS NOT NULL);
+ALTER TABLE `borrower_charges` ADD CONSTRAINT `hard_borrower_charges_2` CHECK (status <> 'issued' OR charge_type='late_fee' OR issued_by IS NOT NULL);
+ALTER TABLE `charge_payments` ADD CONSTRAINT `hard_charge_payments_0` CHECK ((method='bank_transfer' AND (CHAR_LENGTH(TRIM(reference))>0 OR CHAR_LENGTH(TRIM(evidence_path))>0)) OR (method IN ('cash','other') AND CHAR_LENGTH(TRIM(notes))>0));

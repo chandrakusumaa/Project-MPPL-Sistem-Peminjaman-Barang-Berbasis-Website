@@ -39,7 +39,7 @@ if (($argv[1] ?? '') === 'cleanup') {
         if (DB::table('organizations')->whereIn('id', $fixture['organizationIds'])->whereNotIn('created_by', $fixture['userIds'])->exists()) {
             throw new RuntimeException('Refusing to delete an organization outside this browser run.');
         }
-        foreach (['notifications', 'asset_logs', 'audit_logs', 'charge_credits', 'charge_payments', 'borrower_charges', 'damage_reports', 'borrowings', 'assets', 'asset_categories', 'membership_requests', 'organization_invitations', 'organization_user'] as $table) {
+        foreach (['notifications', 'asset_logs', 'audit_logs', 'charge_credits', 'charge_payments', 'borrower_charges', 'damage_reports', 'borrowings', 'assets', 'asset_categories', 'organization_user'] as $table) {
             DB::table($table)->whereIn('organization_id', $fixture['organizationIds'])->delete();
         }
         DB::table('organizations')->whereIn('id', $fixture['organizationIds'])->delete();
@@ -61,7 +61,7 @@ try {
         $user = User::create(['name' => 'Nadia Putri', 'email' => 'browser-'.$token.'@example.test', 'password' => 'DemoPassword123!']);
         $manager = User::create(['name' => 'Raka Pengelola', 'email' => 'manager-'.$token.'@example.test', 'password' => 'DemoPassword123!']);
         foreach ([$user, $manager] as $account) {
-            $account->forceFill(['email_verified_at' => now()])->save();
+            $account->forceFill(['email_verified_at' => now(), 'notification_preferences' => ['membership' => false, 'borrowing' => false, 'damage' => false]])->save();
         }
         $workspace = app(ManageWorkspace::class);
         $own = $workspace->create($user, ['name' => 'Studio Kreatif Nadia', 'description' => 'Peralatan produksi untuk kegiatan kreatif dan dokumentasi.', 'category' => 'komunitas']);
@@ -108,7 +108,7 @@ try {
         $payment($charges[0], 10000, 'voided');
         $payment($charges[1], (int) $charges[1]->amount, 'confirmed');
 
-        return ['email' => $user->email, 'ownSlug' => $own->slug, 'followedSlug' => $followed->slug, 'hiddenSlug' => $hidden->slug, 'userIds' => [$user->id, $manager->id], 'organizationIds' => [$own->id, $followed->id, $hidden->id]];
+        return ['email' => $user->email, 'managerEmail' => $manager->email, 'ownSlug' => $own->slug, 'followedSlug' => $followed->slug, 'hiddenSlug' => $hidden->slug, 'userIds' => [$user->id, $manager->id], 'organizationIds' => [$own->id, $followed->id, $hidden->id]];
     });
     file_put_contents($manifest, json_encode($fixture, JSON_THROW_ON_ERROR));
     echo json_encode($fixture, JSON_THROW_ON_ERROR)."\n";

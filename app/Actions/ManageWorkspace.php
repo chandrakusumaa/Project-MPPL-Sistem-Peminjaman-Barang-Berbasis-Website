@@ -5,11 +5,13 @@ namespace App\Actions;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 class ManageWorkspace extends WorkspaceAction
 {
@@ -27,47 +29,34 @@ class ManageWorkspace extends WorkspaceAction
         }, 3);
     }
 
-    public function join(User $user, Organization $org): void
+    public function join(User $user, Organization $org): Membership
     {
-        DB::transaction(function () use ($user, $org) {
-            User::whereKey($user->id)->lockForUpdate()->firstOrFail();
-            $org = Organization::whereKey($org->id)->lockForUpdate()->firstOrFail();
-            $this->check(! $org->archived_at, 'Organization diarsipkan.');
-            $this->check(! Membership::where('organization_id', $org->id)->where('user_id', $user->id)->where('status', 'active')->exists(), 'Anda sudah menjadi anggota.');
-            MembershipRequest::firstOrCreate(['organization_id' => $org->id, 'user_id' => $user->id, 'status' => 'pending']);
-        }, 3);
-    }
+        $key = 'organization-join:'.$user->id;
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            throw new TooManyRequestsHttpException(RateLimiter::availableIn($key), 'Terlalu banyak percobaan Gabung. Coba lagi sebentar.');
+        }
+        RateLimiter::hit($key, 60);
 
-    public function review(User $actor, Organization $org, int $id, bool $approve): void
-    {
-        $this->transact($actor, $org, 'administer', function ($org) use ($actor, $id, $approve) {
-            $request = MembershipRequest::where('organization_id', $org->id)->lockForUpdate()->findOrFail($id);
-            $this->check($request->status === 'pending', 'Pengajuan sudah diproses.');
-            if ($approve) {
-                User::findOrFail($request->user_id);
-                $member = Membership::firstOrNew(['organization_id' => $org->id, 'user_id' => $request->user_id]);
-                if (! $member->exists || $member->status !== 'active') {
-                    $member->fill(['role' => 'member', 'status' => 'active', 'joined_at' => now(), 'revoked_at' => null, 'revoked_by' => null])->save();
-                }
+        return DB::transaction(function () use ($user, $org) {
+            $user = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $org = Organization::whereKey($org->id)->lockForUpdate()->firstOrFail();
+            $membership = Membership::where('organization_id', $org->id)->where('user_id', $user->id)->lockForUpdate()->first();
+            Gate::forUser($user)->authorize('join', $org);
+            if ($membership) {
+                // Active membership keeps its existing role and original timestamps.
+                return $membership;
             }
-            $request->update(['status' => $approve ? 'approved' : 'rejected', 'reviewed_by' => $actor->id, 'reviewed_at' => now()]);
-            $this->audit($actor, $org, 'membership.reviewed', $request);
-        });
+            $membership = Membership::create(['organization_id' => $org->id, 'user_id' => $user->id, 'role' => 'member', 'status' => 'active', 'joined_at' => now()]);
+            $this->audit($user, $org, 'membership.joined', $membership);
+
+            return $membership;
+        }, 3);
     }
 
     public function category(User $actor, Organization $org, string $name): void
     {
         $this->transact($actor, $org, 'operate', function ($org) use ($name) {
             AssetCategory::firstOrCreate(['organization_id' => $org->id, 'name' => trim($name)]);
-        });
-    }
-
-    public function cancelJoin(User $actor, Organization $org): void
-    {
-        DB::transaction(function () use ($actor, $org) {
-            $org = Organization::whereKey($org->id)->lockForUpdate()->firstOrFail();
-            $this->check(! $org->archived_at, 'Organization diarsipkan.');
-            MembershipRequest::where('organization_id', $org->id)->where('user_id', $actor->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now()]);
         });
     }
 

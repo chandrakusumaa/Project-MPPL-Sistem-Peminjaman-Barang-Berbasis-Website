@@ -3,7 +3,6 @@
 use App\Actions\ManageWorkspace;
 use App\Livewire\Home;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
@@ -44,20 +43,14 @@ it('redirects unauthenticated workspace creation to login without creating data'
     expect(Organization::count())->toBe(0);
 });
 
-it('routes unverified join and cancellation to verification without mutating requests', function (string $action) {
+it('routes an unverified join to verification without creating membership', function () {
     $owner = User::factory()->create();
-    $organization = app(ManageWorkspace::class)->create($owner, ['name' => 'Ruang Publik', 'category' => 'lainnya']);
+    $organization = app(ManageWorkspace::class)->create($owner, ['name' => 'Organization Publik', 'category' => 'lainnya']);
     $user = User::factory()->unverified()->create();
-    if ($action === 'cancelJoin') {
-        MembershipRequest::create(['organization_id' => $organization->id, 'user_id' => $user->id, 'status' => 'pending']);
-    }
-    $before = MembershipRequest::where('user_id', $user->id)->pluck('status', 'id')->all();
-
-    Livewire::actingAs($user)->test(Home::class)->call($action, $organization->id)
+    Livewire::actingAs($user)->test(Home::class)->call('join', $organization->id)
         ->assertRedirect(route('verification.notice'));
-
-    expect(MembershipRequest::where('user_id', $user->id)->pluck('status', 'id')->all())->toBe($before);
-})->with(['join', 'cancelJoin']);
+    expect(Membership::where('user_id', $user->id)->count())->toBe(0);
+});
 
 it('lets a newly verified account create a room and become its admin without an existing role', function () {
     $user = User::factory()->unverified()->create();
