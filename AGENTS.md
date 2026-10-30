@@ -11,7 +11,7 @@ PRD/SRS adalah spesifikasi aktif. Proposal di `Pedoman/Arsip/` adalah historis. 
 - Istilah antarmuka yang dipilih pemilik proyek pada 30 Oktober 2026 adalah **Organization**, menggantikan label bawaan Ruang Inventaris/ruang. Istilah lama pada source prototipe dan spesifikasi historis mengacu konsep data yang sama.
 - Ruang Inventaris dapat dibuat individu/kelompok; satu akun dapat Admin di ruang sendiri dan Member di ruang lain.
 - Role melekat pada membership per ruang, bukan user global atau halaman yang dibuka.
-- Katalog membutuhkan membership aktif. Join request berbeda dari borrowing request.
+- Gabung oleh akun login terverifikasi langsung membuat membership member/active. Tidak ada join request atau invitation; request/approval/rejection/cancellation peminjaman tetap ada. Join aktif idempoten tanpa mengubah role/joined_at; revoked tidak boleh bergabung ulang.
 - Satu aset = satu unit fisik dengan kode/QR stabil; tidak ada sistem stok.
 - Pengajuan masa depan bukan reservasi. Approval, pengembalian dan inspeksi mengikuti SRS.
 - Tagihan late_fee/damage/loss terpisah. Pembayaran manual, tanpa gateway; hanya confirmed mengurangi saldo. Credit/void tidak menghapus histori.
@@ -19,6 +19,7 @@ PRD/SRS adalah spesifikasi aktif. Proposal di `Pedoman/Arsip/` adalah historis. 
 ## Pelaksanaan
 
 - Inspeksi repo dan stack sebelum mengubah struktur. Ikuti stack SRS kecuali sudah ada keputusan eksplisit pemilik proyek yang menggantinya.
+- Hanya Admin lokal dapat menaikkan Member menjadi Staff; pertahankan last Admin, audit dan perlindungan kewajiban terbuka. Target aktif 14 tabel domain/pendukung; keputusan lama ada di Pedoman/Arsip/keanggotaan-sebelum-gabung-langsung/.
 - Terapkan policy backend, isolasi ruang, constraint database, transaksi dan locking. Menyembunyikan tombol tidak cukup untuk otorisasi.
 - Gunakan prototipe MagicPath sebagai referensi visual, bukan backend produksi. Pertahankan tema/palet awal dan hilangkan dependensi data demo ketika API tersedia.
 - Ikuti `Pedoman/Implementasi.md`; kerjakan alur FE–BE bertahap dan verifikasi hasilnya.

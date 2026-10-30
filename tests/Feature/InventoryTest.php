@@ -2,7 +2,6 @@
 
 use App\Actions\BorrowAsset;
 use App\Actions\DeleteAccount;
-use App\Actions\InviteMember;
 use App\Actions\MaintainAsset;
 use App\Actions\ManageAssets;
 use App\Actions\ManageMembers;
@@ -20,9 +19,7 @@ use App\Models\Borrowing;
 use App\Models\ChargePayment;
 use App\Models\DamageReport;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
-use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\QueryException;
@@ -64,9 +61,9 @@ function paymentFor($t, $c, int $amount, string $key): ChargePayment
 
     return ChargePayment::where('idempotency_key', $key)->firstOrFail();
 }
-it('runs on real MySQL and creates all sixteen domain tables', function () {
+it('runs on real MySQL and creates all fourteen domain tables', function () {
     expect(DB::getDriverName())->toBe('mysql');
-    foreach (['users', 'organizations', 'organization_user', 'membership_requests', 'organization_invitations', 'asset_categories', 'assets', 'borrowings', 'damage_reports', 'asset_logs', 'audit_logs', 'notifications', 'password_reset_tokens', 'borrower_charges', 'charge_payments', 'charge_credits'] as $table) {
+    foreach (['users', 'organizations', 'organization_user', 'asset_categories', 'assets', 'borrowings', 'damage_reports', 'asset_logs', 'audit_logs', 'notifications', 'password_reset_tokens', 'borrower_charges', 'charge_payments', 'charge_credits'] as $table) {
         expect(Schema::hasTable($table))->toBeTrue();
     }
 });
@@ -203,29 +200,17 @@ it('shows payment metadata to its owner and refuses cross account evidence', fun
     $this->actingAs($this->member)->get(route('evidence', $c))->assertDownload();
     $this->actingAs($this->other)->get(route('evidence', $c))->assertForbidden();
 });
-it('enforces one pending join request and preserves admin role on repeat review', function () {
-    $a = app(ManageWorkspace::class);
-    $a->join($this->other, $this->org);
-    $a->join($this->other, $this->org);
-    $requests = MembershipRequest::where('user_id', $this->other->id)->get();
-    expect($requests)->toHaveCount(1);
-    $a->review($this->admin, $this->org, $requests[0]->id, true);
+it('joins directly and preserves the existing role on repeated joins', function () {
+    $action = app(ManageWorkspace::class);
+    $first = $action->join($this->other, $this->org);
+    $second = $action->join($this->other, $this->org);
+    expect($second->id)->toBe($first->id)->and($second->role)->toBe('member');
     expect(Gate::forUser($this->other)->allows('view', $this->org))->toBeTrue();
-    expect(fn () => $a->review($this->admin, $this->org, $requests[0]->id, true))->toThrow(ValidationException::class);
 });
 it('prevents editing audit or credit history through models', function () {
     $b = requestFor($this);
     $audit = AuditLog::firstOrFail();
     expect(fn () => $audit->update(['action' => 'changed']))->toThrow(LogicException::class);
-});
-it('expires and rejects invitations for the wrong email', function () {
-    Mail::fake();
-    $token = str_repeat('a', 64);
-    $i = OrganizationInvitation::create(['organization_id' => $this->org->id, 'email' => $this->other->email, 'role' => 'member', 'token_hash' => hash('sha256', $token), 'invited_by' => $this->admin->id, 'expires_at' => now()->addDay(), 'status' => 'pending']);
-    expect(fn () => app(InviteMember::class)->accept($this->member, $token))->toThrow(ValidationException::class);
-    app(InviteMember::class)->accept($this->other, $token);
-    expect($i->fresh()->status)->toBe('accepted');
-    expect(fn () => app(InviteMember::class)->accept($this->other, $token))->toThrow(ValidationException::class);
 });
 it('blocks deleting sole administrators and soft deletes an account without obligations', function () {
     expect(fn () => app(DeleteAccount::class)->execute($this->admin))->toThrow(ValidationException::class);
@@ -411,5 +396,5 @@ it('shows the correct outstanding and pending payments in the room summary', fun
     paymentFor($this, $c, 100000, 'dash-pending');
     app(SettleCharge::class)->change($this->admin, $this->org, $c->id, 'confirm', ['payment_id' => $paid->id]);
     $this->actingAs($this->admin);
-    Livewire::test(Workspace::class, ['organization' => $this->org])->assertViewHas('summary',fn ($s) => $s['balance'] === 100000 && $s['pendingPayments'] === 1)->assertSee('Rp100.000');
+    Livewire::test(Workspace::class, ['organization' => $this->org])->assertViewHas('summary', fn ($s) => $s['balance'] === 100000 && $s['pendingPayments'] === 1)->assertSee('Rp100.000');
 });

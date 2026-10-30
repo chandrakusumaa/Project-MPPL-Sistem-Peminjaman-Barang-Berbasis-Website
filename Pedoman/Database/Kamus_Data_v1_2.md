@@ -4,7 +4,7 @@ Ekstraksi teks dari `Organization_Inventory_v1_2.drawio` yang dilampirkan pemili
 
 **Status:** rancangan, bukan migration yang sudah dijalankan. Aturan UNIQUE, CHECK, otorisasi, dan transaksi mengikuti SRS v1.2, terutama bagian 7.6 dan 7.10.
 
-Total: **16 tabel**.
+Total aktif: **14 tabel (12 inti + 2 pendukung)**, di luar tabel infrastruktur framework. Keputusan 30 Oktober 2026 mengganti alur lama dengan Gabung langsung sebagai Member; snapshot sebelumnya ada di `../Arsip/keanggotaan-sebelum-gabung-langsung/`.
 
 ## users
 
@@ -33,7 +33,7 @@ Total: **16 tabel**.
 | FK  user_id  :  bigint unsigned | BIGINT UNSIGNED  /  Wajib  /  User anggota. |
 | role  :  enum | ENUM('admin','staff','member')  /  Wajib  /  Hak akses pada organisasi ini. |
 | status  :  enum | ENUM('active','revoked')  /  Wajib  /  Hanya active + user/organisasi belum dihapus yang memberi akses. |
-| joined_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu aktivasi terakhir; aktivasi lama tersimpan di audit. |
+| joined_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu bergabung pertama; retry aktif tidak mengubahnya. Membership revoked tidak diaktifkan kembali lewat Gabung. |
 | revoked_at ?  :  datetime(6) | DATETIME(6)  /  NULL diizinkan  /  Waktu pencabutan; NULL saat aktif. |
 | FK  revoked_by ?  :  bigint unsigned | BIGINT UNSIGNED  /  NULL diizinkan  /  Pelaku pencabutan; NULL bila aksi sistem. |
 | created_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu pembuatan UTC. |
@@ -81,45 +81,6 @@ Total: **16 tabel**.
 | created_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu pembuatan UTC. |
 | updated_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu perubahan terakhir UTC. |
 | deleted_at ?  :  datetime(6) | DATETIME(6)  /  NULL diizinkan  /  Soft delete organisasi. |
-
-## membership_requests
-
-| Atribut / penanda | Tipe, nullability, dan keterangan |
-| --- | --- |
-| PK  id  :  bigint unsigned | BIGINT UNSIGNED  /  Wajib  /  Primary key internal; bukan identifier publik. |
-| FK  organization_id  :  bigint unsigned | BIGINT UNSIGNED  /  Wajib  /  Organisasi tujuan. |
-| FK  user_id  :  bigint unsigned | BIGINT UNSIGNED  /  Wajib  /  Pengaju. |
-| message ?  :  text | TEXT  /  NULL diizinkan  /  Pesan pengajuan. |
-| status  :  enum | ENUM('pending','approved','rejected','cancelled')  /  Wajib  /  Status pengajuan. |
-| FK  reviewed_by ?  :  bigint unsigned | BIGINT UNSIGNED  /  NULL diizinkan  /  Admin peninjau. |
-| reviewed_at ?  :  datetime(6) | DATETIME(6)  /  NULL diizinkan  /  Waktu keputusan approve/reject. |
-| review_notes ?  :  text | TEXT  /  NULL diizinkan  /  Catatan keputusan. |
-| FK  cancelled_by ?  :  bigint unsigned | BIGINT UNSIGNED  /  NULL diizinkan  /  User/Admin pembatal; NULL bila sistem. |
-| cancelled_at ?  :  datetime(6) | DATETIME(6)  /  NULL diizinkan  /  Waktu pembatalan. |
-| created_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu pembuatan UTC. |
-| updated_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu perubahan terakhir UTC. |
-| G  pending_guard ?  :  tinyint | TINYINT  /  NULL diizinkan  /  Kolom turunan untuk mencegah pending ganda; jangan ditulis aplikasi.  /  Generated: CASE WHEN status = 'pending' THEN 1 ELSE NULL END |
-
-## organization_invitations
-
-| Atribut / penanda | Tipe, nullability, dan keterangan |
-| --- | --- |
-| PK  id  :  bigint unsigned | BIGINT UNSIGNED  /  Wajib  /  Primary key internal; bukan identifier publik. |
-| FK  organization_id  :  bigint unsigned | BIGINT UNSIGNED  /  Wajib  /  Organisasi pengundang. |
-| email  :  varchar(254) | VARCHAR(254)  /  Wajib  /  Email target yang dinormalisasi. |
-| role  :  enum | ENUM('staff','member')  /  Wajib  /  Role yang diberikan saat penerimaan. |
-| token_hash  :  char(64) | CHAR(64) CHARACTER SET ascii COLLATE ascii_bin  /  Wajib  /  SHA-256 atas token acak; unik. Token minimal 32 byte acak. |
-| FK  invited_by  :  bigint unsigned | BIGINT UNSIGNED  /  Wajib  /  Admin pengundang. |
-| expires_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Kedaluwarsa 7 hari setelah pembuatan/rotasi token. |
-| last_sent_at ?  :  datetime(6) | DATETIME(6)  /  NULL diizinkan  /  Waktu terakhir email berhasil dikirim. |
-| status  :  enum | ENUM('pending','accepted','expired','revoked')  /  Wajib  /  Status undangan. |
-| FK  accepted_by ?  :  bigint unsigned | BIGINT UNSIGNED  /  NULL diizinkan  /  User penerima yang email aktifnya sesuai target. |
-| accepted_at ?  :  datetime(6) | DATETIME(6)  /  NULL diizinkan  /  Waktu penerimaan. |
-| FK  revoked_by ?  :  bigint unsigned | BIGINT UNSIGNED  /  NULL diizinkan  /  Admin pencabut; NULL untuk pencabutan sistem. |
-| revoked_at ?  :  datetime(6) | DATETIME(6)  /  NULL diizinkan  /  Waktu pencabutan. |
-| created_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu pembuatan UTC. |
-| updated_at  :  datetime(6) | DATETIME(6)  /  Wajib  /  Waktu perubahan terakhir UTC. |
-| G  pending_guard ?  :  tinyint | TINYINT  /  NULL diizinkan  /  Maksimal satu undangan pending per email per organisasi.  /  Generated: CASE WHEN status = 'pending' THEN 1 ELSE NULL END |
 
 ## notifications
 
@@ -326,14 +287,6 @@ FK gabungan ditulis utuh. Pastikan migration menyediakan key pendukung pada kolo
 - `organizations(created_by) -> users(id)`
 - `audit_logs(organization_id) -> organizations(id)`
 - `audit_logs(actor_id) -> users(id)`
-- `membership_requests(organization_id) -> organizations(id)`
-- `membership_requests(user_id) -> users(id)`
-- `membership_requests(reviewed_by) -> users(id)`
-- `membership_requests(cancelled_by) -> users(id)`
-- `organization_invitations(organization_id) -> organizations(id)`
-- `organization_invitations(invited_by) -> users(id)`
-- `organization_invitations(accepted_by) -> users(id)`
-- `organization_invitations(revoked_by) -> users(id)`
 - `notifications(organization_id) -> organizations(id)`
 - `asset_categories(organization_id) -> organizations(id)`
 - `assets(organization_id) -> organizations(id)`

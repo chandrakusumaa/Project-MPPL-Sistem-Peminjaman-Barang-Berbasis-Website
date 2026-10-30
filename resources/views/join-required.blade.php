@@ -1,1 +1,1 @@
-<x-layout><section class="card"><h1>Keanggotaan diperlukan</h1><p>Anda harus menjadi anggota aktif {{ $org->name }} untuk membuka katalog dan detail aset.</p><a class="primary button" href="{{ route('organization.public',$org) }}">Lihat profil dan ajukan bergabung</a></section></x-layout>
+<x-layout><section class="card"><h1>Keanggotaan diperlukan</h1><p>Anda harus menjadi anggota aktif {{ $org->name }} untuk membuka katalog dan detail aset.</p><a class="primary button" href="{{ route('organization.public',$org) }}">Lihat profil untuk Gabung</a></section></x-layout>

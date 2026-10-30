@@ -6,6 +6,7 @@
 >
     <testsuites>
         <testsuite name="Concurrency"><directory>tests/Concurrency</directory></testsuite>
+        <testsuite name="Migrations"><directory>tests/Migrations</directory></testsuite>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>

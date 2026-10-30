@@ -9,7 +9,7 @@ Dokumen membedakan kode yang tersedia, skenario yang benar-benar diperiksa, dan 
 | Lingkup | Frontend–backend | Bukti utama |
 | --- | --- | --- |
 | F01 Akun | Register, normalisasi email, signed verification, login/logout, reset, rate limit | Pest register/unverified/signed/forged URL/reset; Chromium login/logout |
-| F02 Ruang & membership | Buat ruang + Admin atomik, discovery/filter, profil publik, Ruang Saya, join/review/cancel, undangan hash/resend/expiry/revoke, role | Pest pembuatan ruang Livewire, join/review, undangan email berbeda, last Admin; profil publik tanpa katalog |
+| F02 Organization & membership | Buat Organization/Admin atomik, discovery/filter, Gabung langsung Member, role lokal; revoked menolak join ulang | Pest/Chromium Gabung, payload role palsu, idempotency, concurrency MySQL, promosi Admin dan last Admin; profil tidak membuat membership |
 | F03 Otorisasi | Policy server, role lokal, membership aktif, scope resource, menu Admin nonaktif untuk Staff, arsip read-only | Pest lintas akun/ruang, mutasi Member, export Staff, arsip/unarchive |
 | F04 Inventaris | Kategori, metadata/foto, filter/sort/pagination, soft delete, ULID immutable, damage report, penilaian, maintenance, ditemukan kembali | Pest FK lintas ruang, identifier, inspeksi major/perbaikan; Chromium membuat aset |
 | F05 QR | Simple QrCode SVG/PNG, stiker, html5-qrcode, kode manual, URL stabil | Pest SVG, signature PNG asli, stiker, pembatasan anggota |
@@ -89,3 +89,14 @@ Label/pesan bawaan di halaman, kontrol aksesibilitas, validasi bisnis yang tampi
 
 - **67 pengujian Pest lulus, 328 assertion**. Build frontend dan pemeriksaan browser akun lulus, termasuk tab akun yang tetap berada di URL privat, reload tab, daftar publik untuk guest/login, dan viewport desktop/mobile.
 - Detail screenshot serta hasil pemeriksaan: [laporan Organization discovery](visual/organization-discovery/README.md).
+
+## Gabung langsung sebagai Member — 30 Oktober 2026
+
+Keputusan baru menggantikan approval keanggotaan dan invitation. Gabung membuat member/active melalui Policy/Gate, transaksi/lock dan UNIQUE. Active retry tidak mengubah role/tanggal; revoked/arsip/soft delete ditolak. Role hanya diubah Admin lokal; audit/notifikasi terbatas tetap berlaku. Peminjaman request/approval/rejection/cancellation dan aturan finansial dipertahankan.
+
+Target aktif **14 tabel**. Migration baru mengarsipkan histori privat sebelum menghapus dua tabel lama; rollback hanya struktur. Salinan spesifikasi sebelumnya dipisahkan ke Arsip. Detail berkas, migration/deployment, dan hasil terbaru: [laporan Gabung langsung](DIRECT_MEMBERSHIP.md).
+
+- **93 tes lulus, 518 assertion, 1 skipped**; build, Pint, browser desktop/mobile dan regresi fitur lama lulus. Skip terkait privilege SUPER untuk membuat trigger custom; tidak ada perubahan privilege global.
+- Migration diterapkan ke cloud development tanpa reset. `.env` pengguna tidak diubah.
+
+Bagian hasil task terdahulu pada dokumen ini merupakan histori versi sebelumnya.

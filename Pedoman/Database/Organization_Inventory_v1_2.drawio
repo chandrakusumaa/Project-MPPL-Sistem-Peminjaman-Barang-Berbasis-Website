@@ -1,5 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
 <mxfile host="app.diagrams.net" agent="Organization Inventory design generator" compressed="false" pages="5">
-  <diagram id="1" name="00 Overview - 16 tabel">
+  <diagram id="1" name="00 Overview - 14 tabel">
     <mxGraphModel dx="3125" dy="1113" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2460" pageHeight="1480" background="#F7F9FC" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -34,12 +35,6 @@
         </mxCell>
         <mxCell id="Relationships" parent="0" value="Relationships" />
         <mxCell id="edge_0" edge="1" parent="Relationships" source="field_organization_user_user_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_users_id" tooltip="organization_user(user_id) -&gt; users(id)" value="">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_1" edge="1" parent="Relationships" source="field_membership_requests_organization_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_organizations_id" tooltip="membership_requests(organization_id) -&gt; organizations(id)" value="">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_2" edge="1" parent="Relationships" source="field_organization_invitations_organization_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_organizations_id" tooltip="organization_invitations(organization_id) -&gt; organizations(id)" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="edge_3" edge="1" parent="Relationships" source="field_assets_asset_category_id" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" target="field_asset_categories_id" tooltip="assets(asset_category_id,organization_id) -&gt; asset_categories(id,organization_id)" value="">
@@ -112,10 +107,10 @@
         <mxCell id="field_organization_user_user_id" parent="table_organization_user" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | User anggota." value="FK  user_id" vertex="1">
           <mxGeometry height="25" width="518" y="94" as="geometry" />
         </mxCell>
-        <mxCell id="field_organization_user_role" parent="table_organization_user" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM(&#39;admin&#39;,&#39;staff&#39;,&#39;member&#39;) | Wajib | Hak akses pada organisasi ini." value="    role" vertex="1">
+        <mxCell id="field_organization_user_role" parent="table_organization_user" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM('admin','staff','member') | Wajib | Hak akses pada organisasi ini." value="    role" vertex="1">
           <mxGeometry height="25" width="518" y="119" as="geometry" />
         </mxCell>
-        <mxCell id="field_organization_user_status" parent="table_organization_user" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM(&#39;active&#39;,&#39;revoked&#39;) | Wajib | Hanya active + user/organisasi belum dihapus yang memberi akses." value="    status" vertex="1">
+        <mxCell id="field_organization_user_status" parent="table_organization_user" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM('active','revoked') | Wajib | Hanya active + user/organisasi belum dihapus yang memberi akses." value="    status" vertex="1">
           <mxGeometry height="25" width="518" y="144" as="geometry" />
         </mxCell>
         <mxCell id="foot_organization_user" connectable="0" parent="table_organization_user" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="10 kolom  |  3 FK" vertex="1">
@@ -165,51 +160,6 @@
         </mxCell>
         <mxCell id="foot_organizations" connectable="0" parent="table_organizations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="14 kolom  |  1 FK" vertex="1">
           <mxGeometry height="27" width="494" x="14" y="171" as="geometry" />
-        </mxCell>
-        <mxCell id="table_membership_requests" parent="Tables" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" value="membership_requests" vertex="1">
-          <mxGeometry height="203" width="518" x="668" y="493" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_id" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik." value="PK  id" vertex="1">
-          <mxGeometry height="25" width="518" y="44" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_organization_id" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="BIGINT UNSIGNED | Wajib | Organisasi tujuan." value="FK  organization_id" vertex="1">
-          <mxGeometry height="25" width="518" y="69" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_user_id" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | Pengaju." value="FK  user_id" vertex="1">
-          <mxGeometry height="25" width="518" y="94" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_status" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM(&#39;pending&#39;,&#39;approved&#39;,&#39;rejected&#39;,&#39;cancelled&#39;) | Wajib | Status pengajuan." value="    status" vertex="1">
-          <mxGeometry height="25" width="518" y="119" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_pending_guard" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="TINYINT | NULL diizinkan | Kolom turunan untuk mencegah pending ganda; jangan ditulis aplikasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END" value="G  pending_guard ?" vertex="1">
-          <mxGeometry height="25" width="518" y="144" as="geometry" />
-        </mxCell>
-        <mxCell id="foot_membership_requests" connectable="0" parent="table_membership_requests" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="13 kolom  |  4 FK" vertex="1">
-          <mxGeometry height="27" width="494" x="14" y="171" as="geometry" />
-        </mxCell>
-        <mxCell id="table_organization_invitations" parent="Tables" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" value="organization_invitations" vertex="1">
-          <mxGeometry height="228" width="518" x="668" y="748" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_id" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik." value="PK  id" vertex="1">
-          <mxGeometry height="25" width="518" y="44" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_organization_id" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="BIGINT UNSIGNED | Wajib | Organisasi pengundang." value="FK  organization_id" vertex="1">
-          <mxGeometry height="25" width="518" y="69" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_email" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="VARCHAR(254) | Wajib | Email target yang dinormalisasi." value="    email" vertex="1">
-          <mxGeometry height="25" width="518" y="94" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_token_hash" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="CHAR(64) CHARACTER SET ascii COLLATE ascii_bin | Wajib | SHA-256 atas token acak; unik. Token minimal 32 byte acak." value="    token_hash" vertex="1">
-          <mxGeometry height="25" width="518" y="119" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_status" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM(&#39;pending&#39;,&#39;accepted&#39;,&#39;expired&#39;,&#39;revoked&#39;) | Wajib | Status undangan." value="    status" vertex="1">
-          <mxGeometry height="25" width="518" y="144" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_pending_guard" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="TINYINT | NULL diizinkan | Maksimal satu undangan pending per email per organisasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END" value="G  pending_guard ?" vertex="1">
-          <mxGeometry height="25" width="518" y="169" as="geometry" />
-        </mxCell>
-        <mxCell id="foot_organization_invitations" connectable="0" parent="table_organization_invitations" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="16 kolom  |  4 FK" vertex="1">
-          <mxGeometry height="27" width="494" x="14" y="196" as="geometry" />
         </mxCell>
         <mxCell id="table_notifications" parent="Tables" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" value="notifications" vertex="1">
           <mxGeometry height="203" width="518" x="668" y="1003" as="geometry" />
@@ -262,10 +212,10 @@
         <mxCell id="field_assets_code" parent="table_assets" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="CHAR(26) CHARACTER SET ascii COLLATE ascii_bin | Wajib | ULID publik immutable; QR memakai URL dengan kode ini." value="    code" vertex="1">
           <mxGeometry height="25" width="518" y="119" as="geometry" />
         </mxCell>
-        <mxCell id="field_assets_status" parent="table_assets" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM(&#39;available&#39;,&#39;borrowed&#39;,&#39;maintenance&#39;,&#39;lost&#39;) | Wajib | Ketersediaan operasional; hanya diubah lewat action yang sah." value="    status" vertex="1">
+        <mxCell id="field_assets_status" parent="table_assets" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM('available','borrowed','maintenance','lost') | Wajib | Ketersediaan operasional; hanya diubah lewat action yang sah." value="    status" vertex="1">
           <mxGeometry height="25" width="518" y="144" as="geometry" />
         </mxCell>
-        <mxCell id="field_assets_physical_condition" parent="table_assets" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM(&#39;good&#39;,&#39;minor_damage&#39;,&#39;major_damage&#39;,&#39;unknown&#39;) | Wajib | Kondisi fisik terkini; berbeda dari ketersediaan." value="    physical_condition" vertex="1">
+        <mxCell id="field_assets_physical_condition" parent="table_assets" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM('good','minor_damage','major_damage','unknown') | Wajib | Kondisi fisik terkini; berbeda dari ketersediaan." value="    physical_condition" vertex="1">
           <mxGeometry height="25" width="518" y="169" as="geometry" />
         </mxCell>
         <mxCell id="foot_assets" connectable="0" parent="table_assets" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="15 kolom  |  2 FK" vertex="1">
@@ -286,10 +236,10 @@
         <mxCell id="field_damage_reports_borrowing_id" parent="table_damage_reports" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="BIGINT UNSIGNED | NULL diizinkan | Opsional; harus borrowing untuk aset dan organisasi yang sama." value="FK  borrowing_id ?" vertex="1">
           <mxGeometry height="25" width="518" y="119" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_source" parent="table_damage_reports" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM(&#39;member_report&#39;,&#39;staff_report&#39;,&#39;return_inspection&#39;) | Wajib | Asal laporan tetap tersimpan walau role pelapor berubah." value="    source" vertex="1">
+        <mxCell id="field_damage_reports_source" parent="table_damage_reports" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM('member_report','staff_report','return_inspection') | Wajib | Asal laporan tetap tersimpan walau role pelapor berubah." value="    source" vertex="1">
           <mxGeometry height="25" width="518" y="144" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_status" parent="table_damage_reports" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM(&#39;open&#39;,&#39;in_maintenance&#39;,&#39;resolved&#39;,&#39;noted&#39;) | Wajib | Status tindak lanjut." value="    status" vertex="1">
+        <mxCell id="field_damage_reports_status" parent="table_damage_reports" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM('open','in_maintenance','resolved','noted') | Wajib | Status tindak lanjut." value="    status" vertex="1">
           <mxGeometry height="25" width="518" y="169" as="geometry" />
         </mxCell>
         <mxCell id="foot_damage_reports" connectable="0" parent="table_damage_reports" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="20 kolom  |  5 FK" vertex="1">
@@ -334,10 +284,10 @@
         <mxCell id="field_borrowings_user_id" parent="table_borrowings" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="BIGINT UNSIGNED | Wajib | Peminjam global; histori tidak bergantung pada membership aktif." value="FK  user_id" vertex="1">
           <mxGeometry height="25" width="518" y="119" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_status" parent="table_borrowings" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM(&#39;pending&#39;,&#39;rejected&#39;,&#39;cancelled&#39;,&#39;borrowed&#39;,&#39;overdue&#39;,&#39;returned&#39;) | Wajib | Status workflow; tidak ada status approved terpisah." value="    status" vertex="1">
+        <mxCell id="field_borrowings_status" parent="table_borrowings" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM('pending','rejected','cancelled','borrowed','overdue','returned') | Wajib | Status workflow; tidak ada status approved terpisah." value="    status" vertex="1">
           <mxGeometry height="25" width="518" y="144" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_active_guard" parent="table_borrowings" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="TINYINT | NULL diizinkan | Maksimal satu pinjaman borrowed/overdue per aset. | Generated: CASE WHEN status IN (&#39;borrowed&#39;,&#39;overdue&#39;) THEN 1 ELSE NULL END" value="G  active_guard ?" vertex="1">
+        <mxCell id="field_borrowings_active_guard" parent="table_borrowings" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="TINYINT | NULL diizinkan | Maksimal satu pinjaman borrowed/overdue per aset. | Generated: CASE WHEN status IN ('borrowed','overdue') THEN 1 ELSE NULL END" value="G  active_guard ?" vertex="1">
           <mxGeometry height="25" width="518" y="169" as="geometry" />
         </mxCell>
         <mxCell id="foot_borrowings" connectable="0" parent="table_borrowings" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="34 kolom  |  7 FK" vertex="1">
@@ -355,13 +305,13 @@
         <mxCell id="field_borrower_charges_borrower_id" parent="table_borrower_charges" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="BIGINT UNSIGNED | Wajib | " value="FK  borrower_id" vertex="1">
           <mxGeometry height="25" width="518" y="94" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrower_charges_charge_type" parent="table_borrower_charges" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM(&#39;late_fee&#39;,&#39;damage&#39;,&#39;loss&#39;) | Wajib | " value="    charge_type" vertex="1">
+        <mxCell id="field_borrower_charges_charge_type" parent="table_borrower_charges" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM('late_fee','damage','loss') | Wajib | " value="    charge_type" vertex="1">
           <mxGeometry height="25" width="518" y="119" as="geometry" />
         </mxCell>
         <mxCell id="field_borrower_charges_amount" parent="table_borrower_charges" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="DECIMAL(14,0) | Wajib | Rupiah bulat &gt;0; immutable setelah issued." value="    amount" vertex="1">
           <mxGeometry height="25" width="518" y="144" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrower_charges_status" parent="table_borrower_charges" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM(&#39;draft&#39;,&#39;issued&#39;,&#39;cancelled&#39;) | Wajib | " value="    status" vertex="1">
+        <mxCell id="field_borrower_charges_status" parent="table_borrower_charges" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="ENUM('draft','issued','cancelled') | Wajib | " value="    status" vertex="1">
           <mxGeometry height="25" width="518" y="169" as="geometry" />
         </mxCell>
         <mxCell id="foot_borrower_charges" connectable="0" parent="table_borrower_charges" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#667085;fontStyle=0;strokeColor=none;fillColor=none;" value="23 kolom  |  6 FK" vertex="1">
@@ -382,7 +332,7 @@
         <mxCell id="field_charge_payments_amount" parent="table_charge_payments" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="DECIMAL(14,0) | Wajib | Nominal positif; hanya confirmed mengurangi saldo." value="    amount" vertex="1">
           <mxGeometry height="25" width="518" y="119" as="geometry" />
         </mxCell>
-        <mxCell id="field_charge_payments_status" parent="table_charge_payments" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM(&#39;pending&#39;,&#39;confirmed&#39;,&#39;rejected&#39;,&#39;voided&#39;) | Wajib | " value="    status" vertex="1">
+        <mxCell id="field_charge_payments_status" parent="table_charge_payments" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" tooltip="ENUM('pending','confirmed','rejected','voided') | Wajib | " value="    status" vertex="1">
           <mxGeometry height="25" width="518" y="144" as="geometry" />
         </mxCell>
         <mxCell id="field_charge_payments_confirmed_by" parent="table_charge_payments" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=15;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" tooltip="BIGINT UNSIGNED | NULL diizinkan | " value="FK  confirmed_by ?" vertex="1">
@@ -483,13 +433,13 @@
         <mxCell id="field_organization_user_user_id" value="FK  user_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_user" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | User anggota.">
           <mxGeometry x="0" y="98" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_organization_user_role" value="    role  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_user" vertex="1" tooltip="ENUM(&#39;admin&#39;,&#39;staff&#39;,&#39;member&#39;) | Wajib | Hak akses pada organisasi ini.">
+        <mxCell id="field_organization_user_role" value="    role  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_user" vertex="1" tooltip="ENUM('admin','staff','member') | Wajib | Hak akses pada organisasi ini.">
           <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_organization_user_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_user" vertex="1" tooltip="ENUM(&#39;active&#39;,&#39;revoked&#39;) | Wajib | Hanya active + user/organisasi belum dihapus yang memberi akses.">
+        <mxCell id="field_organization_user_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_user" vertex="1" tooltip="ENUM('active','revoked') | Wajib | Hanya active + user/organisasi belum dihapus yang memberi akses.">
           <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_organization_user_joined_at" value="    joined_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_user" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu aktivasi terakhir; aktivasi lama tersimpan di audit.">
+        <mxCell id="field_organization_user_joined_at" value="    joined_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_user" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu bergabung pertama; retry aktif tidak mengubahnya; revoked menolak join ulang.">
           <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_organization_user_revoked_at" value="    revoked_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_user" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu pencabutan; NULL saat aktif.">
@@ -617,7 +567,7 @@
         <mxCell id="field_organizations_description" value="    description ?  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organizations" vertex="1" tooltip="TEXT | NULL diizinkan | Deskripsi profil publik.">
           <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_organizations_category" value="    category  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organizations" vertex="1" tooltip="ENUM(&#39;kampus&#39;,&#39;sekolah&#39;,&#39;komunitas&#39;,&#39;perusahaan&#39;,&#39;lainnya&#39;) | Wajib | Kategori organisasi dari daftar tetap SRS.">
+        <mxCell id="field_organizations_category" value="    category  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organizations" vertex="1" tooltip="ENUM('kampus','sekolah','komunitas','perusahaan','lainnya') | Wajib | Kategori organisasi dari daftar tetap SRS.">
           <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_organizations_logo" value="    logo ?  :  varchar(255)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organizations" vertex="1" tooltip="VARCHAR(255) | NULL diizinkan | Path relatif logo.">
@@ -646,99 +596,6 @@
         </mxCell>
         <mxCell id="field_organizations_deleted_at" value="    deleted_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organizations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Soft delete organisasi.">
           <mxGeometry x="0" y="395" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="table_membership_requests" value="membership_requests" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
-          <mxGeometry x="760" y="210" width="570" height="407" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_id" value="PK  id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik.">
-          <mxGeometry x="0" y="44" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_organization_id" value="FK  organization_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Organisasi tujuan.">
-          <mxGeometry x="0" y="71" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_user_id" value="FK  user_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Pengaju.">
-          <mxGeometry x="0" y="98" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_message" value="    message ?  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="TEXT | NULL diizinkan | Pesan pengajuan.">
-          <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="ENUM(&#39;pending&#39;,&#39;approved&#39;,&#39;rejected&#39;,&#39;cancelled&#39;) | Wajib | Status pengajuan.">
-          <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_reviewed_by" value="FK  reviewed_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Admin peninjau.">
-          <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_reviewed_at" value="    reviewed_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu keputusan approve/reject.">
-          <mxGeometry x="0" y="206" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_review_notes" value="    review_notes ?  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="TEXT | NULL diizinkan | Catatan keputusan.">
-          <mxGeometry x="0" y="233" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_cancelled_by" value="FK  cancelled_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | User/Admin pembatal; NULL bila sistem.">
-          <mxGeometry x="0" y="260" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_cancelled_at" value="    cancelled_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu pembatalan.">
-          <mxGeometry x="0" y="287" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_created_at" value="    created_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu pembuatan UTC.">
-          <mxGeometry x="0" y="314" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_updated_at" value="    updated_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_membership_requests" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu perubahan terakhir UTC.">
-          <mxGeometry x="0" y="341" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_membership_requests_pending_guard" value="G  pending_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_membership_requests" vertex="1" tooltip="TINYINT | NULL diizinkan | Kolom turunan untuk mencegah pending ganda; jangan ditulis aplikasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END">
-          <mxGeometry x="0" y="368" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="table_organization_invitations" value="organization_invitations" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
-          <mxGeometry x="1460" y="210" width="570" height="488" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_id" value="PK  id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Primary key internal; bukan identifier publik.">
-          <mxGeometry x="0" y="44" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_organization_id" value="FK  organization_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Organisasi pengundang.">
-          <mxGeometry x="0" y="71" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_email" value="    email  :  varchar(254)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="VARCHAR(254) | Wajib | Email target yang dinormalisasi.">
-          <mxGeometry x="0" y="98" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_role" value="    role  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="ENUM(&#39;staff&#39;,&#39;member&#39;) | Wajib | Role yang diberikan saat penerimaan.">
-          <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_token_hash" value="    token_hash  :  char(64)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="CHAR(64) CHARACTER SET ascii COLLATE ascii_bin | Wajib | SHA-256 atas token acak; unik. Token minimal 32 byte acak.">
-          <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_invited_by" value="FK  invited_by  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Admin pengundang.">
-          <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_expires_at" value="    expires_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | Wajib | Kedaluwarsa 7 hari setelah pembuatan/rotasi token.">
-          <mxGeometry x="0" y="206" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_last_sent_at" value="    last_sent_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu terakhir email berhasil dikirim.">
-          <mxGeometry x="0" y="233" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="ENUM(&#39;pending&#39;,&#39;accepted&#39;,&#39;expired&#39;,&#39;revoked&#39;) | Wajib | Status undangan.">
-          <mxGeometry x="0" y="260" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_accepted_by" value="FK  accepted_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | User penerima yang email aktifnya sesuai target.">
-          <mxGeometry x="0" y="287" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_accepted_at" value="    accepted_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu penerimaan.">
-          <mxGeometry x="0" y="314" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_revoked_by" value="FK  revoked_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Admin pencabut; NULL untuk pencabutan sistem.">
-          <mxGeometry x="0" y="341" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_revoked_at" value="    revoked_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu pencabutan.">
-          <mxGeometry x="0" y="368" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_created_at" value="    created_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu pembuatan UTC.">
-          <mxGeometry x="0" y="395" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_updated_at" value="    updated_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_organization_invitations" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu perubahan terakhir UTC.">
-          <mxGeometry x="0" y="422" width="570" height="27" as="geometry" />
-        </mxCell>
-        <mxCell id="field_organization_invitations_pending_guard" value="G  pending_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_organization_invitations" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu undangan pending per email per organisasi. | Generated: CASE WHEN status = &#39;pending&#39; THEN 1 ELSE NULL END">
-          <mxGeometry x="0" y="449" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="table_notifications" value="notifications" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
           <mxGeometry x="60" y="850" width="570" height="326" as="geometry" />
@@ -786,18 +643,6 @@
           <mxGeometry x="0" y="98" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="edge_0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_organizations_created_by" target="field_users_id" tooltip="organizations(created_by) -&gt; users(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_membership_requests_organization_id" target="field_organizations_id" tooltip="membership_requests(organization_id) -&gt; organizations(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_2" value="3 FK" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_membership_requests_user_id" target="field_users_id" tooltip="membership_requests(user_id) -&gt; users(id) | membership_requests(reviewed_by) -&gt; users(id) | membership_requests(cancelled_by) -&gt; users(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_organization_invitations_organization_id" target="field_organizations_id" tooltip="organization_invitations(organization_id) -&gt; organizations(id)">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="edge_4" value="3 FK" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_organization_invitations_invited_by" target="field_users_id" tooltip="organization_invitations(invited_by) -&gt; users(id) | organization_invitations(accepted_by) -&gt; users(id) | organization_invitations(revoked_by) -&gt; users(id)">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="edge_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_notifications_organization_id" target="field_organizations_id" tooltip="notifications(organization_id) -&gt; organizations(id)">
@@ -874,10 +719,10 @@
         <mxCell id="field_assets_photo" value="    photo ?  :  varchar(255)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_assets" vertex="1" tooltip="VARCHAR(255) | NULL diizinkan | Path relatif satu foto aset.">
           <mxGeometry x="0" y="287" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_assets_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_assets" vertex="1" tooltip="ENUM(&#39;available&#39;,&#39;borrowed&#39;,&#39;maintenance&#39;,&#39;lost&#39;) | Wajib | Ketersediaan operasional; hanya diubah lewat action yang sah.">
+        <mxCell id="field_assets_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_assets" vertex="1" tooltip="ENUM('available','borrowed','maintenance','lost') | Wajib | Ketersediaan operasional; hanya diubah lewat action yang sah.">
           <mxGeometry x="0" y="314" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_assets_physical_condition" value="    physical_condition  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_assets" vertex="1" tooltip="ENUM(&#39;good&#39;,&#39;minor_damage&#39;,&#39;major_damage&#39;,&#39;unknown&#39;) | Wajib | Kondisi fisik terkini; berbeda dari ketersediaan.">
+        <mxCell id="field_assets_physical_condition" value="    physical_condition  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_assets" vertex="1" tooltip="ENUM('good','minor_damage','major_damage','unknown') | Wajib | Kondisi fisik terkini; berbeda dari ketersediaan.">
           <mxGeometry x="0" y="341" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_assets_created_at" value="    created_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_assets" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu pembuatan UTC.">
@@ -904,7 +749,7 @@
         <mxCell id="field_damage_reports_borrowing_id" value="FK  borrowing_id ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Opsional; harus borrowing untuk aset dan organisasi yang sama.">
           <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_source" value="    source  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="ENUM(&#39;member_report&#39;,&#39;staff_report&#39;,&#39;return_inspection&#39;) | Wajib | Asal laporan tetap tersimpan walau role pelapor berubah.">
+        <mxCell id="field_damage_reports_source" value="    source  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="ENUM('member_report','staff_report','return_inspection') | Wajib | Asal laporan tetap tersimpan walau role pelapor berubah.">
           <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_damage_reports_reported_by" value="FK  reported_by  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Pelapor; untuk hasil inspeksi adalah petugas pemroses return.">
@@ -916,10 +761,10 @@
         <mxCell id="field_damage_reports_photo" value="    photo ?  :  varchar(255)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="VARCHAR(255) | NULL diizinkan | Path relatif satu foto.">
           <mxGeometry x="0" y="233" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_severity" value="    severity ?  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="ENUM(&#39;minor&#39;,&#39;major&#39;) | NULL diizinkan | NULL = belum dinilai.">
+        <mxCell id="field_damage_reports_severity" value="    severity ?  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="ENUM('minor','major') | NULL diizinkan | NULL = belum dinilai.">
           <mxGeometry x="0" y="260" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="ENUM(&#39;open&#39;,&#39;in_maintenance&#39;,&#39;resolved&#39;,&#39;noted&#39;) | Wajib | Status tindak lanjut.">
+        <mxCell id="field_damage_reports_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="ENUM('open','in_maintenance','resolved','noted') | Wajib | Status tindak lanjut.">
           <mxGeometry x="0" y="287" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_damage_reports_handled_by" value="FK  handled_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Petugas tindakan terakhir; detail pelaku tiap transisi tersimpan di audit.">
@@ -946,10 +791,10 @@
         <mxCell id="field_damage_reports_updated_at" value="    updated_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu perubahan terakhir UTC.">
           <mxGeometry x="0" y="503" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_maintenance_guard" value="G  maintenance_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu maintenance aktif per aset. | Generated: CASE WHEN status = &#39;in_maintenance&#39; THEN 1 ELSE NULL END">
+        <mxCell id="field_damage_reports_maintenance_guard" value="G  maintenance_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu maintenance aktif per aset. | Generated: CASE WHEN status = 'in_maintenance' THEN 1 ELSE NULL END">
           <mxGeometry x="0" y="530" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_inspection_guard" value="G  inspection_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="TINYINT | NULL diizinkan | Satu laporan otomatis dari satu inspeksi return. | Generated: CASE WHEN source = &#39;return_inspection&#39; THEN 1 ELSE NULL END">
+        <mxCell id="field_damage_reports_inspection_guard" value="G  inspection_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="TINYINT | NULL diizinkan | Satu laporan otomatis dari satu inspeksi return. | Generated: CASE WHEN source = 'return_inspection' THEN 1 ELSE NULL END">
           <mxGeometry x="0" y="557" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="table_organizations" value="organizations [KONTEKS]" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#177DAD;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#177DAD;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
@@ -1015,10 +860,10 @@
         <mxCell id="field_borrowings_user_id" value="FK  user_id  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | Peminjam global; histori tidak bergantung pada membership aktif.">
           <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="ENUM(&#39;pending&#39;,&#39;rejected&#39;,&#39;cancelled&#39;,&#39;borrowed&#39;,&#39;overdue&#39;,&#39;returned&#39;) | Wajib | Status workflow; tidak ada status approved terpisah.">
+        <mxCell id="field_borrowings_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="ENUM('pending','rejected','cancelled','borrowed','overdue','returned') | Wajib | Status workflow; tidak ada status approved terpisah.">
           <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_return_condition" value="    return_condition ?  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="ENUM(&#39;good&#39;,&#39;minor_damage&#39;,&#39;major_damage&#39;,&#39;lost&#39;) | NULL diizinkan | Hasil inspeksi satu kali saat return.">
+        <mxCell id="field_borrowings_return_condition" value="    return_condition ?  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="ENUM('good','minor_damage','major_damage','lost') | NULL diizinkan | Hasil inspeksi satu kali saat return.">
           <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="edge_0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=24;html=0;strokeColor=#9AA8BA;strokeWidth=1.4;endArrow=block;endFill=1;fontSize=10;fontColor=#64748B;labelBackgroundColor=#F7F9FC;" edge="1" parent="Relationships" source="field_asset_categories_organization_id" target="field_organizations_id" tooltip="asset_categories(organization_id) -&gt; organizations(id)">
@@ -1101,7 +946,7 @@
         <mxCell id="field_borrowings_reason" value="    reason  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="TEXT | Wajib | Alasan peminjaman, minimal 10 karakter setelah trim.">
           <mxGeometry x="0" y="206" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="ENUM(&#39;pending&#39;,&#39;rejected&#39;,&#39;cancelled&#39;,&#39;borrowed&#39;,&#39;overdue&#39;,&#39;returned&#39;) | Wajib | Status workflow; tidak ada status approved terpisah.">
+        <mxCell id="field_borrowings_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="ENUM('pending','rejected','cancelled','borrowed','overdue','returned') | Wajib | Status workflow; tidak ada status approved terpisah.">
           <mxGeometry x="0" y="233" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_borrowings_approved_by" value="FK  approved_by ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Admin/Staff yang menyetujui sekaligus memulai pinjam.">
@@ -1152,7 +997,7 @@
         <mxCell id="field_borrowings_return_processed_at" value="    return_processed_at ?  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="DATETIME(6) | NULL diizinkan | Waktu petugas menyimpan hasil return; UTC.">
           <mxGeometry x="0" y="665" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_return_condition" value="    return_condition ?  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="ENUM(&#39;good&#39;,&#39;minor_damage&#39;,&#39;major_damage&#39;,&#39;lost&#39;) | NULL diizinkan | Hasil inspeksi satu kali saat return.">
+        <mxCell id="field_borrowings_return_condition" value="    return_condition ?  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="ENUM('good','minor_damage','major_damage','lost') | NULL diizinkan | Hasil inspeksi satu kali saat return.">
           <mxGeometry x="0" y="692" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_borrowings_return_notes" value="    return_notes ?  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="TEXT | NULL diizinkan | Catatan wajib jika hasil bukan good.">
@@ -1176,10 +1021,10 @@
         <mxCell id="field_borrowings_updated_at" value="    updated_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu perubahan terakhir UTC.">
           <mxGeometry x="0" y="881" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_active_guard" value="G  active_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu pinjaman borrowed/overdue per aset. | Generated: CASE WHEN status IN (&#39;borrowed&#39;,&#39;overdue&#39;) THEN 1 ELSE NULL END">
+        <mxCell id="field_borrowings_active_guard" value="G  active_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrowings" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu pinjaman borrowed/overdue per aset. | Generated: CASE WHEN status IN ('borrowed','overdue') THEN 1 ELSE NULL END">
           <mxGeometry x="0" y="908" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrowings_open_user_guard" value="G  open_user_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu pending/aktif per user dan aset. | Generated: CASE WHEN status IN (&#39;pending&#39;,&#39;borrowed&#39;,&#39;overdue&#39;) THEN 1 ELSE NULL END">
+        <mxCell id="field_borrowings_open_user_guard" value="G  open_user_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrowings" vertex="1" tooltip="TINYINT | NULL diizinkan | Maksimal satu pending/aktif per user dan aset. | Generated: CASE WHEN status IN ('pending','borrowed','overdue') THEN 1 ELSE NULL END">
           <mxGeometry x="0" y="935" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="table_borrower_charges" value="borrower_charges" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#16836A;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#16836A;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">
@@ -1203,13 +1048,13 @@
         <mxCell id="field_borrower_charges_damage_report_id" value="FK  damage_report_id ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrower_charges" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Wajib untuk damage/loss; laporan harus terkait borrowing/aset/ruang yang sama.">
           <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrower_charges_charge_type" value="    charge_type  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrower_charges" vertex="1" tooltip="ENUM(&#39;late_fee&#39;,&#39;damage&#39;,&#39;loss&#39;) | Wajib | ">
+        <mxCell id="field_borrower_charges_charge_type" value="    charge_type  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrower_charges" vertex="1" tooltip="ENUM('late_fee','damage','loss') | Wajib | ">
           <mxGeometry x="0" y="206" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_borrower_charges_amount" value="    amount  :  decimal(14,0)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrower_charges" vertex="1" tooltip="DECIMAL(14,0) | Wajib | Rupiah bulat &gt;0; immutable setelah issued.">
           <mxGeometry x="0" y="233" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrower_charges_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrower_charges" vertex="1" tooltip="ENUM(&#39;draft&#39;,&#39;issued&#39;,&#39;cancelled&#39;) | Wajib | ">
+        <mxCell id="field_borrower_charges_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrower_charges" vertex="1" tooltip="ENUM('draft','issued','cancelled') | Wajib | ">
           <mxGeometry x="0" y="260" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_borrower_charges_reason" value="    reason  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrower_charges" vertex="1" tooltip="TEXT | Wajib | Dasar nominal dan tanggung jawab.">
@@ -1245,7 +1090,7 @@
         <mxCell id="field_borrower_charges_idempotency_key" value="    idempotency_key  :  varchar(191)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrower_charges" vertex="1" tooltip="VARCHAR(191) CHARACTER SET ascii COLLATE ascii_bin | Wajib | Unik per ruang; cegah pencatatan ganda.">
           <mxGeometry x="0" y="557" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_borrower_charges_active_guard" value="G  active_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrower_charges" vertex="1" tooltip="TINYINT | NULL diizinkan | Kolom turunan; jangan ditulis aplikasi. | Generated: CASE WHEN status IN (&#39;draft&#39;,&#39;issued&#39;) THEN 1 ELSE NULL END">
+        <mxCell id="field_borrower_charges_active_guard" value="G  active_guard ?  :  tinyint" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_borrower_charges" vertex="1" tooltip="TINYINT | NULL diizinkan | Kolom turunan; jangan ditulis aplikasi. | Generated: CASE WHEN status IN ('draft','issued') THEN 1 ELSE NULL END">
           <mxGeometry x="0" y="584" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_borrower_charges_created_at" value="    created_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_borrower_charges" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu pencatatan UTC.">
@@ -1272,7 +1117,7 @@
         <mxCell id="field_charge_payments_amount" value="    amount  :  decimal(14,0)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_charge_payments" vertex="1" tooltip="DECIMAL(14,0) | Wajib | Nominal positif; hanya confirmed mengurangi saldo.">
           <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_charge_payments_method" value="    method  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_charge_payments" vertex="1" tooltip="ENUM(&#39;cash&#39;,&#39;bank_transfer&#39;,&#39;other&#39;) | Wajib | ">
+        <mxCell id="field_charge_payments_method" value="    method  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_charge_payments" vertex="1" tooltip="ENUM('cash','bank_transfer','other') | Wajib | ">
           <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_charge_payments_paid_at" value="    paid_at  :  datetime(6)" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_charge_payments" vertex="1" tooltip="DATETIME(6) | Wajib | Waktu aktual; &gt;= issued_at dan tidak di masa depan; divalidasi Action.">
@@ -1287,7 +1132,7 @@
         <mxCell id="field_charge_payments_notes" value="    notes ?  :  text" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_charge_payments" vertex="1" tooltip="TEXT | NULL diizinkan | ">
           <mxGeometry x="0" y="287" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_charge_payments_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_charge_payments" vertex="1" tooltip="ENUM(&#39;pending&#39;,&#39;confirmed&#39;,&#39;rejected&#39;,&#39;voided&#39;) | Wajib | ">
+        <mxCell id="field_charge_payments_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_charge_payments" vertex="1" tooltip="ENUM('pending','confirmed','rejected','voided') | Wajib | ">
           <mxGeometry x="0" y="314" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="field_charge_payments_recorded_by" value="FK  recorded_by  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_charge_payments" vertex="1" tooltip="BIGINT UNSIGNED | Wajib | ">
@@ -1341,10 +1186,10 @@
         <mxCell id="field_damage_reports_borrowing_id" value="FK  borrowing_id ?  :  bigint unsigned" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="BIGINT UNSIGNED | NULL diizinkan | Opsional; harus borrowing untuk aset dan organisasi yang sama.">
           <mxGeometry x="0" y="125" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_source" value="    source  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="ENUM(&#39;member_report&#39;,&#39;staff_report&#39;,&#39;return_inspection&#39;) | Wajib | Asal laporan tetap tersimpan walau role pelapor berubah.">
+        <mxCell id="field_damage_reports_source" value="    source  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#FFFFFF;" parent="table_damage_reports" vertex="1" tooltip="ENUM('member_report','staff_report','return_inspection') | Wajib | Asal laporan tetap tersimpan walau role pelapor berubah.">
           <mxGeometry x="0" y="152" width="570" height="27" as="geometry" />
         </mxCell>
-        <mxCell id="field_damage_reports_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="ENUM(&#39;open&#39;,&#39;in_maintenance&#39;,&#39;resolved&#39;,&#39;noted&#39;) | Wajib | Status tindak lanjut.">
+        <mxCell id="field_damage_reports_status" value="    status  :  enum" style="text;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=12;fontFamily=Consolas;fontSize=13;fontColor=#273449;strokeColor=none;fillColor=#F3F6FA;" parent="table_damage_reports" vertex="1" tooltip="ENUM('open','in_maintenance','resolved','noted') | Wajib | Status tindak lanjut.">
           <mxGeometry x="0" y="179" width="570" height="27" as="geometry" />
         </mxCell>
         <mxCell id="table_charge_credits" value="charge_credits" style="swimlane;html=0;startSize=44;horizontal=1;rounded=1;arcSize=8;container=1;collapsible=0;childLayout=none;resizeParent=1;recursiveResize=0;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#16836A;fontColor=#FFFFFF;fontFamily=Arial;fontSize=18;fontStyle=1;align=left;spacingLeft=16;fillColor=#16836A;swimlaneFillColor=#FFFFFF;" parent="Tables" vertex="1">

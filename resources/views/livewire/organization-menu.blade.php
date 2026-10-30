@@ -1,4 +1,4 @@
-<details class="oi-org-menu" @if($current || request()->routeIs('personal.organizations')) open @endif>
+<details class="oi-org-menu" @if($expanded) open @endif>
     <summary class="oi-side-link"><x-icon name="grid" /><span>Organization</span><span class="oi-menu-count">{{ $organizations->count() }}</span><x-icon name="chevron-down" class="oi-menu-chevron" /></summary>
     <nav class="oi-org-links" aria-label="Organization Anda">
         <a class="oi-side-link" href="{{ route('personal.organizations') }}">Semua Organization saya</a>

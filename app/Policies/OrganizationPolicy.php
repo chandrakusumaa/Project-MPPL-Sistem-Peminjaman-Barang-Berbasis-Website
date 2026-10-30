@@ -9,6 +9,13 @@ use App\Models\User;
 
 class OrganizationPolicy
 {
+    public function join(User $user, Organization $organization): bool
+    {
+        return ! $user->trashed() && $user->hasVerifiedEmail()
+            && ! $organization->trashed() && ! $organization->archived_at
+            && ! Membership::where('organization_id', $organization->id)->where('user_id', $user->id)->where('status', 'revoked')->exists();
+    }
+
     public function view(User $user, Organization $organization): bool
     {
         return ! $user->trashed() && ! $organization->trashed() && Membership::where('organization_id', $organization->id)->where('user_id', $user->id)->where('status', 'active')->exists();

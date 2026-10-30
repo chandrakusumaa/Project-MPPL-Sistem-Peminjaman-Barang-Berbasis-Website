@@ -30,7 +30,7 @@
     @endif
     <nav class="oi-side-group" aria-label="Akun">
         <div class="oi-side-label">AKUN</div>
-        <x-organization-menu :current="$org" />
+        <livewire:organization-menu :current-id="$org->id" />
         <a class="oi-side-link" href="{{ route('dashboard') }}"><x-icon name="home" /><span>Beranda pengguna</span></a>
         <a class="oi-side-link" href="{{ route('organization.public', $org) }}"><x-icon name="external" /><span>Lihat halaman publik</span></a>
         <form method="POST" action="{{ route('logout') }}" class="oi-mobile-only">@csrf<button class="oi-side-link" type="submit"><x-icon name="external" /><span>Keluar</span></button></form>

@@ -6,7 +6,7 @@
     <nav class="oi-side-group" aria-label="Menu akun">
         <div class="oi-side-label">MENU PENGGUNA</div>
         <a class="oi-side-link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}" href="{{ route('dashboard') }}" @if(request()->routeIs('dashboard')) aria-current="page" @endif><x-icon name="home" /><span>Dashboard Pribadi</span></a>
-        <x-organization-menu />
+        <livewire:organization-menu />
         <a class="oi-side-link {{ request()->routeIs('personal.borrowings') ? 'is-active' : '' }}" href="{{ route('personal.borrowings') }}" @if(request()->routeIs('personal.borrowings')) aria-current="page" @endif><x-icon name="swap" /><span>Peminjaman Saya</span></a>
         <a class="oi-side-link {{ request()->routeIs('personal.charges') ? 'is-active' : '' }}" href="{{ route('personal.charges') }}" @if(request()->routeIs('personal.charges')) aria-current="page" @endif><x-icon name="layers" /><span>Tagihan Saya</span></a>
         <a class="oi-side-link {{ request()->is('scan') ? 'is-active' : '' }}" href="/scan"><x-icon name="qr" /><span>Scan QR</span></a>

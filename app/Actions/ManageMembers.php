@@ -7,9 +7,7 @@ use App\Models\Borrowing;
 use App\Models\ChargePayment;
 use App\Models\DamageReport;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
-use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -64,8 +62,6 @@ class ManageMembers extends WorkspaceAction
             $this->check($confirmation === $org->name, 'Nama konfirmasi tidak cocok.');
             $this->check(! $this->obligations($org) && ! DamageReport::where('organization_id', $org->id)->where('status', 'in_maintenance')->exists(), 'Masih ada aktivitas atau kewajiban terbuka.');
             Borrowing::where('organization_id', $org->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now(), 'cancellation_reason' => 'Organization dihapus']);
-            MembershipRequest::where('organization_id', $org->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now()]);
-            OrganizationInvitation::where('organization_id', $org->id)->where('status', 'pending')->update(['status' => 'revoked', 'revoked_by' => $actor->id, 'revoked_at' => now()]);
             $org->delete();
             $this->audit($actor, $org, 'organization.deleted', $org);
         });

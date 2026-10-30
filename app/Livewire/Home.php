@@ -4,11 +4,12 @@ namespace App\Livewire;
 
 use App\Actions\ManageWorkspace;
 use App\Models\Membership;
-use App\Models\MembershipRequest;
 use App\Models\Organization;
+use Illuminate\Auth\Access\AuthorizationException;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 class Home extends Component
 {
@@ -66,17 +67,21 @@ class Home extends Component
         if (! $this->requireVerifiedAccount()) {
             return;
         }
-        app(ManageWorkspace::class)->join(auth()->user(), Organization::findOrFail($id));
-        session()->flash('status', 'Pengajuan bergabung dikirim.');
-    }
+        try {
+            $membership = app(ManageWorkspace::class)->join(auth()->user(), Organization::findOrFail($id));
+        } catch (AuthorizationException $exception) {
+            $this->addError('action', 'Tidak dapat bergabung. Organization diarsipkan atau aksesmu telah dicabut; hubungi Admin Organization.');
 
-    public function cancelJoin(int $id): void
-    {
-        if (! $this->requireVerifiedAccount()) {
+            return;
+        } catch (TooManyRequestsHttpException $exception) {
+            $this->addError('action', $exception->getMessage());
+
             return;
         }
-        app(ManageWorkspace::class)->cancelJoin(auth()->user(), Organization::findOrFail($id));
-        session()->flash('status', 'Pengajuan dibatalkan.');
+        session()->flash('status', $membership->wasRecentlyCreated
+            ? 'Berhasil bergabung. Kamu sekarang menjadi Member dan dapat membuka Organization.'
+            : 'Keanggotaanmu sudah aktif. Buka Organization untuk melanjutkan.');
+        $this->dispatch('organization-membership-updated');
     }
 
     protected function requireVerifiedAccount(): bool
@@ -98,12 +103,11 @@ class Home extends Component
     public function render()
     {
         return view('livewire.home', [
-            'pending' => auth()->check() ? MembershipRequest::where('user_id', auth()->id())->where('status', 'pending')->pluck('organization_id')->all() : [],
             'organizations' => Organization::query()
                 ->when($this->listing === 'mine', fn ($query) => $query->whereIn('id', Membership::where('user_id', auth()->id())->where('status', 'active')->select('organization_id')), fn ($query) => $query->whereNull('archived_at'))
                 ->when($this->filterCategory, fn ($query) => $query->where('category', $this->filterCategory))
                 ->where('name', 'like', '%'.$this->search.'%')->withCount('assets')->latest('id')->paginate(12),
-            'memberships' => auth()->check() ? Membership::where('user_id', auth()->id())->where('status', 'active')->get()->keyBy('organization_id') : collect(),
+            'memberships' => auth()->check() ? Membership::where('user_id', auth()->id())->get()->keyBy('organization_id') : collect(),
         ])->layout('components.layout', ['context' => 'account', 'showFeedback' => false]);
     }
 }

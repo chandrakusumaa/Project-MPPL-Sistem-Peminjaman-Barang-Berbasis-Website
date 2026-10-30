@@ -1,4 +1,7 @@
 ---
+
+> **Keputusan aktif, 30 Oktober 2026 — Gabung langsung:** semua Organization aktif terbuka bagi pengguna login terverifikasi; Gabung membuat Member aktif tanpa persetujuan keanggotaan atau invitation. Membership revoked tidak dapat bergabung ulang. Request/approval/rejection/cancellation peminjaman barang tetap dipertahankan. Target database adalah 14 tabel (12 inti + 2 pendukung), di luar tabel infrastruktur. Spesifikasi sebelumnya disimpan di [arsip keputusan lama](Arsip/keanggotaan-sebelum-gabung-langsung/README.md).
+
 title: "ORGANIZATION INVENTORY"
 subtitle: "PRODUCT REQUIREMENTS DOCUMENT (PRD)"
 author: "Tim Pengembang Organization Inventory"
@@ -32,7 +35,7 @@ Nama produk tetap **Organization Inventory**. Istilah utama pada penjelasan dan 
 
 Ruang inventaris adalah wadah pengelolaan barang, keanggotaan, aturan peminjaman, transaksi, dan histori. Ruang tersebut dapat mewakili satu pemilik barang, kelompok informal, komunitas, maupun organisasi formal. Pembuatan ruang tidak mensyaratkan pengguna mewakili lembaga tertentu.
 
-Pembuat ruang otomatis memperoleh role **Admin pada ruang tersebut**. Pengguna lain dapat mengajukan bergabung atau menerima undangan. Setelah memiliki keanggotaan aktif, pengguna memperoleh akses sesuai role pada ruang terkait. Satu akun dapat menjadi Admin pada ruang A dan Member pada ruang B secara bersamaan.
+Pembuat ruang otomatis memperoleh role **Admin pada ruang tersebut**. Pengguna terverifikasi lain dapat menekan Gabung untuk langsung memperoleh membership aktif sebagai Member. Setelah memiliki keanggotaan aktif, pengguna memperoleh akses sesuai role pada ruang terkait. Satu akun dapat menjadi Admin pada ruang A dan Member pada ruang B secara bersamaan.
 
 Nilai utama produk adalah memberikan catatan yang konsisten mengenai barang yang dikelola, ketersediaan, pemegang barang, tanggal pengembalian, kondisi fisik, dan histori transaksi. Sistem mendukung pengajuan, persetujuan, pengembalian, inspeksi, dan QR Code per unit barang.
 
@@ -53,7 +56,7 @@ Nilai utama produk adalah memberikan catatan yang konsisten mengenai barang yang
 | Dashboard Pribadi | Halaman akun untuk profil, ruang yang diikuti/dikelola, peminjaman pribadi, dan pintasan |
 | Dashboard Manajemen Ruang | Halaman operasional Admin/Staff untuk satu ruang yang sedang dibuka |
 | Inventaris / Aset | Unit barang fisik yang dicatat dalam suatu ruang |
-| Join Request | Permintaan memperoleh keanggotaan ruang; berbeda dari permintaan meminjam barang |
+| Gabung | Aksi pengguna terverifikasi untuk langsung menjadi Member pada Organization aktif; tidak membuat peminjaman barang |
 | Borrowing Request | Permintaan meminjam satu unit barang dari ruang yang diikuti |
 
 Istilah organisasi di dalam sistem tidak menentukan bentuk kelembagaan pengguna. Contoh ruang yang valid secara konsep adalah **Peralatan Raka** untuk barang pribadi, **Perlengkapan Kos Melati** untuk barang yang dikelola bersama, dan **Inventaris Himpunan Informatika** untuk organisasi mahasiswa.
@@ -165,7 +168,7 @@ Bentuk individu/kelompok menggambarkan siapa yang mengelola ruang. Role menggamb
 | Cara kerja yang perlu diperiksa | Koordinasi melalui percakapan pesan dan catatan terpisah |
 | Masalah yang diasumsikan | Sulit menelusuri pemegang barang, tenggat, dan kondisi terakhir |
 | Tujuan | Tetap dapat berbagi barang dengan catatan yang jelas dan mudah ditinjau |
-| Kebutuhan | Buat ruang, inventaris per unit, persetujuan anggota, persetujuan pinjaman, pengembalian, inspeksi, histori |
+| Kebutuhan | Buat ruang, inventaris per unit, persetujuan pinjaman, pengembalian, inspeksi, histori |
 | Role yang lazim | Admin pada ruang sendiri; dapat menjadi Member pada ruang lain |
 | Keberhasilan tugas | Dapat menemukan pemegang/tenggat satu barang dan mencatat pengembalian beserta kondisinya |
 
@@ -180,7 +183,7 @@ Bentuk individu/kelompok menggambarkan siapa yang mengelola ruang. Role menggamb
 | Cara kerja yang perlu diperiksa | Bertanya kepada beberapa teman dan menunggu informasi |
 | Masalah yang diasumsikan | Sulit mengetahui ketersediaan barang dan perkembangan permintaan |
 | Tujuan | Mengakses barang yang sesuai dan memahami kewajiban pengembaliannya |
-| Kebutuhan | Temukan ruang, ajukan bergabung, katalog, permintaan pinjaman, status/tenggat, My Borrowing |
+| Kebutuhan | Temukan ruang, bergabung langsung, katalog, permintaan pinjaman, status/tenggat, My Borrowing |
 | Role yang lazim | Member pada ruang yang diikuti |
 | Keberhasilan tugas | Dapat mengirim permintaan dan menjelaskan hasil keputusan serta tanggal pengembalian |
 
@@ -217,12 +220,12 @@ Klarifikasi pemilik proyek, 30 Oktober 2026: istilah antarmuka **Organization** 
 | Menemukan ruang dan membuka profil publik | Ya | Ya |
 | Dashboard pribadi | Tidak | Ya, walaupun belum menjadi anggota |
 | Membuat ruang | Login dahulu | Ya, setelah verifikasi email |
-| Mengajukan bergabung ke ruang lain | Login dahulu | Ya, jika memenuhi aturan request |
+| Bergabung ke Organization lain | Login dahulu | Ya, setelah verifikasi email; revoked tidak dapat bergabung ulang |
 | Melihat katalog privat | Tidak | Memerlukan membership aktif ruang terkait |
 | My Borrowing | Tidak | Hanya transaksi pribadi |
 | Pengaturan profil dan preferensi | Tidak | Hanya akun sendiri |
 
-Hak akun tidak bergantung pada role di ruang lain. Admin/Staff dari suatu ruang tetap dapat menjelajah dan mengajukan bergabung ke ruang lain.
+Hak akun tidak bergantung pada role di ruang lain. Admin/Staff dari suatu ruang tetap dapat menjelajah dan bergabung langsung ke ruang lain.
 
 ## 3.7 Permission Matrix pada Satu Ruang
 
@@ -258,7 +261,7 @@ Menu nonaktif untuk Staff adalah keputusan UI. Endpoint tetap wajib menolak tind
 | Dashboard pribadi | Tidak memakai satu role ruang sebagai role global | Lihat profil, peminjaman pribadi, dan daftar ruang |
 | Peralatan Raka | Admin | Kelola aset dan transaksi ruang sendiri |
 | Perlengkapan Kos Melati | Member | Akses katalog dan ajukan pinjaman |
-| Ruang lain yang belum diikuti | Belum memiliki membership aktif | Lihat profil publik dan ajukan bergabung |
+| Ruang lain yang belum diikuti | Belum memiliki membership aktif | Lihat profil publik dan bergabung langsung |
 
 Kembali ke dashboard pribadi atau logout tidak menghapus role. Pencabutan keanggotaan atau perubahan role merupakan tindakan tersendiri dengan otorisasi, aturan pinjaman aktif, dan audit.
 
@@ -306,7 +309,7 @@ Kode F01–F11 dipertahankan untuk keterlacakan. F12 menambahkan tagihan dan pem
 | Kode | Fitur | Prioritas | Cakupan utama |
 | --- | --- | --- | --- |
 | F01 | Account & Authentication | Wajib | Register, verifikasi email, login, reset password, akun pribadi |
-| F02 | Ruang Inventaris, Discovery & Membership | Wajib | Buat ruang, Admin pembuat, Explore, profil publik, Ruang Saya, join request, undangan |
+| F02 | Organization, Discovery & Membership | Wajib | Buat Organization, Admin pembuat, Explore, profil publik, Organization Saya, Gabung langsung sebagai Member, kelola role |
 | F03 | Role & Authorization | Wajib | Role per ruang, membership aktif, kelola anggota/role, permission server dan UI |
 | F04 | Inventory & Condition Management | Wajib | CRUD aset/kategori, kondisi fisik, damage report, maintenance, penanganan lost |
 | F05 | QR Code | Wajib | QR unik per unit, unduh/cetak, scan dan input kode, pemeriksaan akses |
@@ -341,8 +344,8 @@ Item tersebut dapat ditinjau pada fase berikutnya. Penyebutan analogi toko darin
 | --- | --- |
 | Akses awal | Guest dapat menemukan ruang dan melihat profil publik |
 | Katalog | Detail inventaris memerlukan membership aktif pada ruang terkait |
-| Keanggotaan | Melalui join request yang disetujui Admin atau penerimaan undangan yang sah |
-| Persetujuan | Persetujuan bergabung dan persetujuan pinjaman merupakan dua keputusan berbeda |
+| Keanggotaan | Langsung sebagai Member melalui Gabung oleh akun terverifikasi; membership revoked tidak diaktifkan kembali lewat join |
+| Persetujuan | Tetap diperlukan pada peminjaman barang; bergabung ke Organization tidak membutuhkan persetujuan |
 | Barang | Satu record aset mewakili satu unit fisik dengan satu QR |
 | Transaksi | Satu borrowing untuk satu unit dan satu inspeksi final |
 | Tanggal | Request masa depan diperbolehkan; approval hanya pada tanggal mulai sesuai SRS |
@@ -365,8 +368,8 @@ US01–US12 dipertahankan dan diperjelas. US13–US20 melengkapi konsep akun pri
 | --- | --- | --- |
 | US01 | Sebagai pengguna, saya ingin mendaftar, memverifikasi email, dan login agar dapat menggunakan akun pribadi | F01 |
 | US02 | Sebagai pengguna, saya ingin menemukan ruang berdasarkan nama/kategori agar dapat memilih tempat peminjaman yang relevan | F02 |
-| US03 | Sebagai pengguna yang belum menjadi anggota ruang, saya ingin mengajukan bergabung agar dapat memperoleh akses yang disetujui | F02 |
-| US04 | Sebagai Admin ruang, saya ingin menyetujui/menolak join request agar akses inventaris tetap terkontrol | F02/F03 |
+| US03 | Sebagai pengguna terverifikasi, saya ingin langsung bergabung sebagai Member agar dapat mengakses katalog Organization | F02 |
+| US04 | Sebagai Admin Organization, saya ingin mengatur role dan mencabut akses anggota dengan perlindungan kewajiban serta Admin terakhir | F02/F03 |
 | US05 | Sebagai anggota aktif, saya ingin melihat katalog dan meminta pinjaman dengan tanggal serta alasan | F04/F06 |
 | US06 | Sebagai Admin/Staff, saya ingin meninjau pending request dan memutuskan approve/reject | F06 |
 | US07 | Sebagai Admin/Staff, saya ingin memproses pengembalian dan inspeksi agar catatan kondisi serta ketersediaan diperbarui | F07 |
@@ -380,7 +383,7 @@ US01–US12 dipertahankan dan diperjelas. US13–US20 melengkapi konsep akun pri
 | US15 | Sebagai pengguna, saya ingin melihat ruang yang dikelola/diikuti beserta role dan status membership masing-masing | F02/F03/F09 |
 | US16 | Sebagai pengelola, saya ingin kembali ke dashboard pribadi tanpa kehilangan kewenangan pada ruang | F03/F09 |
 | US17 | Sebagai pengguna, saya ingin menjadi Admin di ruang sendiri dan Member di ruang lain dengan akun yang sama | F02/F03 |
-| US18 | Sebagai Admin, saya ingin mengundang pengguna sebagai Staff/Member agar akses dan delegasi dapat diberikan | F02/F03 |
+| US18 | Sebagai Admin, saya ingin menaikkan Member menjadi Staff agar dapat mendelegasikan operasi inventaris pada Organization terkait | F02/F03 |
 | US19 | Sebagai anggota aktif, saya ingin melaporkan kerusakan agar pengelola dapat menilai dan menindaklanjutinya | F04 |
 | US20 | Sebagai pengguna, saya ingin menerima dan membuka notifikasi pribadi agar keputusan yang relevan dapat diikuti | F09/F11 |
 | US21 | Sebagai pengelola, saya ingin menetapkan biaya kerusakan berdasarkan inspeksi dan kebijakan yang diketahui peminjam | F12 |
@@ -398,17 +401,18 @@ US01–US12 dipertahankan dan diperjelas. US13–US20 melengkapi konsep akun pri
 6. Lupa password dan reset password mengikuti mekanisme autentikasi.
 7. Login gagal tidak menghasilkan sesi authenticated.
 
-## 6.3 Alur Explore dan Join Ruang
+## 6.3 Alur Gabung Organization
 
-`Landing / Dashboard Pribadi -> Temukan Ruang -> Profil Publik -> Ajukan Bergabung -> Pending -> Admin Review -> Approved / Rejected`
+`Login + Verifikasi Email -> Temukan Organization -> Gabung -> Membership aktif sebagai Member -> Buka Organization`
 
-- Guest yang memilih ajukan bergabung diminta login; tujuan awal dipertahankan.
-- Pengguna tidak boleh memiliki dua membership untuk pasangan akun–ruang yang sama.
-- Maksimal satu join request pending pada pasangan tersebut.
-- Approval membuat atau mengaktifkan kembali membership sebagai Member tanpa menggandakan atau menurunkan role membership aktif yang sudah ada.
-- Rejection tidak memberikan akses katalog.
-- Status request dan membership dipisahkan: request menyimpan proses keputusan; membership aktif/revoked menyimpan hubungan akses.
-- Membership aktif tidak otomatis menghasilkan transaksi peminjaman.
+- Semua Organization aktif terbuka bagi akun terverifikasi. Membuka profil publik tidak membuat membership.
+- Role awal member ditetapkan backend, bukan pilihan dari payload pengguna.
+- Pasangan Organization–user unik; transaksi/locking mencegah duplikasi saat join bersamaan.
+- Join anggota aktif bersifat idempoten: role dan tanggal bergabung tidak berubah.
+- Membership revoked, user/Organization soft delete, atau Organization diarsipkan ditolak.
+- Hanya Admin lokal dapat mengubah role, termasuk menaikkan Member menjadi Staff; Admin aktif terakhir dan kewajiban terbuka tetap dilindungi.
+- Audit menyimpan membership baru dan perubahan role; notifikasi join ditujukan ke Admin, bukan seluruh anggota. Aksi join dibatasi 10 percobaan per akun per menit.
+- Membership tidak membuat borrowing, reservasi, atau mengubah status barang. Request/approval/rejection/cancellation peminjaman tetap berlaku.
 
 ## 6.4 Alur Borrowing
 
@@ -487,22 +491,19 @@ Sistem menyediakan registrasi, verifikasi email, login, logout, reset password, 
 
 ### Kebutuhan
 
-Pengguna menemukan ruang berdasarkan nama/kategori, membuka profil publik, membuat ruang, melihat Ruang Saya, mengajukan bergabung, atau menerima undangan. Ruang dapat dikelola satu individu maupun kelompok.
+Pengguna menemukan Organization berdasarkan nama/kategori, membuka profil publik, membuat Organization, melihat Organization Saya, dan langsung bergabung sebagai Member. Ruang dapat dikelola satu individu maupun kelompok.
 
 ### Acceptance Criteria - AC02
 
-- Search/filter menampilkan ruang yang relevan dan tidak diarsipkan.
-- Profil publik tidak menampilkan katalog privat atau data sensitif.
-- Pengguna terverifikasi dapat membuat ruang; keberhasilan membuat membership aktif sebagai Admin pembuat.
-- Pembuatan ruang dan penetapan Admin bersifat atomik; kegagalan tidak meninggalkan ruang tanpa Admin.
-- Ruang Saya menampilkan role dan status akses akun pada setiap ruang.
-- Pengguna yang belum aktif pada ruang dapat mengajukan atau membatalkan join request.
-- Duplicate pending request dicegah; rejection tidak memberi akses.
-- Admin memproses approve/reject; approval membuat atau mereaktivasi membership Member.
-- Membership aktif tidak diduplikasi atau diturunkan rolenya oleh proses join.
-- Admin dapat mengundang email sebagai Staff/Member; token sekali pakai berlaku tujuh hari.
-- Penerimaan undangan memeriksa email terverifikasi yang sesuai, masa berlaku, dan status; resend mengganti token lama.
-- Persetujuan bergabung tidak membuat borrowing atau mengubah status barang.
+- Search/filter menampilkan Organization yang relevan dan tidak diarsipkan; profil publik tidak menampilkan katalog privat atau membuat membership.
+- Pembuatan Organization dan Admin pembuat bersifat atomik.
+- Gabung dari akun login terverifikasi langsung membuat membership aktif dengan role member yang ditetapkan backend.
+- Payload role admin/staff tidak memberikan hak tambahan. Hanya Admin Organization terkait dapat mengubah role anggota.
+- UNIQUE pasangan Organization–user, transaksi dan locking mencegah duplikasi; retry aktif tidak mengubah role atau joined_at.
+- User/Organization dihapus, Organization terarsip, dan membership revoked menolak join. User yang dikeluarkan tidak dapat memulihkan aksesnya sendiri.
+- UI menampilkan Gabung dengan loading/disabled state, feedback sukses, serta Buka Organization; daftar anggota dan kontrol role khusus Admin tetap tersedia.
+- Membership baru dan perubahan role diaudit; join dibatasi dan hanya Admin menerima notifikasi anggota baru.
+- Request, approval, rejection dan cancellation peminjaman barang tetap bekerja secara terpisah.
 
 ---
 
@@ -682,7 +683,7 @@ Admin mengelola profil dan kebijakan ruang, mengekspor CSV, serta mengarsipkan a
 - Slug ruang tidak diubah ketika nama/profil diubah.
 - Arsip dan soft delete ditolak saat ada pinjaman atau maintenance aktif.
 - Ruang terarsip tidak muncul di Explore dan menolak mutasi domain, dengan pengecualian unarchive yang sah.
-- Soft delete ruang membatalkan pending dan mencabut undangan pending sesuai SRS tanpa menghapus histori.
+- Soft delete Organization membatalkan borrowing pending sesuai SRS tanpa menghapus histori membership/peminjaman/keuangan.
 - Staff tidak dapat menjalankan export atau settings walaupun memanggil endpoint langsung.
 
 ---
@@ -822,7 +823,7 @@ Aset Available hanya boleh berkondisi good/minor_damage. Barang ditemukan yang m
 ## 8.4 Membership Integrity
 
 - Satu pasangan pengguna–ruang mempunyai satu membership yang dipertahankan untuk histori.
-- Membership memakai active/revoked; pending/rejected berada pada join request.
+- Membership hanya active/revoked. Gabung langsung membuat Member aktif; revoked tidak dapat mengaktifkan dirinya melalui join.
 - Pembuatan ruang dan Admin pembuat disimpan dalam transaksi yang sama.
 - Perubahan role dilakukan Admin yang berwenang pada ruang terkait.
 - Minimal satu Admin aktif dipertahankan, termasuk saat ruang diarsipkan.
@@ -851,7 +852,7 @@ Aset Available hanya boleh berkondisi good/minor_damage. Barang ditemukan yang m
 - Password di-hash dan semua endpoint terproteksi memeriksa autentikasi/otorisasi.
 - Detail inventaris dan data anggota tidak tampil pada profil publik.
 - Export dan agregasi dashboard manajemen mengikuti scope ruang.
-- Token undangan disimpan sebagai hash, sekali pakai, dengan masa berlaku dan rotasi saat resend.
+- Endpoint invitation lama tidak tersedia dan tidak dapat memberikan membership/role. Tabel lama diarsipkan privat sebelum dihapus; rollback struktur tidak memulihkan data secara otomatis.
 - Data pribadi peminjam lain tidak dibocorkan melalui timeline, notifikasi, atau URL.
 - Error tidak membocorkan stack trace, query, secret, atau data ruang lain.
 - Hapus akun/ruang/aset mengikuti soft delete dan perlindungan histori pada SRS.
@@ -894,7 +895,7 @@ Nomor layar 1–20 dipertahankan dari versi sebelumnya. Layar 21–23 memperjela
 | --- | --- |
 | 1 — Landing Page | Penjelasan individu/kelompok, Temukan Ruang, Login, Daftar |
 | 2 — Temukan Ruang | Pencarian, filter, kartu ruang |
-| 3 — Profil Publik Ruang | Nama, kategori, deskripsi, logo, ringkasan, ajukan bergabung; tanpa katalog privat |
+| 3 — Profil Publik Ruang | Nama, kategori, deskripsi, logo, ringkasan, bergabung langsung; tanpa katalog privat |
 | 4 — Autentikasi | Login, daftar, verifikasi email, lupa/reset password |
 | 5 — Dashboard Pribadi | Profil, pinjaman pribadi, pending, Buat Ruang, Temukan Ruang, notifikasi |
 | 6 — Ruang Inventaris | Tab Semua Ruang dan Ruang Saya; role/status per ruang |
@@ -909,7 +910,7 @@ Nomor layar 1–20 dipertahankan dari versi sebelumnya. Layar 21–23 memperjela
 | 15 — Pengelolaan Peminjaman | Pending Request, Active Borrowing, History |
 | 16 — Return & Inspection | Waktu aktual, kondisi, catatan, denda, konfirmasi |
 | 17 — Asset History | Timeline dan filter sesuai hak akses |
-| 18 — Members | Join requests, undangan, anggota, role, revoke; Admin |
+| 18 — Members | Anggota aktif/revoked, role, revoke dan histori; hanya Admin lokal |
 | 19 — Reports & Settings Ruang | Export CSV, profil, kebijakan, arsip/hapus; Admin |
 | 20 — Account Settings | Profil/email/password, preferensi, hapus akun, logout |
 | 21 — Buat Ruang Inventaris | Profil ruang, validasi, penetapan Admin pembuat |
@@ -921,7 +922,7 @@ Nomor layar 1–20 dipertahankan dari versi sebelumnya. Layar 21–23 memperjela
 
 Layar operasional mendukung loading, empty, success, validation error, authorization denied, not found, network/server error, disabled action, dan konfirmasi untuk tindakan sensitif. Status tidak dibedakan hanya berdasarkan warna.
 
-Empty state akun baru menjelaskan dua pilihan awal: **Buat ruang untuk mengelola barang** atau **Temukan ruang untuk mengajukan bergabung**.
+Empty state akun baru menjelaskan dua pilihan awal: **Buat ruang untuk mengelola barang** atau **Temukan ruang untuk bergabung langsung**.
 
 ## 9.3 UX Principle untuk Role
 
@@ -936,7 +937,7 @@ Pengguna dapat menuju dashboard pribadi dari ruang yang dibuka. Tombol ini tidak
 | Menjadi penyedia/pengelola barang | Buat Ruang Inventaris |
 | Melihat ruang yang dikelola/diikuti | Ruang Saya |
 | Mencari ruang | Temukan Ruang |
-| Meminta izin akses ruang | Ajukan Bergabung |
+| Mendapat akses Organization | Gabung |
 | Meminta satu barang | Ajukan Peminjaman |
 | Meninggalkan tampilan manajemen | Kembali ke Dashboard Pribadi |
 
@@ -966,7 +967,7 @@ Versi paket yang dipasang, konfigurasi, dan dukungan lingkungan harus dicatat sa
 ## 10.2 Dependensi Implementasi yang Perlu Diverifikasi
 
 - Hosting, staging/production, dan koneksi database.
-- SMTP/provider email untuk verifikasi, reset password, undangan, dan notifikasi.
+- SMTP/provider email untuk verifikasi, reset password, dan notifikasi.
 - File/media storage dan validasi upload.
 - HTTPS, izin kamera, serta dukungan pembuatan QR PNG bila diperlukan.
 - Queue worker dan scheduler.
@@ -1003,8 +1004,8 @@ Raka memiliki kamera CAM-001, tripod TRI-001, dan tenda TEN-001 yang bersedia di
 | A — Pengguna biasa | Raka login dengan akun terverifikasi yang belum mengikuti ruang | Dashboard pribadi tersedia, tanpa role global Admin |
 | B — Buat ruang | Raka membuat Peralatan Raka | Ruang dan membership Admin pembuat berhasil dibuat |
 | C — Inventaris | Raka membuat kategori dan tiga unit barang serta QR | Barang tersedia pada ruang; pengelolaan individu berjalan tanpa Staff |
-| D — Bergabung | Sinta menemukan profil publik dan mengirim join request | Pending membership; katalog privat belum dapat dibuka |
-| E — Izin akses | Raka menyetujui Sinta | Membership Sinta aktif sebagai Member |
+| D — Bergabung | Sinta login, memverifikasi email, menemukan Organization dan menekan Gabung | Langsung Member aktif; katalog dapat dibuka tanpa perubahan role global |
+| E — Akses Member | Sinta membuka katalog setelah Gabung | Membership Member aktif; belum ada borrowing atau perubahan status barang |
 | F — Meminta barang | Sinta memilih kamera Available untuk dua hari dan mengirim alasan | Borrowing Pending; kamera belum berubah Borrowed |
 | G — Persetujuan | Pada tanggal mulai, Raka memeriksa dan menyetujui ketika kamera diserahkan | Borrowing dan kamera menjadi Borrowed; peminjam/tenggat tercatat |
 | H — Memantau | Sinta membuka My Borrowing; Raka membuka pinjaman aktif ruang | Kedua tampilan membaca transaksi yang sama sesuai hak akses |
@@ -1027,9 +1028,9 @@ Skenario ini memperlihatkan penyedia individu, peminjam, dan satu akun dengan ro
 ### Skenario B — Join Member
 
 1. Login sebagai akun yang belum aktif pada ruang tujuan.
-2. Temukan ruang, buka profil publik, dan kirim join request.
-3. Admin menyetujui; periksa membership aktif dan akses katalog.
-4. Periksa bahwa approval membership tidak membuat borrowing.
+2. Temukan Organization, buka profil publik, dan tekan Gabung.
+3. Langsung periksa membership Member aktif dan akses katalog.
+4. Periksa bahwa join tidak membuat borrowing dan payload role tambahan tidak menaikkan hak akses.
 
 ### Skenario C — Borrowing
 
@@ -1166,7 +1167,7 @@ Bagian ini menggantikan daftar “keputusan terbuka sebelum SRS” pada v0.2. Se
 - Apakah masalah pencatatan dan status yang diasumsikan benar-benar dialami.
 - Barang apa yang bersedia dipinjamkan dan kepada siapa.
 - Apakah membership sebelum melihat katalog sesuai kebiasaan pengguna.
-- Informasi yang diperlukan sebelum menyetujui orang bergabung atau meminjam.
+- Informasi yang diperlukan pengguna sebelum bergabung dan pengelola sebelum menyetujui pinjaman.
 - Apakah penamaan Ruang Inventaris dan pemisahan dashboard dipahami.
 - Apakah delegasi Staff diperlukan pada segmen awal.
 - Apakah pengguna membutuhkan reservasi atau pembayaran otomatis; pencatatan pembayaran manual tagihan sudah termasuk F12.
@@ -1179,15 +1180,13 @@ Perubahan ke katalog publik, pinjaman tanpa membership, reservasi, atau penyewaa
 
 Satu akun mempunyai relasi ke beberapa ruang. Role melekat pada relasi tersebut. Ruang menjadi pengelola inventaris dan transaksi; nama teknis organization tidak membatasi penyedia pada lembaga formal.
 
-Model berikut mengikuti SRS v1.2, dengan ekstensi finansial terhadap Desain Database v1.0: **14 tabel inti dan dua tabel pendukung**. PRD menjelaskan makna bisnis; detail kolom, tipe, index, dan SQL berada pada SRS/desain database.
+Model berikut mengikuti SRS v1.2, dengan ekstensi finansial terhadap Desain Database v1.0: **12 tabel inti dan dua tabel pendukung (total 14)**. PRD menjelaskan makna bisnis; detail kolom, tipe, index, dan SQL berada pada SRS/desain database.
 
 | Entitas / tabel | Peran dalam produk |
 | --- | --- |
 | User / users | Identitas akun pribadi, profil, verifikasi, dan preferensi |
 | Ruang Inventaris / organizations | Profil, aturan, dan konteks pengelolaan ruang |
 | Membership / organization_user | Hubungan akun–ruang, role, dan status akses |
-| Join Request / membership_requests | Pengajuan akses ruang dan keputusan |
-| Invitation / organization_invitations | Undangan yang terikat email dan masa berlaku |
 | Asset Category / asset_categories | Kategori barang dalam ruang |
 | Asset / assets | Satu unit fisik dengan kode/QR, status, dan kondisi |
 | Borrowing / borrowings | Request sampai transaksi akhir, peminjam, keputusan, snapshot, dan inspeksi final |
@@ -1205,7 +1204,7 @@ Model berikut mengikuti SRS v1.2, dengan ekstensi finansial terhadap Desain Data
 - User dan ruang memiliki relasi banyak-ke-banyak melalui membership.
 - Satu pasangan akun–ruang mempunyai satu baris membership yang dipertahankan ketika revoked.
 - Setiap membership mempunyai role per ruang; User tidak menjadi Admin global melalui relasi ini.
-- Ruang mempunyai kategori, aset, membership, undangan, dan transaksi.
+- Ruang mempunyai kategori, aset, membership dan transaksi.
 - Borrowing menghubungkan satu aset, satu peminjam, dan ruang yang sama.
 - Laporan kerusakan terhubung pada aset; referensi borrowing opsional, kecuali laporan inspeksi terkait.
 - Perubahan relevan menghasilkan asset log dan/atau audit.
@@ -1253,7 +1252,7 @@ PRD ORBHITA v0.4 merupakan referensi struktur yang tercatat pada PRD v0.2. Konse
 - Mengusulkan segmen validasi kampus serta persona Raka, Sinta, dan Dimas dengan status hipotesis.
 - Menambahkan referensi praktik nyata Pumpipumpe beserta batas penggunaan referensinya.
 - Menetapkan dashboard pribadi bagi akun baru tanpa membership dan perpindahan konteks tanpa perubahan role.
-- Memperluas F02 untuk pembuatan ruang, Admin pembuat, undangan, dan membership.
+- Memperluas F02 untuk pembuatan ruang, Admin pembuat dan membership langsung.
 - Mempertahankan F01–F11, US01–US12, AC01–AC11, G01–G07, dan OD01–OD16; menambahkan US13–US20, G08–G12, OD17–OD18.
 - Memperjelas kerusakan/maintenance pada F04 dan notifikasi pada F09 sesuai SRS.
 - Menyelaraskan database MVP, status aset/borrowing, keanggotaan active/revoked, tanggal approval, denda, dan inspeksi.

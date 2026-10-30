@@ -6,3 +6,4 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Feature');
 pest()->extend(TestCase::class)->use(DatabaseMigrations::class)->in('Concurrency');
+pest()->extend(TestCase::class)->use(DatabaseMigrations::class)->in('Migrations');

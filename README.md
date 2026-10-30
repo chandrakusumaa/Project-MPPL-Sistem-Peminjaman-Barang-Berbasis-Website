@@ -39,15 +39,21 @@ Jika menjalankan aplikasi dengan PHP langsung (misalnya `php artisan serve`), ta
 
 Keluar dari akun yang belum terverifikasi, lalu masuk sebagai `other@example.test` dengan password demo di atas untuk mencoba membuat ruang dari akun tanpa keanggotaan. Pembuat ruang otomatis menjadi Admin pada ruang barunya. Gunakan `admin@example.test` untuk langsung mengelola ruang demo Peralatan Raka. Seeder tidak mengganti password akun demo yang sudah ada.
 
+## Keanggotaan Organization
+
+Pengguna login terverifikasi menekan **Gabung** untuk langsung menjadi Member. Role awal ditetapkan backend; join aktif idempoten dan membership revoked tidak dapat bergabung ulang. Hanya Admin lokal mengubah role. Request/approval/rejection/cancellation peminjaman tetap berlaku.
+
+Saat upgrade, jalankan `php artisan migrate` (Compose: `docker compose exec app php artisan migrate`). Migration baru mengarsipkan data request/invitation lama secara privat sebelum menghapus dua tabel tersebut. Rollback struktur tidak mengembalikan data. Baca [petunjuk migration, hasil pengujian dan keterbatasan](docs/DIRECT_MEMBERSHIP.md) sebelum deployment.
+
 ## Database dan storage
 
-Migration membuat **16 tabel domain/pendukung v1.2**, termasuk users, notifications, dan password_reset_tokens, tanpa migration framework ganda. Tabel infrastruktur tambahan: migrations, sessions, jobs/job_batches/failed_jobs, cache/cache_locks.
+Migration membuat **14 tabel domain/pendukung aktif (12 inti + 2 pendukung)**, termasuk users, notifications, dan password_reset_tokens, tanpa migration framework ganda. Tabel infrastruktur tambahan: migrations, sessions, jobs/job_batches/failed_jobs, cache/cache_locks.
 
     docker compose exec app php artisan migrate
     docker compose exec app php artisan migrate:status
     docker compose exec app php artisan storage:link
 
-DDL aktif ada di database/schema/inventory-v1.2.sql, diikuti migration hardening lifecycle. SQL Pedoman/Arsip tidak digunakan untuk menyiapkan aplikasi.
+DDL aktif 14 tabel beserta CHECK ada di database/schema/inventory-v1.2.sql. Migration awal membaca snapshot beku database/schema/2026-10-27-inventory-legacy.sql; migration baru menghapus dua tabel keanggotaan lama tanpa mereset data aplikasi. SQL Pedoman/Arsip tidak digunakan untuk menyiapkan aplikasi.
 
 Foto aset/avatar berada pada disk public. Bukti tagihan/pembayaran berada pada disk privat local dan diunduh melalui pemeriksaan pemilik/role. Backup database bersama storage/app. Jangan mengubah saldo/nominal/status finansial langsung melalui SQL.
 
@@ -67,7 +73,7 @@ Alternatif dengan PHP terpasang:
 
 Pada server dengan cron, jalankan php artisan schedule:run setiap menit menggantikan schedule:work. Kalender bisnis Asia/Jakarta; timestamp UTC.
 
-Email development menggunakan MAIL_MAILER=log. Tautan verifikasi/reset/undangan berada di log development. Untuk pengiriman nyata, isi pengaturan SMTP secara aman di lingkungan deployment; jangan commit .env.
+Email development menggunakan MAIL_MAILER=log. Tautan verifikasi/reset berada di log development. Untuk pengiriman nyata, isi pengaturan SMTP secara aman di lingkungan deployment; jangan commit .env.
 
 Untuk memverifikasi akun development yang memakai email contoh tanpa kotak masuk:
 

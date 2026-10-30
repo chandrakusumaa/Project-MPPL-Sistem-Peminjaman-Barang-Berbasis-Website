@@ -155,9 +155,9 @@ it('paginates charges and payments independently and resets only the filtered li
         ->assertViewHas('payments', fn ($rows) => $rows->currentPage() === 1 && $rows->count() === 10);
 });
 
-it('keeps validation and membership action feedback visible during Livewire updates', function () {
+it('keeps validation and direct membership feedback visible during Livewire updates', function () {
     Livewire::actingAs($this->other)->test(Home::class)->set('creating', true)->call('create')
         ->assertHasErrors(['name' => 'required'])->assertSee(__('validation.required', ['attribute' => 'name']));
     Livewire::actingAs($this->other)->test(Home::class)->call('join', $this->org->id)
-        ->assertSee('Pengajuan bergabung dikirim.')->call('cancelJoin', $this->org->id)->assertSee('Pengajuan dibatalkan.');
+        ->assertSee('Berhasil bergabung.')->assertSee('Kamu sekarang menjadi Member');
 });
