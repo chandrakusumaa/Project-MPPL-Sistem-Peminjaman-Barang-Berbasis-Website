@@ -210,6 +210,8 @@ Pengguna yang Admin pada satu ruang tidak mendapat kewenangan Admin pada ruang l
 
 ## 3.6 Hak Akun Pribadi
 
+Klarifikasi pemilik proyek, 30 Oktober 2026: istilah antarmuka **Organization** menggantikan label Ruang Inventaris/ruang. Jelajahi Organization pada navbar adalah daftar publik untuk melihat profil Organization, tanpa pilihan Organization Saya atau pengelolaan. Area akun Organization Saya mempunyai tab Jelajahi sendiri yang tidak berpindah ke halaman publik dan mempertahankan sidebar akun. Tulisan penjelasan di bawah sidebar dihapus.
+
 | Tindakan | Guest | Pengguna terdaftar |
 | --- | --- | --- |
 | Menemukan ruang dan membuka profil publik | Ya | Ya |

@@ -6,7 +6,9 @@ Project ID: `463253972103364608`. Snapshot source disertakan dari pengerjaan des
 
 ## Aturan visual
 
-Pertahankan identitas desain awal: aksen merah, permukaan putih, latar abu-abu muda, tipografi, radius, kartu, tabel, sidebar, dan gaya form. Gunakan `source/OrgInventory.css` sebagai referensi token dan styling yang sesungguhnya. Nama produk Organization Inventory; label antarmuka utama Ruang Inventaris.
+Pertahankan identitas desain awal: aksen merah, permukaan putih, latar abu-abu muda, tipografi, radius, kartu, tabel, sidebar, dan gaya form. Gunakan `source/OrgInventory.css` sebagai referensi token dan styling yang sesungguhnya. Nama produk Organization Inventory; label antarmuka utama **Organization**, sesuai klarifikasi pemilik proyek pada 30 Oktober 2026. Label Ruang Inventaris pada snapshot source merupakan istilah sebelumnya.
+
+Jelajahi Organization pada navbar merupakan daftar publik tanpa tab Organization Saya atau aksi pengelolaan. Organization Saya berada di area akun tersendiri dengan tab Jelajahi yang tetap mempertahankan sidebar akun. Tulisan penjelasan di bawah sidebar dihapus.
 
 ## Source referensi
 

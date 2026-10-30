@@ -69,6 +69,26 @@ try {
     await page.getByLabel('Status peminjaman', { exact: true }).selectOption('');
     await page.waitForFunction(() => document.querySelectorAll('.oi-history-table tbody tr').length === 4);
 
+    await page.locator('.oi-org-links').getByRole('link', { name: 'Semua Organization saya', exact: true }).click();
+    await page.waitForURL('**/my-organizations');
+    await page.locator('#account-sidebar').waitFor({ state: 'visible' });
+    assert.equal(await page.locator('.oi-org-card').count(), 2);
+    assert.equal(await page.locator('.oi-account-note').count(), 0);
+    await screenshot('my-organizations-desktop.png');
+    const organizationTabs = page.getByRole('navigation', { name: 'Daftar Organization', exact: true });
+    await organizationTabs.getByRole('button', { name: 'Jelajahi Organization', exact: true }).click();
+    await page.waitForFunction(() => document.querySelectorAll('.oi-org-card').length >= 3);
+    assert.equal(new URL(page.url()).pathname, '/my-organizations');
+    assert.equal(new URL(page.url()).searchParams.get('listing'), 'all');
+    await page.reload();
+    assert.equal(new URL(page.url()).pathname, '/my-organizations');
+    await page.locator('#account-sidebar').waitFor({ state: 'visible' });
+    await page.getByLabel('Cari Organization', { exact: true }).fill('Studio Kreatif Nadia');
+    await page.waitForFunction(() => document.querySelectorAll('.oi-org-card').length === 1);
+    await screenshot('account-explore-desktop.png');
+    await organizationTabs.getByRole('button', { name: 'Organization Saya', exact: true }).click();
+    assert.equal(new URL(page.url()).pathname, '/my-organizations');
+
     const topnav = page.getByRole('navigation', { name: 'Navigasi utama', exact: true });
     await topnav.getByRole('link', { name: 'Beranda', exact: true }).click();
     await page.waitForURL(base + '/');
@@ -78,6 +98,9 @@ try {
     await page.waitForFunction(() => document.querySelectorAll('.oi-org-card').length === 1);
     await page.getByRole('heading', { name: 'Studio Kreatif Nadia', exact: true }).waitFor();
     assert.equal(await page.locator('.oi-personal-dashboard').count(), 0);
+    assert.equal(await page.locator('#account-sidebar, .oi-listing-tabs').count(), 0);
+    assert.equal(await page.getByRole('button', { name: 'Buat Organization', exact: true }).count(), 0);
+    await page.getByRole('link', { name: 'Lihat Organization →', exact: true }).waitFor();
     await screenshot('explore-desktop.png');
     await topnav.getByRole('link', { name: 'Dashboard', exact: true }).click();
     await page.waitForURL('**/dashboard');
@@ -133,10 +156,20 @@ try {
     await noOverflow();
     await topnav.getByRole('link', { name: 'Dashboard', exact: true }).click();
     await page.locator('.oi-head-actions').getByRole('link', { name: 'Buat Organization', exact: true }).click();
-    await page.getByLabel('Nama ruang', { exact: true }).waitFor({ state: 'visible' });
-    assert.ok(await page.getByLabel('Nama ruang', { exact: true }).evaluate(element => element.clientWidth > 280));
+    await page.getByLabel('Nama Organization', { exact: true }).waitFor({ state: 'visible' });
+    assert.ok(await page.getByLabel('Nama Organization', { exact: true }).evaluate(element => element.clientWidth > 280));
     await noOverflow();
     await screenshot('create-mobile.png');
+    await topnav.getByRole('link', { name: 'Jelajahi Organization', exact: true }).click();
+    await noOverflow();
+    assert.equal(await page.locator('#account-sidebar, .oi-listing-tabs').count(), 0);
+    await screenshot('explore-mobile.png');
+    await page.goto(base + '/my-organizations');
+    await organizationTabs.getByRole('button', { name: 'Jelajahi Organization', exact: true }).click();
+    await page.waitForFunction(() => document.querySelectorAll('.oi-org-card').length >= 3);
+    assert.equal(new URL(page.url()).pathname, '/my-organizations');
+    await noOverflow();
+    await screenshot('account-explore-mobile.png');
 
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(base + '/o/' + data.followedSlug);
@@ -146,9 +179,16 @@ try {
     await page.getByRole('heading', { name: 'Studio Kreatif Nadia', exact: true }).waitFor();
     assert.match(await page.locator('.oi-context').innerText(), /ADMIN/);
     assert.equal((await page.goto(base + '/o/' + data.hiddenSlug)).status(), 403);
+    const guest = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    await guest.goto(base + '/organizations');
+    await guest.getByRole('heading', { name: 'Jelajahi Organization', exact: true }).waitFor();
+    assert.equal(await guest.locator('.oi-listing-tabs, #account-sidebar').count(), 0);
+    assert.equal(await guest.getByRole('button', { name: 'Buat Organization', exact: true }).count(), 0);
+    await guest.screenshot({ path: path.join(output, 'public-guest-desktop.png') });
+    await guest.close();
     assert.deepEqual(errors, []);
     fs.writeFileSync(path.join(output, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n');
-    console.log('PASS: personal metrics/history, separate landing/discovery/dashboard, Organization dropdown and local roles, notification/profile navigation, confirmed/pending/voided billing, live filters, 1440x1000 and 390x844 screenshots, and mobile navigation/overflow.');
+    console.log('PASS: internal account exploration and tab persistence, separate read-only public discovery for guest/signed-in sessions, personal metrics/history, Organization dropdown and local roles, notification/profile navigation, billing, live filters, desktop/mobile screenshots and overflow.');
 } finally {
     await browser.close();
     fixture('cleanup');

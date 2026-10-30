@@ -63,7 +63,7 @@ class ManageMembers extends WorkspaceAction
         $this->transact($actor, $org, 'administer', function ($org) use ($actor, $confirmation) {
             $this->check($confirmation === $org->name, 'Nama konfirmasi tidak cocok.');
             $this->check(! $this->obligations($org) && ! DamageReport::where('organization_id', $org->id)->where('status', 'in_maintenance')->exists(), 'Masih ada aktivitas atau kewajiban terbuka.');
-            Borrowing::where('organization_id', $org->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now(), 'cancellation_reason' => 'Ruang dihapus']);
+            Borrowing::where('organization_id', $org->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now(), 'cancellation_reason' => 'Organization dihapus']);
             MembershipRequest::where('organization_id', $org->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now()]);
             OrganizationInvitation::where('organization_id', $org->id)->where('status', 'pending')->update(['status' => 'revoked', 'revoked_by' => $actor->id, 'revoked_at' => now()]);
             $org->delete();

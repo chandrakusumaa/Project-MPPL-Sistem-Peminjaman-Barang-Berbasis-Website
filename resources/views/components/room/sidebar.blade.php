@@ -1,5 +1,5 @@
 @props(['org', 'operator', 'admin', 'tab', 'reportStatus' => '', 'livewireNavigation' => true])
-<aside class="oi-sidebar" id="room-sidebar" :class="{ 'is-open': menuOpen }" @click="if ($event.target.closest('a, button')) menuOpen = false" aria-label="Navigasi Ruang Inventaris">
+<aside class="oi-sidebar" id="room-sidebar" :class="{ 'is-open': menuOpen }" @click="if ($event.target.closest('a, button')) menuOpen = false" aria-label="Navigasi Organization">
     <div class="oi-side-org">
         <div class="oi-avatar">{{ collect(preg_split('/\s+/', trim($org->name)))->take(2)->map(fn($part) => mb_substr($part, 0, 1))->implode('') }}</div>
         <div class="oi-side-identity"><b title="{{ $org->name }}">{{ $org->name }}</b><span>{{ $admin ? 'ADMIN' : ($operator ? 'STAFF' : 'MEMBER') }}</span></div>

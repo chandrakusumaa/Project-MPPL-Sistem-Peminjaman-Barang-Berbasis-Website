@@ -32,7 +32,7 @@ class ManageWorkspace extends WorkspaceAction
         DB::transaction(function () use ($user, $org) {
             User::whereKey($user->id)->lockForUpdate()->firstOrFail();
             $org = Organization::whereKey($org->id)->lockForUpdate()->firstOrFail();
-            $this->check(! $org->archived_at, 'Ruang diarsipkan.');
+            $this->check(! $org->archived_at, 'Organization diarsipkan.');
             $this->check(! Membership::where('organization_id', $org->id)->where('user_id', $user->id)->where('status', 'active')->exists(), 'Anda sudah menjadi anggota.');
             MembershipRequest::firstOrCreate(['organization_id' => $org->id, 'user_id' => $user->id, 'status' => 'pending']);
         }, 3);
@@ -66,7 +66,7 @@ class ManageWorkspace extends WorkspaceAction
     {
         DB::transaction(function () use ($actor, $org) {
             $org = Organization::whereKey($org->id)->lockForUpdate()->firstOrFail();
-            $this->check(! $org->archived_at, 'Ruang diarsipkan.');
+            $this->check(! $org->archived_at, 'Organization diarsipkan.');
             MembershipRequest::where('organization_id', $org->id)->where('user_id', $actor->id)->where('status', 'pending')->update(['status' => 'cancelled', 'cancelled_by' => $actor->id, 'cancelled_at' => now()]);
         });
     }

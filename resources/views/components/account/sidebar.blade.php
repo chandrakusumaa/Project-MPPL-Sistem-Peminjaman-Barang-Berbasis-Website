@@ -12,6 +12,5 @@
         <a class="oi-side-link {{ request()->is('scan') ? 'is-active' : '' }}" href="/scan"><x-icon name="qr" /><span>Scan QR</span></a>
         <a class="oi-side-link {{ request()->routeIs('profile') ? 'is-active' : '' }}" href="{{ route('profile') }}" @if(request()->routeIs('profile')) aria-current="page" @endif><x-icon name="user" /><span>Profil Saya</span></a>
     </nav>
-    <p class="oi-account-note">Satu akun, banyak Organization.<br>Peran mengikuti ruang yang sedang dibuka.</p>
     <form method="POST" action="{{ route('logout') }}" class="oi-mobile-only">@csrf<button class="oi-side-link" type="submit"><x-icon name="external" /><span>Keluar</span></button></form>
 </aside>

@@ -237,7 +237,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | --- | --- | --- |
 | FR-ORG-01 | Setiap user terautentikasi dan terverifikasi dapat membuat organisasi. Slug unik otomatis bersifat immutable; organisasi dan membership Admin pembuat dibuat dalam satu transaksi. Default `max_borrow_days` 7 dan `late_fine_per_day` 0. | Must |
 | FR-ORG-02 | Jika pembuatan organisasi gagal, tampilkan "Gagal membuat organisasi" beserta detail validasi. Jika berhasil, kembali ke Organisasi Saya. | Must |
-| FR-ORG-03 | Halaman Organizations memiliki tab "Semua Organisasi" (search dan filter) dan "Organisasi Saya". Setiap organisasi menampilkan status user: belum bergabung, menunggu persetujuan, atau sudah bergabung (dengan badge role). | Must |
+| FR-ORG-03 | Halaman akun `/my-organizations` memiliki tab Jelajahi Organization (search/filter serta join request) dan Organization Saya (membership aktif). Pergantian tab tetap di area akun dengan sidebar, filter dan pagination berfungsi. `/organizations` dari navbar merupakan daftar publik hanya untuk pencarian/profil, tanpa tab Organization Saya atau aksi pengelolaan, bagi guest maupun akun login. | Must |
 | FR-ORG-04 | Tombol "Buka" pada organisasi: Admin/Staff menuju dashboard manajemen; Member menuju katalog aset. | Must |
 | FR-ORG-05 | User yang belum menjadi anggota aktif dapat mengirim/membatalkan Join Request. Maksimal satu request PENDING per pasangan user–organisasi; pengajuan ulang setelah keputusan disimpan sebagai baris request baru. | Must |
 | FR-ORG-06 | Admin dapat Approve/Reject Join Request. Approve membuat atau mereaktivasi membership sebagai member dalam transaksi yang sama; keanggotaan aktif yang sudah ada tidak digandakan atau diturunkan rolenya. | Must |
@@ -356,7 +356,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | FR-DSH-03 | Grafik komposisi aset, peminjaman 6 bulan, dan 5 aset paling sering dipinjam berasal dari query berscope organisasi. Statistik pemakaian memakai approved_at non-NULL (kalender Asia/Jakarta), bukan jumlah request PENDING. | Must |
 | FR-DSH-04 | Dashboard Admin/Staff menampilkan daftar peminjaman jatuh tempo/overdue dan pending request terbaru. | Must |
 | FR-DSH-05 | Dashboard pribadi terpisah dari discovery Organization: tampilkan ringkasan Organization aktif/peminjaman/pengajuan Pending, Organization yang dibuat atau diikuti beserta role lokal, lalu riwayat peminjaman terbaru milik akun. | Must |
-| FR-DSH-06 | Navbar bersama menyediakan Beranda ke landing page bagi guest maupun akun login, Jelajahi Organization untuk pencarian, dan Dashboard untuk area akun. Sidebar akun/ruang memiliki dropdown Organization berisi membership aktif; Notifikasi hanya melalui lonceng di samping profil pada header. | Must |
+| FR-DSH-06 | Navbar bersama menyediakan Beranda ke landing page bagi guest maupun akun login, Jelajahi Organization untuk daftar publik, dan Dashboard untuk area akun. Sidebar akun/Organization memiliki dropdown Organization berisi membership aktif; Notifikasi hanya melalui lonceng di samping profil pada header. Gunakan istilah Organization pada seluruh label/pesan bawaan antarmuka dan email; hapus tulisan penjelasan di bawah sidebar. | Must |
 
 ### 4.12 Report
 

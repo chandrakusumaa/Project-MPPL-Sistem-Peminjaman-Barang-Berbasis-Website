@@ -1,21 +1,21 @@
 <div class="oi-personal-dashboard" wire:poll.30s>
     <div class="oi-page-head">
         <div><h1>Halo, {{ auth()->user()->name }}</h1><p>Ringkasan Organization dan aktivitas terbaru akunmu.</p></div>
-        <div class="oi-head-actions"><a class="oi-btn" href="{{ route('organizations', ['listing' => 'mine', 'create' => 1]) }}"><x-icon name="plus" />Buat Organization</a></div>
+        <div class="oi-head-actions"><a class="oi-btn" href="{{ route('personal.organizations', ['create' => 1]) }}"><x-icon name="plus" />Buat Organization</a></div>
     </div>
     <div class="oi-stats">
-        <x-room.stat label="Organization aktif" :value="$summary['organizations']" note="Ruang yang kamu ikuti atau kelola" icon="grid" />
+        <x-room.stat label="Organization aktif" :value="$summary['organizations']" note="Organization yang kamu ikuti atau kelola" icon="grid" />
         <x-room.stat label="Total peminjaman" :value="$summary['borrowings']" note="Seluruh riwayat peminjamanmu" icon="swap" />
         <x-room.stat label="Peminjaman berjalan" :value="$summary['active']" note="Sedang dipinjam atau terlambat" icon="box" />
         <x-room.stat label="Menunggu persetujuan" :value="$summary['pending']" note="Pengajuan peminjamanmu" icon="clock" />
     </div>
     <section aria-labelledby="my-organizations-heading">
-        <div class="oi-section-head"><div><h2 id="my-organizations-heading">Organization Saya</h2><p>Organization yang kamu buat maupun ikuti, beserta peranmu.</p></div><a class="oi-btn oi-secondary oi-sm" href="{{ route('organizations', ['listing' => 'mine']) }}">Lihat semua →</a></div>
+        <div class="oi-section-head"><div><h2 id="my-organizations-heading">Organization Saya</h2><p>Organization yang kamu buat maupun ikuti, beserta peranmu.</p></div><a class="oi-btn oi-secondary oi-sm" href="{{ route('personal.organizations') }}">Lihat semua →</a></div>
         <div class="oi-grid oi-cols-2 oi-org-grid">
             @forelse($organizations->take(4) as $organization)
-                <x-organization-card :org="$organization" :membership="$organization->memberships->first()"><a class="oi-btn oi-sm" href="{{ route('workspace', $organization) }}">Buka ruang →</a></x-organization-card>
+                <x-organization-card :org="$organization" :membership="$organization->memberships->first()"><a class="oi-btn oi-sm" href="{{ route('workspace', $organization) }}">Buka Organization →</a></x-organization-card>
             @empty
-                <div class="oi-panel oi-empty oi-full-width"><x-icon name="grid" :size="28" /><h3>Belum mengikuti Organization</h3><p>Buat ruang inventaris sendiri atau temukan Organization untuk mulai meminjam.</p><a class="oi-btn oi-secondary oi-sm" href="{{ route('organizations') }}">Jelajahi Organization →</a></div>
+                <div class="oi-panel oi-empty oi-full-width"><x-icon name="grid" :size="28" /><h3>Belum mengikuti Organization</h3><p>Buat Organization sendiri atau temukan Organization untuk mulai meminjam.</p><a class="oi-btn oi-secondary oi-sm" href="{{ route('personal.organizations', ['listing' => 'all']) }}">Jelajahi Organization →</a></div>
             @endforelse
         </div>
     </section>

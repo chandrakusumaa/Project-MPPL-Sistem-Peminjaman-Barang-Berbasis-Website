@@ -97,7 +97,7 @@ Screenshot ditulis ke /tmp/orginventory-desktop.png dan /tmp/orginventory-mobile
 
     (cd Pedoman && sha256sum -c SHA256SUMS.txt)
 
-Dashboard pribadi tersedia pada `/dashboard`, daftar/pencarian Organization pada `/organizations`, dan tagihan lintas ruang milik akun pada `/my-charges`. Laporan visual desktop/mobile serta cara menjalankan browser test akun: [docs/visual/account-dashboard/README.md](docs/visual/account-dashboard/README.md).
+Dashboard pribadi tersedia pada `/dashboard`, Organization Saya beserta tab Jelajahi akun pada `/my-organizations`, daftar publik pada `/organizations`, dan tagihan lintas ruang milik akun pada `/my-charges`. Laporan pemisahan navigasi dan istilah terbaru: [Organization discovery](docs/visual/organization-discovery/README.md). Laporan awal dashboard desktop/mobile serta cara menjalankan browser test akun: [docs/visual/account-dashboard/README.md](docs/visual/account-dashboard/README.md).
 
 ## Aturan utama
 
