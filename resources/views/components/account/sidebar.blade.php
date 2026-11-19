@@ -9,7 +9,6 @@
         <livewire:organization-menu />
         <a class="oi-side-link {{ request()->routeIs('personal.borrowings') ? 'is-active' : '' }}" href="{{ route('personal.borrowings') }}" @if(request()->routeIs('personal.borrowings')) aria-current="page" @endif><x-icon name="swap" /><span>Peminjaman Saya</span></a>
         <a class="oi-side-link {{ request()->routeIs('personal.charges') ? 'is-active' : '' }}" href="{{ route('personal.charges') }}" @if(request()->routeIs('personal.charges')) aria-current="page" @endif><x-icon name="layers" /><span>Tagihan Saya</span></a>
-        <a class="oi-side-link {{ request()->is('scan') ? 'is-active' : '' }}" href="/scan"><x-icon name="qr" /><span>Scan QR</span></a>
         <a class="oi-side-link {{ request()->routeIs('profile') ? 'is-active' : '' }}" href="{{ route('profile') }}" @if(request()->routeIs('profile')) aria-current="page" @endif><x-icon name="user" /><span>Profil Saya</span></a>
     </nav>
     <form method="POST" action="{{ route('logout') }}" class="oi-mobile-only">@csrf<button class="oi-side-link" type="submit"><x-icon name="external" /><span>Keluar</span></button></form>

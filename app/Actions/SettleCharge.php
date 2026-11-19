@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Models\Asset;
 use App\Models\BorrowerCharge;
 use App\Models\Borrowing;
 use App\Models\ChargeCredit;
@@ -10,9 +11,127 @@ use App\Models\DamageReport;
 use App\Models\Organization;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Gate;
 
 class SettleCharge extends WorkspaceAction
 {
+    /**
+     * Terbitkan atau tetapkan biaya kerusakan langsung dari popup Laporan Kerusakan.
+     */
+    public function assignFromReport(User $actor, Organization $org, int $reportId, array $data): BorrowerCharge
+    {
+        return $this->transact($actor, $org, 'operate', function ($org) use ($actor, $reportId, $data) {
+            $report = DamageReport::where('organization_id', $org->id)->lockForUpdate()->findOrFail($reportId);
+            $asset = Asset::where('organization_id', $org->id)->lockForUpdate()->findOrFail($report->asset_id);
+
+            $borrowingId = $report->borrowing_id ?: (int) ($data['borrowing_id'] ?? 0);
+            if (! $borrowingId) {
+                $latestBorrowing = Borrowing::where('organization_id', $org->id)
+                    ->where('asset_id', $asset->id)
+                    ->where('user_id', $report->reported_by)
+                    ->latest('id')
+                    ->first()
+                    ?: Borrowing::where('organization_id', $org->id)
+                        ->where('asset_id', $asset->id)
+                        ->latest('id')
+                        ->first();
+                $borrowingId = (int) ($latestBorrowing?->id ?? 0);
+            }
+            $this->check($borrowingId > 0, 'Pilih peminjaman terkait terlebih dahulu untuk menetapkan biaya kerusakan.');
+
+            $b = Borrowing::where('organization_id', $org->id)->where('asset_id', $asset->id)->lockForUpdate()->findOrFail($borrowingId);
+
+            if (! $report->borrowing_id) {
+                $report->update(['borrowing_id' => $b->id]);
+            }
+
+            $severity = in_array($data['severity'] ?? '', ['minor', 'major']) ? $data['severity'] : ($report->severity ?: 'minor');
+            $notes = trim($data['reason'] ?? $report->description);
+            $this->check(mb_strlen($notes) >= 10, 'Keterangan / alasan biaya kerusakan minimal 10 karakter.');
+
+            if ($report->status === 'open') {
+                $startMaintenance = ($data['start_maintenance'] ?? false) || ($severity === 'major' && $asset->status === 'available');
+                $report->update([
+                    'severity' => $severity,
+                    'assessed_at' => now(),
+                    'assessment_notes' => $notes,
+                    'handled_by' => $actor->id,
+                    'status' => $startMaintenance ? 'in_maintenance' : 'noted',
+                    'maintenance_started_at' => $startMaintenance ? now() : null,
+                    'resolution_notes' => $startMaintenance ? null : $notes,
+                ]);
+                $asset->update([
+                    'status' => $startMaintenance ? 'maintenance' : $asset->status,
+                    'physical_condition' => $asset->status === 'lost' ? 'unknown' : ($severity === 'major' ? 'major_damage' : 'minor_damage'),
+                ]);
+            } elseif ($report->severity === null) {
+                $report->update([
+                    'severity' => $severity,
+                    'assessed_at' => now(),
+                    'assessment_notes' => $notes,
+                    'handled_by' => $actor->id,
+                ]);
+            }
+
+            $chargeType = in_array($data['charge_type'] ?? 'damage', ['damage', 'loss']) ? $data['charge_type'] : 'damage';
+            $amount = (int) ($data['amount'] ?? 0);
+            $this->check($amount > 0, 'Nominal biaya kerusakan harus lebih dari Rp0.');
+
+            $basis = trim($b->damage_policy_snapshot ?: ($org->damage_charge_policy ?: ($data['policy_basis'] ?? 'Penilaian laporan kerusakan aset')));
+            $evidencePath = $data['evidence_path'] ?? $report->photo;
+
+            $existingCharge = BorrowerCharge::where('organization_id', $org->id)
+                ->where('borrowing_id', $b->id)
+                ->whereIn('charge_type', ['damage', 'loss'])
+                ->whereIn('status', ['draft', 'issued'])
+                ->lockForUpdate()
+                ->first();
+
+            $canDirectlyIssue = Gate::forUser($actor)->allows('administer', $org)
+                && $b->user_id !== $actor->id
+                && (($b->damage_policy_snapshot && $b->damage_policy_acknowledged_at) || ! $org->damage_charge_policy);
+
+            if ($existingCharge) {
+                $this->check($existingCharge->status === 'draft', 'Tagihan untuk laporan ini sudah diterbitkan.');
+                $existingCharge->update([
+                    'damage_report_id' => $report->id,
+                    'charge_type' => $chargeType,
+                    'amount' => $amount,
+                    'reason' => $notes,
+                    'policy_basis' => $basis,
+                    'evidence_path' => $evidencePath ?: $existingCharge->evidence_path,
+                    'status' => $canDirectlyIssue ? 'issued' : 'draft',
+                    'issued_by' => $canDirectlyIssue ? $actor->id : null,
+                    'issued_at' => $canDirectlyIssue ? now() : null,
+                ]);
+                $this->audit($actor, $org, $canDirectlyIssue ? 'charge.issue' : 'charge.edit', $existingCharge);
+
+                return $existingCharge;
+            }
+
+            $c = BorrowerCharge::create([
+                'organization_id' => $org->id,
+                'borrowing_id' => $b->id,
+                'asset_id' => $b->asset_id,
+                'borrower_id' => $b->user_id,
+                'damage_report_id' => $report->id,
+                'charge_type' => $chargeType,
+                'amount' => $amount,
+                'status' => $canDirectlyIssue ? 'issued' : 'draft',
+                'reason' => $notes,
+                'policy_basis' => $basis,
+                'created_by' => $actor->id,
+                'issued_by' => $canDirectlyIssue ? $actor->id : null,
+                'issued_at' => $canDirectlyIssue ? now() : null,
+                'evidence_path' => $evidencePath,
+                'idempotency_key' => $data['idempotency_key'],
+            ]);
+            $this->audit($actor, $org, $canDirectlyIssue ? 'charge.issue' : 'charge.drafted', $c);
+
+            return $c;
+        });
+    }
+
     public function draft(User $actor, Organization $org, int $borrowingId, array $data): BorrowerCharge
     {
         return $this->transact($actor, $org, 'operate', function ($org) use ($actor, $borrowingId, $data) {

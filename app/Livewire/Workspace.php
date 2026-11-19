@@ -30,7 +30,7 @@ use Livewire\WithPagination;
 
 class Workspace extends Component
 {
-    use SwitchesWorkspaces,WithFileUploads, WithPagination;
+    use SwitchesWorkspaces, WithFileUploads, WithPagination;
 
     #[Locked]
     public int $organizationId;
@@ -65,6 +65,13 @@ class Workspace extends Component
     public int $reportBorrowingId = 0;
 
     public $reportPhoto;
+
+    #[Locked]
+    public int $selectedReportId = 0;
+
+    public bool $giveChargeOption = false;
+
+    public bool $startMaintenanceOption = false;
 
     public string $search = '';
 
@@ -235,10 +242,114 @@ class Workspace extends Component
         session()->flash('status', 'Laporan kerusakan berhasil dikirim.');
     }
 
+    /**
+     * Buka popup detail laporan kerusakan dan form opsi biaya kerusakan.
+     */
+    public function openReportModal(int $reportId): void
+    {
+        $org = $this->org();
+        $r = DamageReport::where('organization_id', $org->id)
+            ->when(! Gate::allows('operate', $org), fn ($q) => $q->where('reported_by', auth()->id()))
+            ->with('charge')
+            ->findOrFail($reportId);
+
+        $this->resetValidation();
+        $this->selectedReportId = $r->id;
+        $this->severity = $r->severity ?: 'minor';
+        $this->notes = $r->assessment_notes ?: $r->description;
+        $this->borrowingId = (int) ($r->borrowing_id ?: 0);
+        $this->chargeType = $r->charge?->charge_type ?: 'damage';
+        $this->amount = $r->charge ? (string) ((int) $r->charge->amount) : '';
+        $this->reason = $r->charge?->reason ?: $r->description;
+        $this->policy = $r->charge?->policy_basis ?: ($org->damage_charge_policy ?? '');
+        $this->giveChargeOption = $r->charge !== null;
+        $this->startMaintenanceOption = $r->status === 'in_maintenance';
+        $this->evidence = null;
+    }
+
+    public function closeReportModal(): void
+    {
+        $this->reset('selectedReportId', 'giveChargeOption', 'startMaintenanceOption', 'evidence');
+        $this->resetValidation();
+    }
+
+    /**
+     * Simpan tindak lanjut laporan kerusakan dari popup beserta opsi biaya kerusakan (jika dipilih).
+     */
+    public function saveReportDecision(): void
+    {
+        $org = $this->org();
+        Gate::authorize('operate', $org);
+        $r = DamageReport::where('organization_id', $org->id)->findOrFail($this->selectedReportId);
+
+        if ($this->giveChargeOption) {
+            $this->validate([
+                'amount' => 'required|integer|min:1|max:999999999999',
+                'reason' => 'required|string|min:10',
+                'chargeType' => 'required|in:damage,loss',
+                'severity' => 'required|in:minor,major',
+                'evidence' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            ], [
+                'amount.required' => 'Nominal biaya kerusakan wajib diisi.',
+                'amount.min' => 'Nominal biaya kerusakan harus lebih dari Rp0.',
+                'reason.required' => 'Alasan / rincian biaya minimal 10 karakter.',
+                'reason.min' => 'Alasan / rincian biaya minimal 10 karakter.',
+            ]);
+
+            $path = $this->evidence ? $this->evidence->store('evidence/'.$org->id, 'local') : $r->photo;
+            app(SettleCharge::class)->assignFromReport(auth()->user(), $org, $r->id, [
+                'borrowing_id' => $this->borrowingId ?: $r->borrowing_id,
+                'severity' => $this->severity,
+                'charge_type' => $this->chargeType,
+                'amount' => $this->amount,
+                'reason' => $this->reason,
+                'policy_basis' => $this->policy,
+                'evidence_path' => $path,
+                'start_maintenance' => $this->startMaintenanceOption,
+                'idempotency_key' => $this->idempotencyKey,
+            ]);
+            $this->closeReportModal();
+            $this->success();
+            session()->flash('status', 'Laporan kerusakan diproses dan biaya kerusakan berhasil ditetapkan.');
+
+            return;
+        }
+
+        if ($r->status === 'open') {
+            $this->validate([
+                'notes' => 'required|string|min:3',
+                'severity' => 'required|in:minor,major',
+            ], [
+                'notes.required' => 'Catatan penilaian wajib diisi.',
+                'notes.min' => 'Catatan penilaian minimal 3 karakter.',
+            ]);
+            $action = ($this->startMaintenanceOption || $this->severity === 'major') ? 'maintain' : 'note';
+            app(MaintainAsset::class)->handle(auth()->user(), $org, $r->id, $action, [
+                'notes' => $this->notes,
+                'severity' => $this->severity,
+                'condition' => $this->condition,
+            ]);
+        } elseif ($r->status === 'in_maintenance') {
+            $this->validate([
+                'notes' => 'required|string|min:3',
+                'condition' => 'required|in:good,minor_damage',
+            ]);
+            app(MaintainAsset::class)->handle(auth()->user(), $org, $r->id, 'finish', [
+                'notes' => $this->notes,
+                'severity' => $this->severity,
+                'condition' => $this->condition,
+            ]);
+        }
+
+        $this->closeReportModal();
+        $this->success();
+    }
+
     public function maintain(int $id, string $action): void
     {
         abort_unless(in_array($action, ['maintain', 'note', 'finish']), 422);
-        app(MaintainAsset::class)->handle(auth()->user(), $this->org(), $id, $action, ['notes' => $this->notes, 'severity' => $this->severity, 'condition' => $this->condition]);
+        app(MaintainAsset::class)->handle(auth()->user(), $this->org(), $id, $action, ['notes' => $this->notes ?: 'Ditindaklanjuti pengelola', 'severity' => $this->severity, 'condition' => $this->condition]);
+        $this->closeReportModal();
         $this->success();
     }
 
@@ -308,7 +419,8 @@ class Workspace extends Component
             app(ManageAssets::class)->update(auth()->user(), $this->org(), $this->editingAsset, ['name' => $this->assetName, 'asset_category_id' => $this->categoryId, 'location' => $this->location, 'description' => $this->assetDescription, 'specifications' => $this->assetSpecifications] + ($photo ? ['photo' => $photo] : []));
         } else {
             app(ManageWorkspace::class)->asset(auth()->user(), $this->org(), ['name' => $this->assetName, 'asset_category_id' => $this->categoryId, 'location' => $this->location, 'description' => $this->assetDescription, 'specifications' => $this->assetSpecifications] + ($photo ? ['photo' => $photo] : []));
-        }$this->editingAsset = 0;
+        }
+        $this->editingAsset = 0;
         $this->success();
     }
 
@@ -328,13 +440,13 @@ class Workspace extends Component
 
     public function inspect(int $id): void
     {
-        app(BorrowAsset::class)->inspect(auth()->user(), $this->org(), $id, ['condition' => $this->condition, 'notes' => $this->notes] + ($this->returnedAt ? ['returned_at' => CarbonImmutable::parse($this->returnedAt, 'Asia/Jakarta')->utc()] : []) + ($this->fineOverride !== '' ? ['fine_amount' => $this->validate(['fineOverride' => 'required|integer|min:0|max:99999999999999'])['fineOverride'], 'fine_override_reason' => $this->fineOverrideReason] : []));
+        app(BorrowAsset::class)->inspect(auth()->user(), $this->org(), $id, ['condition' => $this->condition, 'notes' => $this->notes] + ($this->returnedAt ? ['returned_at' => CarbonImmutable::parse($this->returnedAt, 'Asia/Jakarta')->utc()] : []) + ($this->fineOverride !== '' ? ['fine_amount' => $this->validate(['fineOverride' => 'required|integer|min:0|max:999999999999'])['fineOverride'], 'fine_override_reason' => $this->fineOverrideReason] : []));
         $this->success();
     }
 
     public function draft(): void
     {
-        $this->validate(['borrowingId' => 'required|integer|min:1', 'reportId' => 'required|integer|min:1', 'amount' => 'required|integer|min:1|max:99999999999999', 'reason' => 'required|min:10', 'chargeType' => 'required|in:damage,loss', 'evidence' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048']);
+        $this->validate(['borrowingId' => 'required|integer|min:1', 'reportId' => 'required|integer|min:1', 'amount' => 'required|integer|min:1|max:999999999999', 'reason' => 'required|min:10', 'chargeType' => 'required|in:damage,loss', 'evidence' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048']);
         $org = $this->org();
         Gate::authorize('operate', $org);
         $path = $this->evidence->store('evidence/'.$org->id, 'local');
@@ -346,9 +458,9 @@ class Workspace extends Component
     {
         abort_unless(in_array($action, ['issue', 'cancel', 'payment', 'confirm', 'reject', 'void', 'credit', 'acknowledge', 'edit']), 422);
         if (in_array($action, ['payment', 'credit', 'edit'])) {
-            $this->validate(['amount' => 'required|integer|min:1|max:99999999999999']);
+            $this->validate(['amount' => 'required|integer|min:1|max:999999999999']);
         }
-        app(SettleCharge::class)->change(auth()->user(), $this->org(), $id, $action, ['amount' => $this->amount, 'reason' => $this->notes, 'payment_id' => $paymentId, 'method' => $this->method, 'reference' => $this->reference, 'notes' => $this->paymentNotes, 'paid_at' => $this->paidAt ? CarbonImmutable::parse($this->paidAt, 'Asia/Jakarta')->utc() : now()->toDateTimeString(), 'idempotency_key' => $this->idempotencyKey]);
+        app(SettleCharge::class)->change(auth()->user(), $this->org(), $id, $action, ['amount' => $this->amount, 'reason' => $this->notes ?: 'Diproses oleh pengelola', 'payment_id' => $paymentId, 'method' => $this->method, 'reference' => $this->reference, 'notes' => $this->paymentNotes ?: 'Pembayaran dicatat pengelola', 'paid_at' => $this->paidAt ? CarbonImmutable::parse($this->paidAt, 'Asia/Jakarta')->utc() : now()->toDateTimeString(), 'idempotency_key' => $this->idempotencyKey]);
         $this->success();
     }
 
@@ -432,6 +544,22 @@ class Workspace extends Component
                 ->with('borrower')->latest()->get()
             : collect();
 
+        $selectedReport = $this->selectedReportId
+            ? DamageReport::where('organization_id', $org->id)
+                ->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))
+                ->with(['asset', 'reporter', 'borrowing.borrower', 'charge.payments', 'charge.credits'])
+                ->find($this->selectedReportId)
+            : null;
+
+        $selectedReportBorrowings = $selectedReport
+            ? Borrowing::where('organization_id', $org->id)
+                ->where('asset_id', $selectedReport->asset_id)
+                ->with('borrower')
+                ->latest('id')
+                ->limit(15)
+                ->get()
+            : collect();
+
         $summary = [];
         if ($operator && $this->tab === 'dashboard') {
             $borrowingCounts = Borrowing::where('organization_id', $org->id)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
@@ -451,6 +579,33 @@ class Workspace extends Component
             ];
         }
 
-        return view('livewire.workspace', ['reportAsset' => $reportAsset, 'reportBorrowings' => $reportBorrowings, 'summary' => $summary, 'workspaces' => $this->availableWorkspaces(), 'monthly' => $monthly, 'top' => $top, 'reports' => DamageReport::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))->latest()->paginate(20, ['*'], 'reportsPage'), 'org' => $org, 'operator' => $operator, 'admin' => $admin, 'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12), 'categories' => AssetCategory::where('organization_id', $org->id)->get(), 'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'), 'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'), 'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(), 'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(), 'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status')])->layout('components.layout', ['context' => 'workspace']);
+        return view('livewire.workspace', [
+            'reportAsset' => $reportAsset,
+            'reportBorrowings' => $reportBorrowings,
+            'selectedReport' => $selectedReport,
+            'selectedReportBorrowings' => $selectedReportBorrowings,
+            'summary' => $summary,
+            'workspaces' => $this->availableWorkspaces(),
+            'monthly' => $monthly,
+            'top' => $top,
+            'reports' => DamageReport::where('organization_id', $org->id)
+                ->when(! $operator, fn ($q) => $q->where('reported_by', auth()->id()))
+                ->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))
+                ->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))
+                ->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))
+                ->with(['asset', 'reporter', 'borrowing.borrower', 'charge'])
+                ->latest()
+                ->paginate(20, ['*'], 'reportsPage'),
+            'org' => $org,
+            'operator' => $operator,
+            'admin' => $admin,
+            'assets' => Asset::where('organization_id', $org->id)->when($this->focusedAsset, fn ($q) => $q->whereKey($this->focusedAsset))->where('name', 'like', '%'.$this->search.'%')->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))->when($this->filterCategory, fn ($q) => $q->where('asset_category_id', $this->filterCategory))->orderBy($this->assetSort === 'newest' ? 'created_at' : 'name', $this->assetSort === 'newest' ? 'desc' : 'asc')->with('category')->paginate(12),
+            'categories' => AssetCategory::where('organization_id', $org->id)->get(),
+            'borrowings' => Borrowing::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('user_id', auth()->id()))->when($this->borrowStatus, fn ($q) => $q->where('status', $this->borrowStatus))->when($this->borrowFrom, fn ($q) => $q->where('borrow_date', '>=', $this->borrowFrom))->when($this->borrowTo, fn ($q) => $q->where('borrow_date', '<=', $this->borrowTo))->when($this->borrowSearch, fn ($q) => $q->where(fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))->with('asset', 'borrower')->latest()->paginate(20, ['*'], 'borrowingsPage'),
+            'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('asset', 'payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'),
+            'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(),
+            'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(),
+            'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status'),
+        ])->layout('components.layout', ['context' => 'workspace']);
     }
 }
