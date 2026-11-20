@@ -8,6 +8,7 @@ use App\Livewire\Home;
 use App\Livewire\PersonalCharges;
 use App\Livewire\PersonalDashboard;
 use App\Models\Asset;
+use App\Models\AssetCategory;
 use App\Models\BorrowerCharge;
 use App\Models\ChargePayment;
 use App\Models\Membership;
@@ -27,11 +28,13 @@ beforeEach(function () {
     $this->org = Organization::firstOrFail();
 });
 
-function personalRequest($test, User $user, string $name)
+function personalRequest($test, User $user, string $name, ?Organization $organization = null)
 {
-    $asset = Asset::create(['organization_id' => $test->org->id, 'asset_category_id' => $test->org->assets()->firstOrFail()->asset_category_id, 'name' => $name, 'code' => (string) Str::ulid(), 'location' => 'Ruang uji', 'status' => 'available', 'physical_condition' => 'good']);
+    $organization ??= $test->org;
+    $category = AssetCategory::firstOrCreate(['organization_id' => $organization->id, 'name' => 'Dokumentasi']);
+    $asset = Asset::create(['organization_id' => $organization->id, 'asset_category_id' => $category->id, 'name' => $name, 'code' => (string) Str::ulid(), 'location' => 'Ruang uji', 'status' => 'available', 'physical_condition' => 'good']);
 
-    return app(BorrowAsset::class)->request($user, $test->org, $asset->id, ['borrow_date' => today('Asia/Jakarta')->toDateString(), 'due_date' => today('Asia/Jakarta')->addDays(2)->toDateString(), 'reason' => 'Peminjaman untuk pengujian akun', 'acknowledged' => true]);
+    return app(BorrowAsset::class)->request($user, $organization, $asset->id, ['borrow_date' => today('Asia/Jakarta')->toDateString(), 'due_date' => today('Asia/Jakarta')->addDays(2)->toDateString(), 'reason' => 'Peminjaman untuk pengujian akun', 'acknowledged' => true]);
 }
 
 function personalCharge($test, int $amount, string $reason, ?User $borrower = null, string $status = 'issued'): BorrowerCharge
@@ -78,12 +81,12 @@ it('shows only the accounts own borrowing activity and active organizations', fu
     $followed = app(ManageWorkspace::class)->create($this->other, ['name' => 'Organization yang diikuti', 'category' => 'komunitas']);
     Membership::create(['organization_id' => $followed->id, 'user_id' => $this->admin->id, 'role' => 'member', 'status' => 'active', 'joined_at' => now()]);
     app(ManageWorkspace::class)->create($this->other, ['name' => 'Organization rahasia', 'category' => 'lainnya']);
-    personalRequest($this, $this->admin, 'Kamera menunggu');
-    $active = personalRequest($this, $this->admin, 'Laptop berjalan');
-    app(BorrowAsset::class)->decide($this->admin, $this->org, $active->id, 'approve');
-    $returned = personalRequest($this, $this->admin, 'Tripod kembali');
-    app(BorrowAsset::class)->decide($this->admin, $this->org, $returned->id, 'approve');
-    app(BorrowAsset::class)->inspect($this->staff, $this->org, $returned->id, ['condition' => 'good']);
+    personalRequest($this, $this->admin, 'Kamera menunggu', $followed);
+    $active = personalRequest($this, $this->admin, 'Laptop berjalan', $followed);
+    app(BorrowAsset::class)->decide($this->other, $followed, $active->id, 'approve');
+    $returned = personalRequest($this, $this->admin, 'Tripod kembali', $followed);
+    app(BorrowAsset::class)->decide($this->other, $followed, $returned->id, 'approve');
+    app(BorrowAsset::class)->inspect($this->other, $followed, $returned->id, ['condition' => 'good']);
     personalRequest($this, $this->member, 'Aset peminjam lain');
 
     $component = Livewire::actingAs($this->admin)->test(PersonalDashboard::class)
@@ -126,9 +129,9 @@ it('calculates personal balances using confirmed payments and credits without ex
     app(SettleCharge::class)->change($this->admin, $this->org, $waived->id, 'credit', ['amount' => 30000, 'reason' => 'Pembebasan penuh', 'idempotency_key' => 'personal-waived']);
     personalCharge($this, 400000, 'Denda dibatalkan', status: 'cancelled');
     personalCharge($this, 900000, 'Denda draft', status: 'draft');
-    $foreign = personalCharge($this, 700000, 'Rahasia peminjam lain', $this->admin);
+    $foreign = personalCharge($this, 700000, 'Rahasia peminjam lain', $this->staff);
     // This payment belongs to a different borrower; it must not appear in this account.
-    ChargePayment::create(['charge_id' => $foreign->id, 'organization_id' => $this->org->id, 'borrower_id' => $this->admin->id, 'amount' => 10000, 'method' => 'cash', 'paid_at' => now(), 'notes' => 'Pembayaran rahasia', 'status' => 'pending', 'recorded_by' => $this->staff->id, 'idempotency_key' => 'foreign-payment']);
+    ChargePayment::create(['charge_id' => $foreign->id, 'organization_id' => $this->org->id, 'borrower_id' => $this->staff->id, 'amount' => 10000, 'method' => 'cash', 'paid_at' => now(), 'notes' => 'Pembayaran rahasia', 'status' => 'pending', 'recorded_by' => $this->admin->id, 'idempotency_key' => 'foreign-payment']);
 
     $component = Livewire::actingAs($this->member)->test(PersonalCharges::class)
         ->assertViewHas('summary', fn ($summary) => (int) $summary->total === 260000 && (int) $summary->paid === 130000 && (int) $summary->credited === 50000 && (int) $summary->outstanding === 80000)

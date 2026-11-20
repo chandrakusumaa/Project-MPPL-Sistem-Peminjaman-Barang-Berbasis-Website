@@ -12,7 +12,6 @@ Dokumen membedakan kode yang tersedia, skenario yang benar-benar diperiksa, dan 
 | F02 Organization & membership | Buat Organization/Admin atomik, discovery/filter, Gabung langsung Member, role lokal; revoked menolak join ulang | Pest/Chromium Gabung, payload role palsu, idempotency, concurrency MySQL, promosi Admin dan last Admin; profil tidak membuat membership |
 | F03 Otorisasi | Policy server, role lokal, membership aktif, scope resource, menu Admin nonaktif untuk Staff, arsip read-only | Pest lintas akun/ruang, mutasi Member, export Staff, arsip/unarchive |
 | F04 Inventaris | Kategori, metadata/foto, filter/sort/pagination, soft delete, ULID immutable, damage report, penilaian, maintenance, ditemukan kembali | Pest FK lintas ruang, identifier, inspeksi major/perbaikan; Chromium membuat aset |
-| F05 QR | Simple QrCode SVG/PNG, stiker, html5-qrcode, kode manual, URL stabil | Pest SVG, signature PNG asli, stiker, pembatasan anggota |
 | F06 Peminjaman | Request/cancel/approve/reject, tanggal bisnis, snapshot kebijakan/pengakuan, My Borrowing/filter manajemen | Pest future date, duplikat, dua approval simultan, OD17 |
 | F07 Pengembalian | Waktu fisik terpisah, inspeksi final, good/minor/major/lost, denda/override, laporan inspeksi, maintenance terpisah dari pelunasan | Pest inspeksi berulang, major → maintenance → available, snapshot tarif, override tanpa alasan |
 | F08 Histori/audit | Timeline tersaring, actor/waktu/before/after aman, append-only pada model, histori soft delete | Pest larangan update audit dan revisi nominal draft dengan nilai sebelumnya |
@@ -25,7 +24,9 @@ Action/constraint menolak peminjaman ganda, maintenance ganda, inspeksi berulang
 
 ## Keputusan produk
 
-OD17 diputuskan pemilik proyek pada 27 Oktober 2026: **izinkan approval pinjaman sendiri** untuk Admin/Staff. Larangan persetujuan finansial sendiri tetap berlaku. PRD/SRS dan checksum diselaraskan.
+Pemilik proyek mengonfirmasi penghapusan fitur QR aset pada 20 November 2026. Katalog menyediakan tautan detail aset melalui kode stabil. Pest memeriksa akses guest, anggota aktif, dan non-anggota.
+
+Sejak 20 November 2026, Admin tidak dapat membuat pengajuan baru di Organization tempat ia berperan sebagai Admin. Pengajuan tersedia untuk Member dan Staff aktif. OD17 mengatur persetujuan pengajuan sendiri yang sudah tercatat. Persetujuan finansial sendiri tetap dilarang.
 
 Persona/riset pengguna tetap hipotesis sesuai PRD. Tidak ada klaim wawancara/validasi pengguna atau keputusan produk tambahan.
 
@@ -44,7 +45,7 @@ Runtime: PHP 8.4.27, MySQL 8.4.13, Laravel 12, Node 24, Livewire 3, Flux 2, Tail
 
 ## Belum selesai / belum diverifikasi
 
-- Pengiriman SMTP nyata, kamera perangkat fisik/izin pada berbagai browser, dan printer fisik belum diuji. Development memakai mail log, Chromium headless, dan halaman stiker.
+- Pengiriman SMTP nyata belum diuji. Development memakai mail log dan Chromium headless.
 - Load test target p95/5.000 aset, audit aksesibilitas menyeluruh, dan pixel comparison semua frame MagicPath belum dilakukan.
 - Suite mencakup skenario inti dan sebagian acceptance criteria, belum pemetaan assertion satu per satu untuk seluruh FR/AC. Tidak ada klaim sertifikasi seluruh F01–F12 atau kesiapan produksi.
 - Semua kombinasi filter/role/interaksi seluruh layar belum diuji melalui browser; keberhasilan backend tidak otomatis membuktikan seluruh kombinasi UI.

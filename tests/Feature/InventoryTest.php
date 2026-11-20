@@ -100,10 +100,96 @@ it('does not reserve an asset and permits exactly one approval', function () {
     expect($this->asset->fresh()->status)->toBe('borrowed');
     expect(fn () => app(BorrowAsset::class)->decide($this->admin, $this->org, $second->id, 'approve'))->toThrow(ValidationException::class);
 });
-it('allows own borrowing approval by the explicit OD17 decision', function () {
-    $b = requestFor($this, $this->admin);
-    app(BorrowAsset::class)->decide($this->admin, $this->org, $b->id, 'approve');
+it('opens and cancels the borrowing dialog without creating a request, then submits for its selected asset', function () {
+    $this->actingAs($this->member);
+    $form = Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->call('openBorrowForm', $this->asset->id)
+        ->assertSet('borrowAssetId', $this->asset->id)
+        ->call('closeBorrowForm')
+        ->assertSet('borrowAssetId', 0);
+    expect(Borrowing::count())->toBe(0);
+
+    $form->call('openBorrowForm', $this->asset->id)
+        ->set('borrowReason', 'Dokumentasi kegiatan kampus')
+        ->set('acknowledged', true);
+    $this->asset->update(['status' => 'maintenance']);
+    $form->call('requestBorrow')->assertHasErrors('action')->assertSet('borrowAssetId', $this->asset->id);
+    expect(Borrowing::count())->toBe(0);
+
+    $this->asset->update(['status' => 'available']);
+    $form->call('requestBorrow')->assertHasNoErrors()->assertSet('borrowAssetId', 0);
+    $this->assertDatabaseHas('borrowings', [
+        'asset_id' => $this->asset->id,
+        'user_id' => $this->member->id,
+        'status' => 'pending',
+    ]);
+    expect($this->asset->fresh()->status)->toBe('available');
+});
+it('blocks borrowing requests for local admins but allows them in another organization as a member', function () {
+    $this->actingAs($this->admin);
+    $this->get(route('asset.show', [$this->org, $this->asset]))
+        ->assertOk()
+        ->assertDontSee('Ajukan Pinjam');
+    Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->call('openBorrowForm', $this->asset->id)->assertForbidden();
+    expect(fn () => requestFor($this, $this->admin))->toThrow(AuthorizationException::class);
+    expect(Borrowing::count())->toBe(0);
+
+    $workspace = app(ManageWorkspace::class);
+    $otherOrg = $workspace->create($this->other, ['name' => 'Peralatan Tetangga', 'category' => 'lainnya']);
+    $workspace->join($this->admin, $otherOrg);
+    $category = AssetCategory::create(['organization_id' => $otherOrg->id, 'name' => 'Dokumentasi']);
+    $asset = $workspace->asset($this->other, $otherOrg, [
+        'name' => 'Kamera Tetangga',
+        'asset_category_id' => $category->id,
+        'location' => 'Lemari',
+    ]);
+
+    $this->get(route('asset.show', [$otherOrg, $asset]))->assertOk()->assertSee('Ajukan Pinjam');
+    Livewire::test(Workspace::class, ['organization' => $otherOrg])
+        ->call('openBorrowForm', $asset->id)
+        ->set('borrowReason', 'Meminjam kamera untuk kegiatan bersama.')
+        ->call('requestBorrow')->assertHasNoErrors();
+    $this->assertDatabaseHas('borrowings', [
+        'organization_id' => $otherOrg->id,
+        'asset_id' => $asset->id,
+        'user_id' => $this->admin->id,
+        'status' => 'pending',
+    ]);
+});
+it('allows staff to approve their own borrowing under OD17', function () {
+    $b = requestFor($this, $this->staff);
+    app(BorrowAsset::class)->decide($this->staff, $this->org, $b->id, 'approve');
     expect($b->fresh()->status)->toBe('borrowed');
+});
+it('processes only the borrowing selected in the approval, rejection and inspection dialogs', function () {
+    $approved = requestFor($this);
+    $rejected = requestFor($this, $this->staff);
+    $this->actingAs($this->member);
+    Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->call('openBorrowingAction', $approved->id, 'approve')->assertForbidden();
+
+    $this->actingAs($this->admin);
+    $page = Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->call('openBorrowingAction', $rejected->id, 'reject')
+        ->call('saveBorrowingAction')->assertHasErrors('action');
+    expect($rejected->fresh()->status)->toBe('pending');
+    $page->set('borrowingNotes', 'Acara peminjam dibatalkan.')
+        ->call('saveBorrowingAction')->assertHasNoErrors();
+    expect($rejected->fresh()->rejection_reason)->toBe('Acara peminjam dibatalkan.');
+
+    $page->call('openBorrowingAction', $approved->id, 'approve')
+        ->assertSet('borrowingNotes', '')
+        ->assertSee($this->member->name);
+    expect($approved->fresh()->status)->toBe('pending');
+    $page->call('saveBorrowingAction')->assertHasNoErrors();
+    expect($approved->fresh()->status)->toBe('borrowed');
+
+    $page->call('openBorrowingAction', $approved->id, 'inspect')
+        ->set('returnedAt', 'invalid')->call('saveBorrowingAction')->assertHasErrors('returnedAt')
+        ->set('returnedAt', '')->call('saveBorrowingAction')->assertHasNoErrors();
+    expect($approved->fresh()->status)->toBe('returned');
+    expect($this->asset->fresh()->status)->toBe('available');
 });
 it('rejects premature approval and duplicate open requests', function () {
     $b = app(BorrowAsset::class)->request($this->member, $this->org, $this->asset->id, ['borrow_date' => now('Asia/Jakarta')->addDay()->toDateString(), 'due_date' => now('Asia/Jakarta')->addDays(2)->toDateString(), 'reason' => 'Kegiatan dokumentasi kampus', 'acknowledged' => true]);
@@ -119,7 +205,28 @@ it('inspects once and keeps physical return separate from financial settlement',
     expect(BorrowerCharge::count())->toBe(0);
     expect(fn () => app(BorrowAsset::class)->inspect($this->staff, $this->org, $b->id, ['condition' => 'good']))->toThrow(ValidationException::class);
     $r = DamageReport::firstOrFail();
-    app(MaintainAsset::class)->handle($this->staff, $this->org, $r->id, 'finish', ['condition' => 'good', 'notes' => 'Lensa telah diganti']);
+    $this->actingAs($this->member)->get(route('workspace', [$this->org, 'tab' => 'maintenance']))->assertForbidden();
+    $this->actingAs($this->staff);
+    Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->call('showDamageReports')
+        ->set('reportStatus', 'in_maintenance')
+        ->assertSet('tab', 'damage-reports')
+        ->assertSee('Daftar Laporan Kerusakan')
+        ->call('showMaintenance')
+        ->assertSet('tab', 'maintenance')
+        ->assertSee('Aset dalam perbaikan')
+        ->assertSee('Lensa pecah saat digunakan')
+        ->call('openMaintenanceModal', $r->id)
+        ->call('finishMaintenance')
+        ->assertHasErrors('resolutionNotes')
+        ->set('resolutionNotes', 'Lensa telah diganti')
+        ->call('finishMaintenance')
+        ->assertHasNoErrors()
+        ->assertSee('Tidak ada aset dalam perbaikan')
+        ->call('showDamageReports')
+        ->call('openReportModal', $r->id)
+        ->assertSee('Lensa telah diganti');
+    expect($r->fresh()->status)->toBe('resolved');
     expect($this->asset->fresh()->status)->toBe('available');
 });
 it('calculates partial pending paid and void without deleting history', function () {
@@ -178,10 +285,11 @@ it('rejects cross workspace categories at the database boundary', function () {
 it('does not disclose private catalog on public organization profiles', function () {
     $this->get('/ruang/'.$this->org->slug)->assertOk()->assertSee('Peralatan Raka')->assertDontSee('Kamera Canon EOS');
 });
-it('reads stable QR and asset details only as an active member', function () {
-    $this->actingAs($this->admin)->get(route('asset.qr', [$this->org, $this->asset]))->assertOk()->assertHeader('Content-Type', 'image/svg+xml');
-    $this->get(route('asset.show', [$this->org, $this->asset]))->assertOk()->assertSee($this->asset->name);
-    $this->actingAs($this->other)->get(route('asset.show', [$this->org, $this->asset]))->assertForbidden();
+it('opens asset details by code only for active members', function () {
+    $url = route('asset.show', [$this->org, $this->asset]);
+    $this->get($url)->assertRedirect(route('login'));
+    $this->actingAs($this->member)->get($url)->assertOk()->assertSee($this->asset->name);
+    $this->actingAs($this->other)->get($url)->assertForbidden();
 });
 it('keeps code and ownership unchanged through asset editing', function () {
     $old = $this->asset->code;
@@ -325,12 +433,6 @@ it('exports the derived balance without counting a pending payment as revenue', 
     $response = $this->actingAs($this->admin)->get(route('export', [$this->org, 'charges']))->assertOk();
     $csv = $response->streamedContent();
     expect(str_starts_with($csv, "\xEF\xBB\xBF"))->toBeTrue()->and($csv)->toContain('Dibayar confirmed')->toContain('150000,issued,0,0,150000,unpaid');
-});
-it('renders a printable stable QR and an actual PNG on the PHP image', function () {
-    $this->actingAs($this->admin);
-    $this->get(route('asset.qr', [$this->org, $this->asset, 'format' => 'sticker']))->assertOk()->assertSee($this->asset->code);
-    $png = $this->get(route('asset.qr', [$this->org, $this->asset, 'format' => 'png']))->assertOk()->assertHeader('Content-Type', 'image/png')->getContent();
-    expect(substr($png, 0, 8))->toBe("\x89PNG\r\n\x1a\n");
 });
 it('audits draft revisions and keeps issued charge amounts immutable', function () {
     $c = chargeFor($this);

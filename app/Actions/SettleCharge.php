@@ -37,11 +37,38 @@ class SettleCharge extends WorkspaceAction
                         ->first();
                 $borrowingId = (int) ($latestBorrowing?->id ?? 0);
             }
-            $this->check($borrowingId > 0, 'Pilih peminjaman terkait terlebih dahulu untuk menetapkan biaya kerusakan.');
 
-            $b = Borrowing::where('organization_id', $org->id)->where('asset_id', $asset->id)->lockForUpdate()->findOrFail($borrowingId);
+            if ($borrowingId > 0) {
+                $b = Borrowing::where('organization_id', $org->id)->where('asset_id', $asset->id)->lockForUpdate()->findOrFail($borrowingId);
+            } else {
+                // Jika aset ini belum punya record peminjaman sama sekali, buat record peminjaman referensi untuk pelapor
+                $today = CarbonImmutable::today('Asia/Jakarta');
+                $b = Borrowing::create([
+                    'organization_id' => $org->id,
+                    'asset_id' => $asset->id,
+                    'user_id' => $report->reported_by,
+                    'status' => 'returned',
+                    'borrow_date' => $today->toDateString(),
+                    'due_date' => $today->addDay()->toDateString(),
+                    'reason' => 'Referensi laporan kerusakan #'.$report->id,
+                    'approved_by' => $actor->id,
+                    'approved_at' => now()->subMinute(),
+                    'returned_at' => now(),
+                    'processed_by' => $actor->id,
+                    'return_processed_at' => now(),
+                    'return_condition' => ($data['severity'] ?? 'minor') === 'major' ? 'major_damage' : 'minor_damage',
+                    'return_notes' => $report->description,
+                    'late_days' => 0,
+                    'calculated_fine_amount' => 0,
+                    'fine_amount' => 0,
+                    'max_borrow_days_snapshot' => $org->max_borrow_days,
+                    'late_fine_per_day_snapshot' => $org->late_fine_per_day,
+                    'damage_policy_snapshot' => $org->damage_charge_policy,
+                    'damage_policy_acknowledged_at' => $org->damage_charge_policy ? now() : null,
+                ]);
+            }
 
-            if (! $report->borrowing_id) {
+            if ((int) $report->borrowing_id !== (int) $b->id) {
                 $report->update(['borrowing_id' => $b->id]);
             }
 
@@ -49,8 +76,12 @@ class SettleCharge extends WorkspaceAction
             $notes = trim($data['reason'] ?? $report->description);
             $this->check(mb_strlen($notes) >= 10, 'Keterangan / alasan biaya kerusakan minimal 10 karakter.');
 
+            $wantsMaintenance = (bool) ($data['start_maintenance'] ?? false);
+            $canStartMaintenance = $asset->status === 'available'
+                && ! DamageReport::where('asset_id', $asset->id)->where('status', 'in_maintenance')->where('id', '!=', $report->id)->exists();
+
             if ($report->status === 'open') {
-                $startMaintenance = ($data['start_maintenance'] ?? false) || ($severity === 'major' && $asset->status === 'available');
+                $startMaintenance = ($wantsMaintenance || $severity === 'major') && $canStartMaintenance;
                 $report->update([
                     'severity' => $severity,
                     'assessed_at' => now(),
@@ -64,13 +95,23 @@ class SettleCharge extends WorkspaceAction
                     'status' => $startMaintenance ? 'maintenance' : $asset->status,
                     'physical_condition' => $asset->status === 'lost' ? 'unknown' : ($severity === 'major' ? 'major_damage' : 'minor_damage'),
                 ]);
-            } elseif ($report->severity === null) {
+            } else {
+                $startMaintenance = $wantsMaintenance && $canStartMaintenance && $report->status !== 'in_maintenance';
                 $report->update([
                     'severity' => $severity,
-                    'assessed_at' => now(),
+                    'assessed_at' => $report->assessed_at ?: now(),
                     'assessment_notes' => $notes,
                     'handled_by' => $actor->id,
+                    'status' => $startMaintenance ? 'in_maintenance' : $report->status,
+                    'maintenance_started_at' => $startMaintenance ? now() : $report->maintenance_started_at,
+                    'resolution_notes' => ($report->status === 'noted' && ! $startMaintenance) ? ($report->resolution_notes ?: $notes) : $report->resolution_notes,
                 ]);
+                if ($startMaintenance) {
+                    $asset->update([
+                        'status' => 'maintenance',
+                        'physical_condition' => $severity === 'major' ? 'major_damage' : 'minor_damage',
+                    ]);
+                }
             }
 
             $chargeType = in_array($data['charge_type'] ?? 'damage', ['damage', 'loss']) ? $data['charge_type'] : 'damage';
@@ -78,6 +119,9 @@ class SettleCharge extends WorkspaceAction
             $this->check($amount > 0, 'Nominal biaya kerusakan harus lebih dari Rp0.');
 
             $basis = trim($b->damage_policy_snapshot ?: ($org->damage_charge_policy ?: ($data['policy_basis'] ?? 'Penilaian laporan kerusakan aset')));
+            if ($basis === '') {
+                $basis = 'Penilaian laporan kerusakan aset';
+            }
             $evidencePath = $data['evidence_path'] ?? $report->photo;
 
             $existingCharge = BorrowerCharge::where('organization_id', $org->id)
@@ -87,12 +131,10 @@ class SettleCharge extends WorkspaceAction
                 ->lockForUpdate()
                 ->first();
 
-            $canDirectlyIssue = Gate::forUser($actor)->allows('administer', $org)
-                && $b->user_id !== $actor->id
-                && (($b->damage_policy_snapshot && $b->damage_policy_acknowledged_at) || ! $org->damage_charge_policy);
+            // Langsung terbitkan (issued) tagihan biaya kerusakan ketika ditetapkan oleh Admin/Pengelola dari popup laporan
+            $canDirectlyIssue = $b->user_id !== $actor->id;
 
             if ($existingCharge) {
-                $this->check($existingCharge->status === 'draft', 'Tagihan untuk laporan ini sudah diterbitkan.');
                 $existingCharge->update([
                     'damage_report_id' => $report->id,
                     'charge_type' => $chargeType,
@@ -101,8 +143,8 @@ class SettleCharge extends WorkspaceAction
                     'policy_basis' => $basis,
                     'evidence_path' => $evidencePath ?: $existingCharge->evidence_path,
                     'status' => $canDirectlyIssue ? 'issued' : 'draft',
-                    'issued_by' => $canDirectlyIssue ? $actor->id : null,
-                    'issued_at' => $canDirectlyIssue ? now() : null,
+                    'issued_by' => $canDirectlyIssue ? $actor->id : $existingCharge->issued_by,
+                    'issued_at' => $canDirectlyIssue ? ($existingCharge->issued_at ?: now()) : $existingCharge->issued_at,
                 ]);
                 $this->audit($actor, $org, $canDirectlyIssue ? 'charge.issue' : 'charge.edit', $existingCharge);
 

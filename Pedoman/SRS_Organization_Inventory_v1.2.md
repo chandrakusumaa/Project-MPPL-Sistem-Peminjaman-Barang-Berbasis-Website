@@ -2,6 +2,8 @@
 
 > **Keputusan aktif, 30 Oktober 2026 — Gabung langsung:** semua Organization aktif terbuka bagi pengguna login terverifikasi; Gabung membuat Member aktif tanpa persetujuan keanggotaan atau invitation. Membership revoked tidak dapat bergabung ulang. Request/approval/rejection/cancellation peminjaman barang tetap dipertahankan. Target database adalah 14 tabel (12 inti + 2 pendukung), di luar tabel infrastruktur. Spesifikasi sebelumnya disimpan di [arsip keputusan lama](Arsip/keanggotaan-sebelum-gabung-langsung/README.md).
 
+> **Keputusan aktif, 20 November 2026 — QR aset dihapus.** FR-QR-01 hingga FR-QR-10, serta referensi ke pembuatan, unduhan, pencetakan, pemindaian, dan input kode pada layar pemindaian, bersifat historis. URL detail aset menggunakan slug Organization dan kode aset yang stabil, dengan akses terbatas pada anggota aktif.
+
 ## Organization Inventory — Sistem Pengelolaan Barang
 
 | Parameter | Detail |
@@ -134,7 +136,7 @@ Aplikasi berinteraksi dengan: (1) server email (SMTP) untuk verifikasi, reset pa
 | **Guest** | Pengunjung belum login | Landing, Explore, profil publik organisasi, Register, Login | Awam |
 | **Member** | Anggota organisasi | Katalog, request borrow, scan QR, lapor kerusakan, My Borrowing | Awam |
 | **Staff** | Petugas operasional | Semua hak Member + kelola aset, kategori, peminjaman, pengembalian, damage report, dashboard | Menengah |
-| **Admin** | Pengelola organisasi | Semua hak Staff + anggota, report/export, settings organisasi | Menengah |
+| **Admin** | Pengelola organisasi | Katalog, operasi inventaris dan peminjaman, riwayat pribadi, pelaporan kerusakan, dashboard, pengelolaan anggota, laporan, pengaturan | Menengah |
 | **Sistem (Scheduler)** | Proses otomatis | Menandai OVERDUE, mengirim notifikasi terkait | Tidak berlaku |
 
 Pembuat organisasi otomatis menjadi Admin organisasi tersebut. Sebuah organisasi boleh memiliki lebih dari satu Admin.
@@ -267,15 +269,17 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | --- | --- | --- |
 | FR-INV-01 | Daftar aset memuat foto, nama, kode, kategori, lokasi, status, dan physical_condition; mendukung pencarian, filter, pengurutan, dan pagination. Aset soft delete tidak masuk katalog/statistik aktif. | Must |
 | FR-INV-02 | Admin/Staff menambah aset dengan nama, kategori organisasi yang sama, deskripsi/spesifikasi, lokasi, tanggal beli opsional, dan foto opsional maks 2 MB. Status awal AVAILABLE, kondisi awal good, kode ULID unik otomatis. | Must |
-| FR-INV-03 | Validasi input aset; jika tidak valid tampilkan error pada form, jika valid simpan dan kembali ke daftar. | Must |
-| FR-INV-04 | Detail aset menampilkan informasi lengkap dan aksi: Generate QR, Edit, Hapus, History. | Must |
+| FR-INV-03 | Tombol Tambah aset membuka pop-up dengan petunjuk dan contoh isian aset. Lokasi penyimpanan diisi di formulir aset dan menu Lokasi tidak ditampilkan di sidebar. Jika input tidak valid, tampilkan error di pop-up. Jika valid, simpan dan kembali ke daftar. | Must |
+| FR-INV-04 | Detail aset dibuka melalui URL stabil `/o/{slug}/assets/{code}`. Anggota aktif melihat informasi aset dan aksi sesuai hak akses, termasuk Riwayat, Edit, dan Hapus. Guest diarahkan ke login. Non-anggota tidak melihat detail aset. | Must |
 | FR-INV-05 | Form edit hanya mengubah metadata yang diizinkan; code dan organization_id immutable. Status serta kondisi fisik berubah melalui Action operasional/penilaian yang sah dan diaudit, bukan mass assignment bebas. | Must |
 | FR-INV-06 | Hapus aset berupa soft delete; ditolak jika ada pinjaman atau maintenance aktif. Borrowing PENDING terkait dibatalkan dengan alasan aset dihapus, dan log/audit dicatat dalam transaksi yang sama. | Must |
-| FR-INV-07 | Admin/Staff mengelola kategori dengan nama unik per organisasi. Kategori yang direferensikan aset, termasuk aset soft delete, tidak dihapus fisik agar histori konsisten. | Must |
+| FR-INV-07 | Admin/Staff mengelola kategori dengan nama unik per organisasi. Tombol Tambah kategori aset di Inventaris membuka pop-up dengan petunjuk dan contoh nama kategori. Kategori yang direferensikan aset, termasuk aset soft delete, tidak dihapus fisik agar histori konsisten. | Must |
 | FR-INV-08 | Anggota aktif melihat katalog aset organisasi dengan foto, nama, kategori, lokasi, badge status dan kondisi fisik, pencarian, filter, pagination, dan detail aset. | Must |
 | FR-INV-09 | Admin/Staff menandai LOST sebagai ditemukan dengan catatan dan konfirmasi kondisi good/minor_damage sebelum kembali AVAILABLE. Kerusakan lanjutan mengikuti damage report dan maintenance. | Must |
 
 ### 4.6 QR Code
+
+Bagian historis. Fitur ini dikeluarkan dari lingkup MVP pada 20 November 2026.
 
 | ID | Kebutuhan | Prioritas |
 | --- | --- | --- |
@@ -294,16 +298,16 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 
 | ID | Kebutuhan | Prioritas |
 | --- | --- | --- |
-| FR-BRW-01 | Anggota dapat mengajukan peminjaman dari detail aset berstatus AVAILABLE dengan mengisi tanggal peminjaman, estimasi tanggal pengembalian, dan alasan. | Must |
+| FR-BRW-01 | Member dan Staff aktif pada Organization aset dapat membuka pop-up Ajukan Pinjam dari katalog atau detail aset AVAILABLE. Tombol disembunyikan untuk Admin di Organization tersebut dan policy server menolak pembukaan formulir maupun pembuatan pengajuan oleh Admin lokal. Pop-up menampilkan nama aset, tanggal pinjam dan kembali, alasan, serta persetujuan kebijakan bila berlaku. | Must |
 | FR-BRW-02 | Tanggal pinjam >= hari ini (Asia/Jakarta), due_date > borrow_date, durasi <= max_borrow_days, alasan >= 10 karakter setelah trim. Maksimal satu PENDING/BORROWED/OVERDUE per user–aset; beberapa user boleh PENDING untuk aset yang sama. | Must |
 | FR-BRW-03 | Request tersimpan PENDING sampai diproses. Request tanggal masa depan boleh diajukan, tetapi tidak menjadi reservasi dan tidak menjamin ketersediaan aset. | Must |
 | FR-BRW-04 | Peminjam dapat membatalkan request PENDING miliknya (status CANCELLED). | Must |
 | FR-BRW-05 | My Borrowing memiliki tab Active (BORROWED + OVERDUE), Pending, dan History (RETURNED/REJECTED/CANCELLED), dengan filter organisasi dan pencarian. | Must |
 | FR-BRW-06 | Detail peminjaman menampilkan informasi sesuai status: Pending (info request, batalkan), Active (tanggal, sisa hari/keterlambatan, denda berjalan), Returned (hasil inspeksi, catatan, denda), Rejected (alasan penolakan). | Must |
 | FR-BRW-07 | Admin/Staff melihat daftar peminjaman dengan tab Pending Request, Active Borrowing, dan History (filter status, rentang tanggal, peminjam, aset). | Must |
-| FR-BRW-08 | Approve hanya pada borrow_date = hari ini. Dalam transaksi, lock user relevan, organisasi, membership, aset, dan borrowing secara konsisten; periksa ulang role, membership peminjam, tanggal/durasi, status PENDING dan aset AVAILABLE. Simpan approved_by/approved_at serta snapshot tarif/batas durasi; borrowing dan aset menjadi BORROWED bersama log/audit. | Must |
-| FR-BRW-09 | Reject wajib menyimpan rejection_reason, rejected_by dan rejected_at; borrowing menjadi REJECTED, ditulis log/audit, dan peminjam dinotifikasi. | Must |
-| FR-BRW-10 | Return mencatat waktu pengembalian fisik returned_at (default sekarang), return_processed_at waktu server, processed_by, kondisi Good/Minor Damage/Major Damage/Lost, catatan wajib jika bukan Good, dan denda. Waktu aktual tidak boleh sebelum approval atau di masa depan. | Must |
+| FR-BRW-08 | Tombol Setujui pada pengajuan PENDING membuka pop-up konfirmasi dengan peminjam, aset, jadwal, dan alasan pengajuan. Approve hanya pada borrow_date = hari ini. Dalam transaksi, lock user relevan, organisasi, membership, aset, dan borrowing secara konsisten; periksa ulang role, membership peminjam, tanggal/durasi, status PENDING dan aset AVAILABLE. Simpan approved_by/approved_at serta snapshot tarif/batas durasi; borrowing dan aset menjadi BORROWED bersama log/audit. | Must |
+| FR-BRW-09 | Tombol Tolak pada pengajuan PENDING membuka pop-up yang mewajibkan alasan penolakan. Reject wajib menyimpan rejection_reason, rejected_by dan rejected_at; borrowing menjadi REJECTED, ditulis log/audit, dan peminjam dinotifikasi. | Must |
+| FR-BRW-10 | Tombol Catat Pengembalian pada baris pinjaman aktif membuka pop-up inspeksi. Return mencatat waktu pengembalian fisik returned_at (default sekarang), return_processed_at waktu server, processed_by, kondisi Good/Minor Damage/Major Damage/Lost, catatan wajib jika bukan Good, dan denda. Waktu aktual tidak boleh sebelum approval atau di masa depan. | Must |
 | FR-BRW-11 | Return memperbarui transaksi, status/kondisi fisik aset, laporan inspeksi bila diperlukan, log dan audit dalam satu transaksi sesuai BR-05. Satu borrowing memiliki satu inspeksi final. | Must |
 | FR-BRW-12 | Denda otomatis = hari kalender terlambat x late_fine_per_day_snapshot. Simpan late_days, calculated_fine_amount, dan fine_amount final. Override oleh Admin/Staff wajib fine_override_reason; nilai final menjadi sumber tagihan late_fee dan pembayaran manual mengikuti FR-CHG. | Must |
 | FR-BRW-13 | Scheduler memakai kalender Asia/Jakarta: BORROWED dengan due_date < hari ini menjadi OVERDUE dan overdue_at diisi sekali. Event key unik dan pemeriksaan ulang di bawah lock mencegah duplikasi serta benturan dengan return. | Must |
@@ -316,10 +320,10 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | --- | --- | --- |
 | FR-DMG-01 | Anggota dapat melaporkan kerusakan kapan saja (tidak harus sedang meminjam) selama QR/aset valid dan ia anggota organisasinya. Input: deskripsi (wajib) dan foto (opsional, maks 2 MB). | Must |
 | FR-DMG-02 | Admin/Staff dapat membuat damage report manual dari detail aset. | Must |
-| FR-DMG-03 | Daftar damage report dapat difilter menurut status, severity, aset dan source tetap: member_report/staff_report/return_inspection. | Must |
+| FR-DMG-03 | Daftar damage report dapat difilter menurut status, severity, aset dan source tetap: member_report/staff_report/return_inspection. Menu Laporan Kerusakan mencakup laporan masuk dan riwayat tindak lanjut sesuai hak akses pengguna. | Must |
 | FR-DMG-04 | Penilaian severity minor/major menyimpan assessed_at, handled_by dan assessment_notes. Laporan anggota awalnya severity NULL (belum dinilai). Severity laporan tidak otomatis menimpa kondisi fisik tanpa penilaian yang sah. | Must |
 | FR-DMG-05 | Mulai maintenance hanya dari aset AVAILABLE, dengan severity terisi. Simpan aset MAINTENANCE dan laporan in_maintenance atomik. Tolak jika aset BORROWED, LOST, atau sudah memiliki maintenance aktif; maksimal satu laporan in_maintenance per aset. | Must |
-| FR-DMG-06 | Selesai perbaikan wajib resolution_notes, resolved_at dan petugas; laporan resolved, kondisi akhir good/minor_damage, dan aset AVAILABLE disimpan bersama log/audit. | Must |
+| FR-DMG-06 | Menu Maintenance untuk Admin/Staff menampilkan aset dalam perbaikan, foto jika tersedia, tingkat dan deskripsi kerusakan, catatan penilaian, waktu mulai, petugas, dan tautan ke laporan. Penyelesaian dari menu ini wajib mencatat resolution_notes, resolved_at dan petugas. Laporan resolved, kondisi akhir good/minor_damage, dan aset AVAILABLE disimpan bersama log/audit. | Must |
 | FR-DMG-07 | Tidak lanjut perbaikan: laporan noted dengan catatan, status aset tidak berubah. Jika penilaian menetapkan kondisi fisik major pada aset AVAILABLE, lanjut maintenance wajib agar tidak tersimpan AVAILABLE + major_damage. Aset yang masih BORROWED boleh tercatat major_damage sampai proses return. | Must |
 | FR-DMG-08 | Aset berstatus MAINTENANCE atau LOST tidak dapat dipinjam (tombol dan validasi server konsisten). | Must |
 | FR-DMG-09 | Pembuatan/penilaian laporan, keputusan noted, serta mulai/selesai maintenance menghasilkan asset log dan audit. Laporan inspeksi return wajib terkait borrowing untuk aset dan organisasi yang sama; maksimal satu laporan otomatis per inspeksi. | Must |
@@ -417,7 +421,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | UC-06 | Mengelola anggota dan role | Admin |
 | UC-07 | Mengelola aset dan QR Code | Admin, Staff |
 | UC-08 | Memindai QR Code | Member, Staff, Admin |
-| UC-09 | Mengajukan peminjaman | Member |
+| UC-09 | Mengajukan peminjaman | Member, Staff |
 | UC-10 | Memproses permintaan peminjaman | Admin, Staff |
 | UC-11 | Memproses pengembalian dan inspeksi | Admin, Staff |
 | UC-12 | Melaporkan dan menangani kerusakan | Member, Admin, Staff |
@@ -442,7 +446,7 @@ HTTP/HTTPS antara browser dan server. Komunikasi dengan server email melalui SMT
 | **UC-06** Kelola anggota | Admin aktif pada Organization terkait | Ubah role Member/Staff/Admin atau revoke; simpan audit | Last Admin dan kewajiban terbuka dilindungi; Member/Staff ditolak | Role/status lokal terbarui, histori tetap |
 | **UC-07** Kelola aset dan QR | Admin/Staff, organisasi aktif | 1) Tambah/edit aset; 2) simpan; 3) generate QR; 4) download atau print | Validasi gagal → error form; hapus aset BORROWED ditolak | Aset tersimpan, QR tersedia, log tercatat |
 | **UC-08** Scan QR | Login | 1) Buka Scan; 2) arahkan kamera; 3) server memvalidasi; 4) tampil detail aset | QR invalid → "QR / Aset Invalid"; bukan anggota → diminta bergabung; kamera ditolak → input manual | Detail aset ditampilkan |
-| **UC-09** Ajukan peminjaman | Anggota, aset AVAILABLE | 1) Buka detail aset; 2) isi tanggal dan alasan; 3) submit; 4) status PENDING | Validasi gagal (tanggal/durasi); aset tidak tersedia; duplikat request | Request PENDING, Admin/Staff dinotifikasi |
+| **UC-09** Ajukan peminjaman | Member atau Staff aktif pada Organization aset, aset AVAILABLE | 1) Buka detail aset; 2) isi tanggal dan alasan; 3) submit; 4) status PENDING | Validasi gagal (tanggal/durasi); aset tidak tersedia; duplikat request | Request PENDING, Admin/Staff dinotifikasi |
 | **UC-10** Proses request | Admin/Staff, request PENDING, borrow_date = hari ini untuk approve | Lock dan validasi ulang; Approve dengan snapshot atau Reject dengan alasan/actor/waktu | Aset tidak available, membership revoked, tanggal belum tiba/lewat → approve ditolak | BORROWED + aset BORROWED, atau REJECTED; log/audit/notifikasi |
 | **UC-11** Proses return | Admin/Staff, BORROWED/OVERDUE | Catat waktu aktual/pemrosesan, kondisi, catatan, denda snapshot; simpan atomik | Override wajib alasan; return kedua ditolak/no-op | RETURNED, kondisi/status aset sesuai BR-05; maksimal satu laporan inspeksi |
 | **UC-12** Kerusakan | Anggota aktif (lapor), Admin/Staff (tindak lanjut) | Lapor → nilai → noted/maintenance → resolved dan kondisi akhir | Maintenance menolak aset dipinjam/lost atau maintenance aktif lain; AVAILABLE + kondisi major tidak sah | Status/kondisi aset dan laporan konsisten; log/audit |
@@ -538,7 +542,7 @@ Hasil inspeksi historis pada borrowing tidak berubah setelah perbaikan. Kondisi 
 | Explore organisasi, lihat profil publik | Ya | Ya | Ya |
 | Gabung sebagai Member (jika belum anggota) | Ya, terverifikasi | Idempoten | Idempoten |
 | Lihat katalog aset organisasinya | Ya | Ya | Ya |
-| Ajukan peminjaman | Ya | Ya | Ya |
+| Ajukan peminjaman | Ya | Ya | Tidak |
 | Scan QR, lapor kerusakan | Ya | Ya | Ya |
 | CRUD aset dan kategori, generate/download QR | Tidak | Ya | Ya |
 | Approve/Reject peminjaman | Tidak | Ya | Ya |
@@ -1322,7 +1326,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 | PRD F02 Discovery & Join | FR-EXP, FR-ORG-01..08 | organizations, organization_user; join langsung member/active |
 | PRD F03 Role & Authorization | FR-RBAC, FR-ORG-09..11 | organization_user active/revoked, policy, audit |
 | PRD F04 Inventory | FR-INV-01..09 | assets, asset_categories, physical_condition, soft delete |
-| PRD F05 QR Code | FR-QR-01..10 | assets.code dan organizations.slug immutable |
+| PRD F05 QR Code | Dihapus | URL detail aset yang stabil tercakup pada FR-INV-04 dan FR-INV-05 |
 | PRD F06 Borrowing | FR-BRW-01..09,13..15 | borrowings, guard aktif/pending, snapshot, lock |
 | PRD F07 Return & Inspection | FR-BRW-10..12,15, BR-05 | kolom inspeksi borrowing, damage_reports, kondisi aset |
 | PRD F08 History & Audit | FR-HIS-01..04, DAT-02,09 | asset_logs dan audit_logs terpisah |
@@ -1361,7 +1365,7 @@ Penomoran sumber menggunakan PRD v0.4 F01–F12, menggantikan pemetaan PRD lama 
 
 ### 10.3 Keputusan Desain (Penyelesaian Perbedaan PRD vs Flowchart)
 
-**OD17 — keputusan pemilik proyek, 27 Oktober 2026:** Admin/Staff boleh menyetujui pinjaman miliknya sendiri jika seluruh syarat FR-BRW-08 terpenuhi. Ini tidak mengubah larangan persetujuan finansial sendiri pada FR-CHG-12 dan BR-11.
+**OD17 — keputusan pemilik proyek, 27 Oktober 2026:** Admin/Staff boleh menyetujui pengajuan sendiri yang sudah tercatat jika seluruh syarat FR-BRW-08 terpenuhi. Pembaruan 20 November 2026 membatasi pembuatan pengajuan baru untuk Member dan Staff aktif di Organization aset sesuai FR-BRW-01. Persetujuan finansial sendiri tetap dilarang sesuai FR-CHG-12 dan BR-11.
 
 | No | Topik | Keputusan |
 | --- | --- | --- |
