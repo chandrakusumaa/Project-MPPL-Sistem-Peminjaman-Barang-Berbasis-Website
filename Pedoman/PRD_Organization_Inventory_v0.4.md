@@ -2,6 +2,8 @@
 
 > **Keputusan aktif, 30 Oktober 2026 — Gabung langsung:** semua Organization aktif terbuka bagi pengguna login terverifikasi; Gabung membuat Member aktif tanpa persetujuan keanggotaan atau invitation. Membership revoked tidak dapat bergabung ulang. Request/approval/rejection/cancellation peminjaman barang tetap dipertahankan. Target database adalah 14 tabel (12 inti + 2 pendukung), di luar tabel infrastruktur. Spesifikasi sebelumnya disimpan di [arsip keputusan lama](Arsip/keanggotaan-sebelum-gabung-langsung/README.md).
 
+> **Keputusan aktif, 20 November 2026 — QR aset dihapus.** Pembuatan, unduhan, pencetakan, pemindaian, dan input kode pada layar pemindaian keluar dari lingkup MVP. Referensi QR pada rancangan sebelumnya bersifat historis. Detail aset dibuka melalui tautan katalog dengan kode aset yang stabil.
+
 title: "ORGANIZATION INVENTORY"
 subtitle: "PRODUCT REQUIREMENTS DOCUMENT (PRD)"
 author: "Tim Pengembang Organization Inventory"
@@ -234,7 +236,7 @@ Matriks berikut berlaku pada **ruang yang sedang diakses**, dengan membership ak
 | Area | Admin | Staff | Member |
 | --- | :---: | :---: | :---: |
 | Lihat katalog dan detail aset | Ya | Ya | Ya |
-| Ajukan pinjaman sesuai eligibility | Ya | Ya | Ya |
+| Ajukan pinjaman sesuai eligibility | Tidak | Ya | Ya |
 | My Borrowing | Milik sendiri | Milik sendiri | Milik sendiri |
 | Tambah/edit metadata aset | Ya | Ya | Tidak |
 | Hapus aset secara soft delete | Ya, sesuai aturan | Ya, sesuai aturan | Tidak |
@@ -250,7 +252,7 @@ Matriks berikut berlaku pada **ruang yang sedang diakses**, dengan membership ak
 | Export laporan | Ya | Tidak, menu nonaktif | Tidak |
 | Settings ruang | Ya | Tidak, menu nonaktif | Tidak |
 
-Role Staff/Admin mencakup hak penggunaan anggota pada ruang terkait sebagaimana SRS. Keputusan pemilik proyek pada 27 Oktober 2026 (OD17): Admin/Staff boleh menyetujui peminjaman sendiri jika semua syarat peminjaman terpenuhi. Larangan persetujuan kewajiban finansial sendiri tetap berlaku.
+Hak pengajuan peminjaman baru berlaku untuk Member dan Staff pada Organization aset. OD17 mengizinkan Admin/Staff menyetujui pengajuan sendiri yang sudah tercatat jika seluruh syarat persetujuan terpenuhi. Persetujuan kewajiban finansial sendiri tetap dilarang.
 
 Menu nonaktif untuk Staff adalah keputusan UI. Endpoint tetap wajib menolak tindakan tanpa izin.
 
@@ -312,7 +314,7 @@ Kode F01–F11 dipertahankan untuk keterlacakan. F12 menambahkan tagihan dan pem
 | F02 | Organization, Discovery & Membership | Wajib | Buat Organization, Admin pembuat, Explore, profil publik, Organization Saya, Gabung langsung sebagai Member, kelola role |
 | F03 | Role & Authorization | Wajib | Role per ruang, membership aktif, kelola anggota/role, permission server dan UI |
 | F04 | Inventory & Condition Management | Wajib | CRUD aset/kategori, kondisi fisik, damage report, maintenance, penanganan lost |
-| F05 | QR Code | Wajib | QR unik per unit, unduh/cetak, scan dan input kode, pemeriksaan akses |
+| F05 | QR Code | Dihapus | Akses detail aset melalui katalog tercakup pada F04 |
 | F06 | Borrowing Request | Wajib | Pengajuan satu unit, pending, pembatalan, approval/rejection, overdue, My Borrowing |
 | F07 | Return & Inspection | Wajib | Waktu kembali, inspeksi final, status/kondisi aset, pencatatan denda |
 | F08 | Asset History & Audit Trail | Wajib | Timeline aset, audit tindakan sensitif, histori sesuai hak akses |
@@ -539,6 +541,7 @@ Admin/Staff mengelola aset per unit, kategori, metadata, kondisi fisik, laporan 
 
 - Aset baru mendapat kode unik dan status Available dengan kondisi awal good.
 - Kategori harus berasal dari ruang yang sama; nama kategori unik per ruang.
+- Di Inventaris, Admin/Staff membuka pop-up Tambah aset dan Tambah kategori aset melalui tombol masing-masing. Formulir menampilkan petunjuk serta contoh isian. Lokasi penyimpanan diisi di formulir aset.
 - Validasi, pencarian, filter, pengurutan, dan pagination mengikuti scope ruang.
 - Kode aset dan ruang pengelolanya tidak dapat diganti melalui edit metadata.
 - Status operasional dan kondisi fisik merupakan data terpisah dan berubah melalui tindakan yang sah.
@@ -546,6 +549,7 @@ Admin/Staff mengelola aset per unit, kategori, metadata, kondisi fisik, laporan 
 - Penghapusan aset memakai soft delete, membatalkan pending terkait, dan mempertahankan histori.
 - Anggota aktif dapat melaporkan kerusakan meskipun tidak sedang meminjam; Admin/Staff dapat membuat laporan manual.
 - Admin/Staff menilai severity dan memilih tindak lanjut dengan catatan.
+- Laporan Kerusakan menampilkan semua status laporan yang dapat diakses pengguna. Maintenance menampilkan kartu aset yang sedang diperbaiki beserta foto jika tersedia, deskripsi kerusakan, catatan penilaian, dan tindakan penyelesaian untuk Admin/Staff.
 - Maksimal satu maintenance aktif per aset; aset maintenance/lost tidak eligible dipinjam.
 - Selesai maintenance mencatat penyelesaian dan kondisi akhir good/minor_damage sebelum aset Available.
 - Aset Available tidak boleh mempunyai kondisi fisik major_damage; penilaian major pada aset tersedia diikuti maintenance.
@@ -579,17 +583,20 @@ Setiap unit aset mempunyai QR yang mereferensikan URL stabil ke detail aset. Met
 
 ### Kebutuhan
 
-Anggota aktif yang memiliki hak penggunaan dapat meminta satu unit aset Available dengan tanggal pinjam, tanggal kembali, dan alasan. Pending menunggu keputusan pengelola dan tidak menjadi reservasi.
+Member dan Staff aktif pada Organization aset dapat meminta satu unit aset Available dengan tanggal pinjam, tanggal kembali, dan alasan. Pending menunggu keputusan pengelola dan tidak menjadi reservasi.
 
 ### Acceptance Criteria - AC06
 
 - Pemohon harus memiliki membership aktif pada ruang aset.
+- Admin tidak dapat membuat pengajuan baru untuk aset di Organization tempat ia berperan sebagai Admin. Hak pengajuan di Organization lain mengikuti role pada Organization tersebut.
+- Tombol Ajukan Pinjam membuka pop-up dengan nama aset yang dipilih, tanggal mulai, tanggal kembali, alasan, dan persetujuan kebijakan biaya kerusakan bila berlaku.
 - Tanggal pinjam minimal hari ini pada kalender Asia/Jakarta; due_date setelah borrow_date.
 - Durasi mengikuti batas ruang; alasan memenuhi validasi SRS.
 - Request masa depan boleh dibuat, tetapi approval hanya pada borrow_date sama dengan hari ini.
 - Satu pengguna tidak dapat mempunyai lebih dari satu request pending/pinjaman aktif untuk aset yang sama.
 - Beberapa pengguna boleh pending untuk aset yang sama; maksimum satu pinjaman aktif per aset.
 - Peminjam dapat membatalkan pending miliknya.
+- Di daftar Peminjaman, Admin/Staff membuka pop-up Setujui atau Tolak dari setiap pengajuan yang menunggu. Pop-up menampilkan peminjam, aset, jadwal, dan alasan pengajuan. Penolakan meminta alasan dari pengelola.
 - Approval memeriksa ulang role, membership, tanggal, status request, dan eligibility aset.
 - Approval menyimpan petugas, waktu, snapshot tarif/batas durasi, dan perubahan borrowing/aset menjadi Borrowed secara atomik.
 - Reject menyimpan alasan, petugas, dan waktu; status menjadi Rejected.
@@ -609,6 +616,7 @@ Admin/Staff memproses pengembalian Borrowed/Overdue dan mencatat satu inspeksi f
 ### Acceptance Criteria - AC07
 
 - Hanya borrowing aktif Borrowed/Overdue yang dapat dikembalikan.
+- Admin/Staff membuka pop-up inspeksi melalui tombol Catat Pengembalian pada baris peminjaman aktif.
 - Return menyimpan waktu aktual, waktu pemrosesan, petugas, kondisi, dan catatan sesuai SRS.
 - Waktu aktual tidak sebelum approval atau di masa depan.
 - Good menghasilkan aset Available dengan kondisi good.
@@ -1159,7 +1167,7 @@ Bagian ini menggantikan daftar “keputusan terbuka sebelum SRS” pada v0.2. Se
 | OD14 | Maintenance | Ditetapkan: maksimal satu aktif per aset, penilaian/pencatatan penyelesaian dan kondisi akhir |
 | OD15 | Lost dan recovery | Ditetapkan: mark found dengan catatan dan penilaian kondisi sesuai SRS; tagihan penggantian loss mengikuti F12 |
 | OD16 | QR non-anggota | Ditetapkan: login bila guest; non-anggota diarahkan bergabung tanpa detail privat |
-| OD17 | Approval pinjaman sendiri | Diputuskan pemilik proyek pada 27 Oktober 2026: Admin/Staff diizinkan menyetujui pinjaman sendiri. Larangan keputusan finansial sendiri tetap berlaku. |
+| OD17 | Approval pinjaman sendiri | Keputusan 27 Oktober 2026 mengizinkan Admin/Staff menyetujui pengajuan sendiri yang sudah tercatat. Sejak 20 November 2026 hak membuat pengajuan baru di Organization aset berlaku untuk Member dan Staff. Persetujuan finansial sendiri tetap dilarang. |
 | OD18 | Persona dan fokus pengguna awal | Hipotesis: mahasiswa pengelola/peminjam perlengkapan; validasi wawancara dan observasi belum dilakukan |
 
 ## 13.2 Hal yang Perlu Diperiksa dengan Calon Pengguna

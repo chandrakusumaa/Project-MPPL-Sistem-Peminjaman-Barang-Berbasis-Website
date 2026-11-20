@@ -57,6 +57,8 @@ try {
     await page.getByRole('button', { name: '+ Tambah aset', exact: true }).click();
     await page.locator('#oi-asset-form[open]').waitFor();
     await page.waitForFunction(() => document.activeElement?.id === 'oi-assetName');
+    await page.keyboard.press('Escape');
+    await page.locator('#oi-asset-form').waitFor({ state: 'detached' });
     await page.getByRole('button', { name: 'Dashboard', exact: true }).click();
 
     // Create and remove only this test's own empty development room via existing UI.

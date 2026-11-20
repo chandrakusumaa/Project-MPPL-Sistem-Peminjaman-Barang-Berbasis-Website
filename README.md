@@ -22,7 +22,7 @@ Di cloud yang memakai direktori Docker terpisah, gunakan variabel yang sama untu
 
 Installer Composer memakai jaringan host dan meneruskan variabel proxy yang tersedia; nilai proxy tidak ditulis ke repo. Ini menghindari keterbatasan DNS eksternal pada jaringan Docker cloud. CA tepercaya host dipasang read-only dan verifikasi TLS tetap aktif.\n\nPada Docker dengan storage driver vfs, helper setup meratakan image PHP baru untuk mengurangi salinan layer. Filesystem berasal dari image yang diverifikasi saat pull; TLS/checksum tidak dinonaktifkan. Runtime yang sudah dipakai aplikasi tidak dihapus oleh helper.
 
-.env.example hanya memuat konfigurasi **development lokal**. Sesuaikan APP_URL dengan origin aplikasi agar tautan email/QR benar. Password database contoh bukan kredensial produksi. Seeder menolak APP_ENV=production.
+.env.example hanya memuat konfigurasi **development lokal**. Sesuaikan APP_URL dengan origin aplikasi agar tautan email benar. Password database contoh bukan kredensial produksi. Seeder menolak APP_ENV=production.
 
 | Akun demo | Peran di Peralatan Raka |
 | --- | --- |
@@ -107,7 +107,7 @@ Dashboard pribadi tersedia pada `/dashboard`, Organization Saya beserta tab Jela
 
 ## Aturan utama
 
-Role berasal dari membership aktif **per ruang**. Satu user dapat Admin di A dan Member di B. Katalog privat memerlukan membership aktif. Aset adalah satu unit dengan ULID/QR tetap. Pengajuan masa depan bukan reservasi.
+Role berasal dari membership aktif **per ruang**. Satu user dapat Admin di A dan Member di B. Katalog privat memerlukan membership aktif. Aset adalah satu unit dengan kode ULID yang stabil. Pengajuan masa depan bukan reservasi.
 
 OD17, keputusan pemilik proyek: Admin/Staff **boleh menyetujui pinjaman sendiri** jika syaratnya terpenuhi. Mereka tetap **tidak boleh menyetujui kewajiban finansial sendiri**. Hanya pembayaran confirmed dan kredit mengurangi saldo. Void/cancellation mempertahankan histori.
 

@@ -33,8 +33,8 @@
     </section>
 </div>
 <div class="oi-grid oi-cols-3">
-    <button type="button" class="oi-shortcut" wire:click="showDamageReports"><span class="oi-shortcut-icon"><x-icon name="warning" size="22" /></span><h3>Laporan kerusakan</h3><p>{{ $summary['reports'] }} laporan perlu dipantau</p></button>
-    <button type="button" class="oi-shortcut" wire:click="showMaintenance"><span class="oi-shortcut-icon"><x-icon name="tool" size="22" /></span><h3>Maintenance</h3><p>{{ $summary['maintenance'] }} jadwal aktif</p></button>
+    <button type="button" class="oi-shortcut" wire:click="showDamageReports"><span class="oi-shortcut-icon"><x-icon name="warning" size="22" /></span><h3>Laporan kerusakan</h3><p>{{ $summary['reports'] }} laporan baru</p></button>
+    <button type="button" class="oi-shortcut" wire:click="showMaintenance"><span class="oi-shortcut-icon"><x-icon name="tool" size="22" /></span><h3>Maintenance</h3><p>{{ $summary['maintenance'] }} aset sedang diperbaiki</p></button>
     <button type="button" class="oi-shortcut" wire:click="$set('tab', 'members')" @disabled(!$admin) @if(!$admin) title="Hanya untuk Admin" @endif><span class="oi-shortcut-icon"><x-icon name="users" size="22" /></span><h3>Anggota</h3><p>{{ $summary['members'] }} anggota terdaftar</p></button>
 </div>
 <section class="oi-panel">

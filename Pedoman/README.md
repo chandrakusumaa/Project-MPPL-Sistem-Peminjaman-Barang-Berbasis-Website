@@ -23,7 +23,7 @@ PRD/SRS aktif diperbarui sesuai keputusan pemilik proyek. Snapshot sebelum keput
 - Implementasi awal Laravel dan migration v1.2 tersedia pada root repo. Status kemampuan dan hasil pengujian aktual dicatat di `../docs/IMPLEMENTATION.md`; dokumen spesifikasi sendiri tetap bukan bukti semua acceptance criteria telah lulus.
 - Source MagicPath adalah prototipe lokal; belum terhubung API produksi.
 - Persona masih hipotesis sesuai PRD; jangan mengklaim sudah diwawancarai/tervalidasi.
-- OD17 telah diputuskan pemilik proyek: persetujuan pinjaman sendiri diizinkan bagi Admin/Staff. Persetujuan finansial sendiri tetap dilarang.
+- Admin tidak dapat membuat pengajuan peminjaman baru di Organization tempat ia berperan sebagai Admin. OD17 tetap berlaku untuk persetujuan pengajuan yang sudah tercatat, termasuk pengajuan Staff. Persetujuan finansial sendiri tetap dilarang.
 
 `SHA256SUMS.txt` mencatat checksum berkas dalam folder Pedoman selain file checksum itu sendiri. Perbarui ketika pedoman berubah.
 

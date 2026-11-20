@@ -3,7 +3,6 @@
 use App\Actions\ManageWorkspace;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExportController;
-use App\Http\Controllers\QrController;
 use App\Livewire\ExploreOrganizations;
 use App\Livewire\Home;
 use App\Livewire\Notifications;
@@ -16,6 +15,7 @@ use App\Livewire\Workspace;
 use App\Models\Asset;
 use App\Models\AssetLog;
 use App\Models\BorrowerCharge;
+use App\Models\DamageReport;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -56,7 +56,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-organizations', Home::class)->name('personal.organizations');
     Route::get('/my-charges', PersonalCharges::class)->name('personal.charges');
     Route::get('/o/{organization:slug}', Workspace::class)->name('workspace');
-    Route::get('/o/{organization:slug}/assets/{asset:code}/qr', QrController::class)->name('asset.qr');
 });
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', Profile::class)->name('profile');
@@ -70,19 +69,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return Storage::disk('local')->download($path);
     })->name('evidence');
+    Route::get('/damage-photo/{report}', function (DamageReport $report) {
+        $org = Organization::findOrFail($report->organization_id);
+        Gate::authorize('view', $org);
+        abort_unless($report->reported_by === auth()->id() || Gate::allows('operate', $org), 403);
+        abort_unless($report->photo && Storage::disk('local')->exists($report->photo), 404);
+
+        return Storage::disk('local')->response($report->photo);
+    })->name('damage.photo');
 });
 Route::get('/o/{organization:slug}/export/{type}', ExportController::class)->middleware(['auth', 'verified'])->name('export');
-Route::get('/scan', function (Request $request) {
-    if ($request->filled('code')) {
-        $asset = Asset::where('code', $request->validate(['code' => 'required|alpha_num|size:26'])['code'])->firstOrFail();
-        $org = $asset->organization;
-        Gate::authorize('view', $org);
-
-        return redirect()->route('asset.show', [$org, $asset]);
-    }
-
-    return view('scan');
-})->middleware(['auth', 'verified']);
 Route::get('/profile/email/{user}/{hash}/{version}', function (Request $request, User $user, string $hash, int $version) {
     abort_unless(auth()->id() === $user->id, 403);
     DB::transaction(function () use ($user, $hash, $version) {
@@ -108,9 +104,7 @@ Route::get('/ruang/{organization:slug}', function (Organization $organization) {
 Route::post('/ruang/{organization:slug}/join', function (Organization $organization) {
     $membership = app(ManageWorkspace::class)->join(auth()->user(), $organization);
 
-    return redirect()->route('workspace', $organization)->with('status', $membership->wasRecentlyCreated
-        ? 'Berhasil bergabung sebagai Member. Selamat datang di Organization!'
-        : 'Keanggotaanmu sudah aktif. Buka Organization untuk melanjutkan.');
+    return redirect()->route('workspace', $organization)->with('status', $membership->wasRecentlyCreated ? 'Berhasil bergabung sebagai Member. Selamat datang di Organization!' : 'Keanggotaanmu sudah aktif. Buka Organization untuk melanjutkan.');
 })->middleware(['auth', 'verified'])->name('organization.join');
 Route::get('/o/{organization:slug}/assets/{asset:code}', Workspace::class)->middleware(['auth', 'verified'])->name('asset.show');
 Route::get('/my-borrowings', PersonalBorrowings::class)->middleware(['auth', 'verified'])->name('personal.borrowings');

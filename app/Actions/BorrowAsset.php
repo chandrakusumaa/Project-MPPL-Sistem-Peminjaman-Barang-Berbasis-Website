@@ -16,7 +16,7 @@ class BorrowAsset extends WorkspaceAction
 {
     public function request(User $actor, Organization $org, int $assetId, array $data): Borrowing
     {
-        return $this->transact($actor, $org, 'view', function ($org) use ($actor, $assetId, $data) {
+        return $this->transact($actor, $org, 'requestBorrowing', function ($org) use ($actor, $assetId, $data) {
             $asset = Asset::where('organization_id', $org->id)->lockForUpdate()->findOrFail($assetId);
             $start = CarbonImmutable::parse($data['borrow_date'], 'Asia/Jakarta')->startOfDay();
             $due = CarbonImmutable::parse($data['due_date'], 'Asia/Jakarta')->startOfDay();
