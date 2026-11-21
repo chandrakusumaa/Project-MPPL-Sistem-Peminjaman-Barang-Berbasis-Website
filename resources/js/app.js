@@ -11,3 +11,32 @@ document.addEventListener('livewire:navigated',setup);
 let refreshTimer;
 function watchUpdates(){window.Livewire.hook('morph.updated',()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(setup,0);});}
 if(window.Livewire)watchUpdates();else document.addEventListener('livewire:init',watchUpdates);
+
+// Mobbin Landing & UI Helpers
+function initMobbinUI() {
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  const stickyNavbar = document.querySelector('.sticky-navbar');
+
+  const handleScroll = () => {
+    const scrollPos = window.scrollY || document.documentElement.scrollTop;
+    if (scrollPos > 120) {
+      backToTopBtn?.classList.add('is-visible');
+    } else {
+      backToTopBtn?.classList.remove('is-visible');
+    }
+    if (scrollPos > 40) {
+      stickyNavbar?.classList.add('scrolled');
+    } else {
+      stickyNavbar?.classList.remove('scrolled');
+    }
+  };
+
+  window.removeEventListener('scroll', handleScroll);
+  window.addEventListener('scroll', handleScroll, { passive: true });
+
+  backToTopBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+document.addEventListener('DOMContentLoaded', initMobbinUI);
+document.addEventListener('livewire:navigated', initMobbinUI);
