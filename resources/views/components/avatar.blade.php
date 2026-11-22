@@ -1,5 +1,5 @@
 @props(['name' => null, 'image' => null, 'type' => 'user'])
-<span {{ $attributes->merge(['class' => 'oi-avatar community-avatar']) }} aria-hidden="true">
+<span {{ $attributes->merge(['class' => 'oi-avatar' . ($type === 'community' ? ' community-avatar' : '')]) }} aria-hidden="true">
     @if($image)
         <img src="{{ asset('storage/'.$image) }}" alt="">
     @elseif($type === 'community')

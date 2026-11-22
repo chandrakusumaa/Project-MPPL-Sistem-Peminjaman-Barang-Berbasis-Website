@@ -14,6 +14,8 @@ class ExploreOrganizations extends Component
 
     public string $filterCategory = '';
 
+    public string $category = '';
+
     public function mount(): void
     {
         // Preserve links to the account area published before it had its own URL.
@@ -34,11 +36,20 @@ class ExploreOrganizations extends Component
         $this->resetPage();
     }
 
+    public function updatedCategory(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
+        $selectedCategory = $this->category ?: $this->filterCategory;
+
         return view('livewire.explore-organizations', [
+            'category' => $selectedCategory,
+            'filterCategory' => $selectedCategory,
             'organizations' => Organization::whereNull('archived_at')
-                ->when($this->filterCategory, fn ($query) => $query->where('category', $this->filterCategory))
+                ->when($selectedCategory, fn ($query) => $query->where('category', $selectedCategory))
                 ->where('name', 'like', '%'.$this->search.'%')->withCount('assets')->latest('id')->paginate(12),
         ])->layout('components.layout', ['context' => 'public']);
     }

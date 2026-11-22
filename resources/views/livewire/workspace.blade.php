@@ -7,25 +7,44 @@
         $statusLabels = ['open' => 'Laporan Baru', 'noted' => 'Sudah Dicatat', 'in_maintenance' => 'Dalam Perbaikan', 'resolved' => 'Selesai'];
         $sourceLabels = ['member_report' => 'Laporan Member', 'staff_report' => 'Laporan Pengelola', 'return_inspection' => 'Inspeksi Pengembalian'];
     @endphp
-    <div class="workspace-header-card oi-page-head">
-        <div class="org-identity">
-            <x-avatar :url="$org->logo" :name="$org->name" size="lg" type="community" />
-            <div class="org-title-group">
-                <h1 style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.2;">{{ $titles[$tab] }}</h1>
-                <p style="font-size: 0.8125rem; color: #64748b; margin: 0.25rem 0 0 0;">{{ $tab === 'dashboard' ? 'Peran berlaku pada Komunitas ini. Kembali ke dashboard pribadi tidak mengubah role.' : $org->name }}</p>
+    <!-- WORKSPACE HEADER CARD (SESUAI FOTO 6-12 DENGAN REVISI ROLE ADMIN vs MEMBER) -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.5rem 1.75rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 1.15rem; min-width: 0;">
+            <div style="width: 48px; height: 48px; border-radius: 9999px; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+            </div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+                    <h1 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">{{ $org->name }}</h1>
+                    <span style="font-size: 0.65rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 9999px; text-transform: uppercase; {{ $admin ? 'background: #ffe4e6; color: #9f1239;' : ($operator ? 'background: #dbeafe; color: #1e40af;' : 'background: #f1f5f9; color: #475467;') }}">
+                        {{ $admin ? 'ADMINISTRATOR' : ($operator ? 'STAFF OPERASIONAL' : 'MEMBER') }}
+                    </span>
+                </div>
+                <p style="font-size: 0.78rem; font-weight: 400; color: #64748b; margin: 0.35rem 0 0 0;">
+                    Gedung B Lt. 3 Komunitas 304 · Maks Pinjam: <strong style="font-weight: 700; color: #0f172a;">7 Hari</strong> · Denda: <strong style="font-weight: 700; color: #0f172a;">Rp 25.000/hari</strong> · Rekening: <strong style="font-weight: 700; color: #0f172a;">BCA 827-019-2819</strong>
+                </p>
             </div>
         </div>
-        <div class="oi-head-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-            <select class="oi-select" style="border-radius: 9999px; padding: 0.5rem 1rem;" aria-label="Komunitas aktif" wire:change="switchWorkspace($event.target.value)">
-                @foreach($workspaces as $workspace)<option value="{{ $workspace->slug }}" @selected($workspace->id === $org->id)>{{ $workspace->name }}</option>@endforeach
-            </select>
-            @if($operator && $tab === 'inventory')
-                <button type="button" id="oi-add-category" class="oi-btn oi-btn-secondary" style="border-radius: 9999px;" wire:click="openCategoryForm"
-                    wire:loading.attr="disabled" aria-haspopup="dialog">+ Tambah kategori aset</button>
-            @endif
-            @if($operator && in_array($tab, ['dashboard', 'inventory']))
-                <button type="button" id="oi-add-asset" class="oi-btn oi-btn-primary" style="border-radius: 9999px;" wire:click="openAssetForm"
-                    wire:loading.attr="disabled" aria-haspopup="dialog">+ Tambah aset</button>
+
+        <!-- ACTION BUTTONS: DIKONDISIKAN SESUAI ROLE -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            @if(!$operator)
+                <!-- JIKA MEMBER: BISA AJUKAN PINJAM -->
+                <button type="button" class="btn-maroon" style="padding: 0.6rem 1.25rem; font-size: 0.8125rem; font-weight: 700; gap: 0.5rem;" wire:click="$set('tab', 'inventory')">
+                    Ajukan Peminjaman Unit &rarr;
+                </button>
+            @else
+                <!-- JIKA ADMIN/STAFF: HANYA TAMBAH ASET / MANAJEMEN (ADMIN TIDAK PINJAM DARI KOMUNITAS SENDIRI) -->
+                @if($tab === 'inventory')
+                    <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.55rem 1rem; font-size: 0.8125rem; font-weight: 700;" wire:click="openCategoryForm" wire:loading.attr="disabled">
+                        + Tambah Kategori
+                    </button>
+                @endif
+                <button type="button" class="btn-maroon" style="padding: 0.6rem 1.25rem; font-size: 0.8125rem; font-weight: 700; gap: 0.5rem;" wire:click="openAssetForm" wire:loading.attr="disabled">
+                    + Tambah Unit Fisik
+                </button>
             @endif
         </div>
     </div>
@@ -727,66 +746,52 @@
 
     @elseif($tab==='settings')
         <div style="display: flex; flex-direction: column; gap: 1.75rem;">
-            <section class="panel-card oi-panel">
-                <div class="panel-header oi-panel-head">
-                    <div>
-                        <h2 class="panel-title">Pengaturan Kebijakan & Komunitas</h2>
-                        <p class="oi-panel-caption">Atur nama komunitas, batas durasi peminjaman, tarif denda keterlambatan, dan kebijakan ganti rugi fisik.</p>
-                    </div>
+            <!-- PARAMETER OPERASIONAL KOMUNITAS (SESUAI FOTO 1 & 2) -->
+            <section style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                <div style="margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0 0 0.35rem 0;">Parameter Operasional Komunitas</h2>
+                    <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0;">Perubahan parameter langsung berlaku untuk seluruh transaksi baru.</p>
                 </div>
-                <div class="panel-body oi-panel-body">
+                <div>
                     <form wire:submit="settings" style="display: flex; flex-direction: column; gap: 1.25rem;">
                         <label>
-                            <span style="font-weight: 700; font-size: 0.875rem;">Nama Komunitas</span>
-                            <input class="oi-input" wire:model="settingName" style="width: 100%; margin-top: 0.375rem;" required>
+                            <span style="font-weight: 700; font-size: 0.84rem; color: #0f172a; display: block; margin-bottom: 0.4rem;">Nama Organization</span>
+                            <input class="oi-input" wire:model="settingName" style="max-width: 460px; width: 100%; border-radius: 0.625rem; border: 1px solid #e2e8f0; padding: 0.65rem 0.85rem;" required>
                         </label>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
-                            <label>
-                                <span style="font-weight: 700; font-size: 0.875rem;">Maksimum Hari Pinjam</span>
-                                <input type="number" class="oi-input" wire:model="maxDays" min="1" style="width: 100%; margin-top: 0.375rem;" required>
+                        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                            <label style="flex: 0 1 180px;">
+                                <span style="font-weight: 700; font-size: 0.84rem; color: #0f172a; display: block; margin-bottom: 0.4rem;">Batas Maksimal Pinjam (Hari)</span>
+                                <input type="number" class="oi-input" wire:model="maxDays" min="1" style="width: 140px; border-radius: 0.625rem; border: 1px solid #e2e8f0; padding: 0.65rem 0.85rem;" required>
                             </label>
-                            <label>
-                                <span style="font-weight: 700; font-size: 0.875rem;">Denda Keterlambatan per Hari (Rp)</span>
-                                <input type="number" class="oi-input" wire:model="dailyFine" min="0" style="width: 100%; margin-top: 0.375rem;" required>
+                            <label style="flex: 0 1 240px;">
+                                <span style="font-weight: 700; font-size: 0.84rem; color: #0f172a; display: block; margin-bottom: 0.4rem;">Tarif Denda Telat per Hari (Rp)</span>
+                                <input type="number" class="oi-input" wire:model="dailyFine" min="0" style="width: 200px; border-radius: 0.625rem; border: 1px solid #e2e8f0; padding: 0.65rem 0.85rem;" required>
                             </label>
                         </div>
                         <label>
-                            <span style="font-weight: 700; font-size: 0.875rem;">Kebijakan Ganti Rugi Kerusakan / Kehilangan</span>
-                            <textarea class="oi-input" wire:model="settingPolicy" rows="4" style="width: 100%; margin-top: 0.375rem;" placeholder="Jelaskan aturan pertanggungjawaban anggota jika barang rusak atau hilang..."></textarea>
+                            <span style="font-weight: 700; font-size: 0.84rem; color: #0f172a; display: block; margin-bottom: 0.4rem;">Rekening Bank untuk Pembayaran Denda Manual</span>
+                            <input class="oi-input" placeholder="BCA 827-019-2819 a.n Media Kreatif Lab" style="max-width: 460px; width: 100%; border-radius: 0.625rem; border: 1px solid #e2e8f0; padding: 0.65rem 0.85rem;">
                         </label>
-                        <div style="display: flex; justify-content: flex-end;">
-                            <button type="submit" class="oi-btn oi-btn-primary" style="border-radius: 9999px; padding: 0.75rem 2rem;">Simpan Pengaturan</button>
+                        <div style="display: flex; justify-content: flex-start; margin-top: 0.5rem;">
+                            <button type="submit" class="pill-btn btn-solid-black" style="border-radius: 9999px; padding: 0.65rem 1.75rem; font-size: 0.84rem; font-weight: 700; cursor: pointer; border: none;">Simpan Perubahan</button>
                         </div>
                     </form>
                 </div>
             </section>
 
-            <section class="panel-card oi-panel" style="border-left: 4px solid #ef4444;">
-                <div class="panel-header oi-panel-head">
-                    <div>
-                        <h2 class="panel-title" style="color: #ef4444;">Zona Berbahaya (Danger Zone)</h2>
-                        <p class="oi-panel-caption">Arsipkan komunitas atau hapus secara soft delete. Riwayat transaksi dan audit tetap tersimpan.</p>
-                    </div>
+            <!-- ZONA BAHAYA ADMIN (SESUAI FOTO 1 & 2) -->
+            <section style="background: #ffffff; border: 1px solid #fecdd3; border-radius: 1.25rem; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                <div style="margin-bottom: 1.25rem;">
+                    <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0 0 0.35rem 0;">Zona Bahaya Admin</h2>
+                    <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0;">Tindakan berikut bersifat permanen dan memerlukan otorisasi penuh pemilik komunitas.</p>
                 </div>
-                <div class="panel-body oi-panel-body" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9;">
-                        <div>
-                            <h3 style="font-size: 0.9375rem; font-weight: 700; margin: 0;">Status Arsip Komunitas</h3>
-                            <p style="font-size: 0.8125rem; color: #64748b; margin: 0.25rem 0 0 0;">{{ $org->archived_at ? 'Komunitas ini sedang diarsipkan. Pengajuan baru dinonaktifkan.' : 'Mengarsipkan komunitas akan menghentikan transaksi baru tanpa menghapus data.' }}</p>
-                        </div>
-                        <button type="button" class="oi-btn oi-btn-secondary" style="border-radius: 9999px;" wire:click="archive" wire:confirm="Ubah status arsip Komunitas?">
-                            {{ $org->archived_at ? 'Buka Kembali Komunitas' : 'Arsipkan Komunitas' }}
-                        </button>
-                    </div>
-
-                    <div>
-                        <h3 style="font-size: 0.9375rem; font-weight: 700; color: #ef4444; margin: 0 0 0.5rem 0;">Hapus Komunitas (Soft Delete)</h3>
-                        <p style="font-size: 0.8125rem; color: #64748b; margin: 0 0 1rem 0;">Ketik nama komunitas <strong>{{ $org->name }}</strong> untuk mengonfirmasi penghapusan.</p>
-                        <div style="display: flex; gap: 0.75rem; max-width: 480px;">
-                            <input class="oi-input" wire:model="deleteConfirmation" placeholder="Ketik nama komunitas di sini" style="flex: 1;">
-                            <button type="button" class="oi-btn" style="background-color: #ef4444; color: #fff; border-radius: 9999px; white-space: nowrap;" wire:click="deleteOrganization" wire:confirm="Hapus Komunitas secara soft delete? Histori akan dipertahankan.">Hapus Komunitas</button>
-                        </div>
-                    </div>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.55rem 1.25rem; font-size: 0.8125rem; font-weight: 700;" wire:click="archive" wire:confirm="Ubah status arsip Komunitas?">
+                        {{ $org->archived_at ? 'Buka Kembali Komunitas' : 'Arsipkan Komunitas' }}
+                    </button>
+                    <button type="button" class="pill-btn" style="background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 0.55rem 1.25rem; font-size: 0.8125rem; font-weight: 700; border-radius: 9999px; cursor: pointer;" wire:click="deleteOrganization" wire:confirm="Hapus Komunitas secara soft delete? Histori akan dipertahankan.">
+                        Hapus Organization
+                    </button>
                 </div>
             </section>
         </div>

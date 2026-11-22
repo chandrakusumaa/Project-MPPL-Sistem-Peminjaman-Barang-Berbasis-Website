@@ -62,14 +62,16 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Plus Jakarta Sans", "Helvetica Neue", sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--oi-bg);
   color: var(--oi-ink);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
+  font-weight: 400;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Minimalist Scrollbar */
@@ -88,11 +90,33 @@ body {
   background: #94a3b8;
 }
 
-/* Typography Defaults */
+/* Typography Defaults (Crisp, clean Mobbin Bold Hierarchy) */
 h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   color: var(--oi-black);
-  font-weight: 800;
+  font-weight: 800 !important;
   letter-spacing: -0.025em;
+}
+
+b, strong {
+  font-weight: 700 !important;
+  color: #0f172a;
+}
+
+label, .form-label {
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+table th {
+  font-weight: 700 !important;
+  color: #64748b;
+  letter-spacing: 0.04em;
+}
+
+.pill-btn, .btn-maroon, .btn-solid-black, .btn-secondary-light {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 700 !important;
 }
 
 p {
@@ -567,14 +591,14 @@ a {
 .btn-solid-black {
   background-color: var(--oi-navy);
   color: #ffffff !important;
+  border: none;
+  border-radius: 9999px;
+  font-weight: 700;
   box-shadow: 0 2px 6px rgba(5, 33, 76, 0.2);
 }
 .btn-solid-black:hover {
-  background-color: #0d2f66;
-  box-shadow: 0 4px 12px rgba(5, 33, 76, 0.28);
-}
-.btn-solid-black:hover {
   background-color: #000000;
+  box-shadow: 0 4px 12px rgba(5, 33, 76, 0.28);
 }
 
 .btn-secondary-light {
@@ -742,7 +766,7 @@ a {
 .app-wrapper {
   display: flex;
   min-height: 100vh;
-  background-color: var(--oi-bg);
+  background-color: transparent !important;
   position: relative;
 }
 
@@ -891,34 +915,37 @@ a {
   min-width: 0;
   margin-left: var(--sidebar-width);
   min-height: 100vh;
+  background-color: transparent !important;
   transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Desktop Collapsed Sidebar State */
 @media (min-width: 1025px) {
   .app-wrapper.sidebar-collapsed .app-sidebar {
-    transform: translateX(-100%);
+    transform: translateX(-100%) !important;
   }
   .app-wrapper.sidebar-collapsed .app-main {
-  position: relative;
-  overflow-x: hidden;
-    margin-left: 0;
+    margin-left: 0 !important;
   }
 }
 
 /* Mobile Off-Canvas Sidebar State */
 @media (max-width: 1024px) {
-  .app-sidebar {
-    transform: translateX(-100%);
+  .app-sidebar,
+  .oi-room .app-sidebar {
+    display: flex !important;
+    transform: translateX(-100%) !important;
   }
-  .app-sidebar.is-open {
-    transform: translateX(0);
+  .app-sidebar.is-open,
+  .oi-room .app-sidebar.is-open {
+    display: flex !important;
+    transform: translateX(0) !important;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
   }
   .app-main {
-  position: relative;
-  overflow-x: hidden;
-    margin-left: 0;
+    position: relative;
+    overflow-x: hidden;
+    margin-left: 0 !important;
   }
   .sidebar-backdrop {
     position: fixed;
@@ -928,6 +955,7 @@ a {
     bottom: 0;
     background: rgba(15, 23, 42, 0.4);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 35;
     opacity: 0;
     pointer-events: none;
@@ -986,13 +1014,16 @@ a {
   border-color: var(--oi-wine-border);
 }
 
-/* Page Container */
-.page-container {
-  padding: 2rem 2.5rem 3.5rem 2.5rem;
-  max-width: 1320px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+/* Page Container & Centered Main Canvas (Proporsional, tidak melar panjang & tetap di tengah) */
+.page-container,
+.app-wrapper .app-main > .oi-main,
+.app-wrapper .oi-main {
+  padding: 2rem 2.25rem 3.5rem 2.25rem;
+  max-width: 1240px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
   flex: 1;
 }
 
@@ -1748,9 +1779,15 @@ a {
 
 /* Community WhatsApp Group Silhouette Avatar */
 .community-avatar {
-  border-radius: 9999px;
-  background-color: #e2e8f0;
-  display: flex;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 44px;
+  max-height: 44px;
+  border-radius: 12px;
+  background-color: #f1f5f9;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #64748b;
@@ -1758,8 +1795,8 @@ a {
   transition: all 0.2s ease;
 }
 .community-avatar:hover {
-  background-color: #cbd5e1;
-  color: #475467;
+  background-color: #e2e8f0;
+  color: #0f172a;
 }
 
 /* Official App Logo */
@@ -1768,6 +1805,53 @@ a {
   width: auto;
   object-fit: contain;
   display: block;
+}
+
+/* Maroon Accent Tokens matching Mockups */
+:root {
+  --maroon-primary: #80142B;
+  --maroon-hover: #671023;
+  --maroon-pale: #fff1f2;
+}
+
+.btn-maroon {
+  background-color: #80142B;
+  color: #ffffff !important;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(128, 20, 43, 0.25);
+}
+.btn-maroon:hover {
+  background-color: #671023;
+  box-shadow: 0 6px 18px rgba(128, 20, 43, 0.35);
+}
+
+@media (max-width: 1024px) {
+  .oi-personal-dashboard > div[style*="grid-template-columns: minmax(0, 1fr) 340px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .oi-personal-dashboard div[style*="repeat(3, minmax(0, 1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+  .oi-sidebar {
+    display: none !important;
+  }
+  .oi-sidebar.is-open {
+    display: flex !important;
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    z-index: 100 !important;
+    box-shadow: 0 0 30px rgba(0,0,0,0.2) !important;
+  }
 }
 
 
