@@ -332,7 +332,7 @@ it('completes the financial example using Livewire forms and renders the compute
     $p = $c->payments()->firstOrFail();
     expect($p->status)->toBe('pending');
     $this->actingAs($this->admin);
-    Livewire::test(Workspace::class, ['organization' => $this->org])->set('tab', 'charges')->call('charge', $c->id, 'confirm', $p->id)->assertHasNoErrors()->assertSee('100.000');
+    Livewire::test(Workspace::class, ['organization' => $this->org])->set('tab', 'charges')->assertSee($this->member->name)->assertSee($this->member->email)->call('charge', $c->id, 'confirm', $p->id)->assertHasNoErrors()->assertSee('100.000');
 });
 it('makes a full credit waived and disallows cancelling confirmed or credited charges', function () {
     $c = chargeFor($this);
@@ -499,4 +499,149 @@ it('shows the correct outstanding and pending payments in the room summary', fun
     app(SettleCharge::class)->change($this->admin, $this->org, $c->id, 'confirm', ['payment_id' => $paid->id]);
     $this->actingAs($this->admin);
     Livewire::test(Workspace::class, ['organization' => $this->org])->assertViewHas('summary', fn ($s) => $s['balance'] === 100000 && $s['pendingPayments'] === 1)->assertSee('Rp100.000');
+});
+it('keeps separate active damage charges for multiple damage reports on the same asset and borrowing', function () {
+    $b = requestFor($this);
+    app(BorrowAsset::class)->decide($this->admin, $this->org, $b->id, 'approve');
+    app(BorrowAsset::class)->inspect($this->staff, $this->org, $b->id, ['condition' => 'minor_damage', 'notes' => 'Lensa kamera retak di bagian pinggir']);
+    app(MaintainAsset::class)->report($this->admin, $this->org, $this->asset->id, 'Bodi kamera tergores cukup dalam');
+
+    $reports = DamageReport::orderBy('id')->get();
+    expect($reports)->toHaveCount(2);
+
+    $this->actingAs($this->admin);
+    $ws = Livewire::test(Workspace::class, ['organization' => $this->org]);
+
+    $ws->call('openReportModal', $reports[0]->id)
+        ->set('giveChargeOption', true)
+        ->set('severity', 'major')
+        ->set('chargeType', 'damage')
+        ->set('amount', '150000')
+        ->set('reason', 'Biaya penggantian lensa kamera yang retak')
+        ->call('saveReportDecision')
+        ->assertHasNoErrors();
+
+    $ws->call('openReportModal', $reports[1]->id)
+        ->set('giveChargeOption', true)
+        ->set('severity', 'minor')
+        ->set('chargeType', 'damage')
+        ->set('amount', '75000')
+        ->set('reason', 'Biaya perbaikan bodi kamera yang tergores')
+        ->call('saveReportDecision')
+        ->assertHasNoErrors();
+
+    expect(BorrowerCharge::where('borrowing_id', $b->id)->where('status', 'issued')->count())->toBe(2);
+    expect((int) $reports[0]->fresh()->charge?->amount)->toBe(150000);
+    expect((int) $reports[1]->fresh()->charge?->amount)->toBe(75000);
+});
+it('lets borrowers submit pending payments for admin confirmation and request return without bypassing inspection', function () {
+    $c = chargeFor($this);
+    $borrowing = Borrowing::findOrFail($c->borrowing_id);
+
+    // Non-borrower member cannot submit payment for another borrower's charge.
+    app(ManageWorkspace::class)->join($this->other, $this->org);
+    expect(fn () => app(SettleCharge::class)->change($this->other, $this->org, $c->id, 'payment', [
+        'amount' => 50000,
+        'method' => 'bank_transfer',
+        'reference' => 'TF-OTHER-01',
+        'paid_at' => now('UTC')->format('Y-m-d H:i:s.u'),
+        'idempotency_key' => 'other-member-pay',
+    ]))->toThrow(AuthorizationException::class);
+
+    // Borrower submits payment via Workspace modal -> pending until Admin confirms.
+    $this->actingAs($this->member);
+    Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->set('tab', 'charges')
+        ->call('openChargeModal', $c->id, 'payment')
+        ->set('amount', '150000')
+        ->set('method', 'bank_transfer')
+        ->set('reference', 'BCA-NADIA-001')
+        ->set('paymentNotes', 'Sudah transfer lunas')
+        ->call('submitChargeModal')
+        ->assertHasNoErrors();
+
+    $payment = ChargePayment::where('charge_id', $c->id)->firstOrFail();
+    expect($payment->status)->toBe('pending')->and($c->fresh()->balance)->toBe(150000);
+
+    // Admin confirms the borrower's pending payment.
+    app(SettleCharge::class)->change($this->admin, $this->org, $c->id, 'confirm', ['payment_id' => $payment->id]);
+    expect($payment->fresh()->status)->toBe('confirmed')->and($c->fresh()->balance)->toBe(0)->and($c->fresh()->settlement)->toBe('paid');
+
+    // Borrower requests return -> notifies Admin/Staff while keeping borrowing status borrowed until inspection.
+    Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->set('tab', 'borrowings')
+        ->call('requestReturn', $borrowing->id)
+        ->assertHasNoErrors();
+    expect($borrowing->fresh()->status)->toBe('borrowed');
+    expect(AuditLog::where('action', 'borrowing.return_requested')->where('subject_id', $borrowing->id)->exists())->toBeTrue();
+});
+it('accepts same-minute datetime-local return timestamps and rejects future return times with a clear error', function () {
+    $b = requestFor($this);
+    app(BorrowAsset::class)->decide($this->admin, $this->org, $b->id, 'approve');
+    $b->refresh();
+
+    $this->actingAs($this->admin);
+    $ws = Livewire::test(Workspace::class, ['organization' => $this->org])
+        ->call('openBorrowingAction', $b->id, 'inspect');
+
+    // Future date must be rejected with clear error.
+    $ws->set('returnedAt', now('Asia/Jakarta')->addDay()->format('Y-m-d\TH:i'))
+        ->call('saveBorrowingAction')
+        ->assertHasErrors('action');
+    expect($b->fresh()->status)->toBe('borrowed');
+
+    // Exact approval minute (without seconds, as sent by datetime-local) must succeed.
+    $ws->set('returnedAt', $b->approved_at->setTimezone('Asia/Jakarta')->format('Y-m-d\TH:i'))
+        ->call('saveBorrowingAction')
+        ->assertHasNoErrors();
+    expect($b->fresh()->status)->toBe('returned');
+});
+it('prevents admins from modifying or re-issuing a damage charge once it is issued or paid', function () {
+    $b = requestFor($this);
+    app(BorrowAsset::class)->decide($this->admin, $this->org, $b->id, 'approve');
+    app(BorrowAsset::class)->inspect($this->staff, $this->org, $b->id, ['condition' => 'minor_damage', 'notes' => 'Lensa kamera tergores ringan']);
+    $r = DamageReport::firstOrFail();
+
+    $this->actingAs($this->admin);
+    $ws = Livewire::test(Workspace::class, ['organization' => $this->org]);
+
+    $ws->call('openReportModal', $r->id)
+        ->set('giveChargeOption', true)
+        ->set('severity', 'minor')
+        ->set('chargeType', 'damage')
+        ->set('amount', '150000')
+        ->set('reason', 'Biaya perbaikan lensa kamera yang tergores')
+        ->call('saveReportDecision')
+        ->assertHasNoErrors();
+
+    $charge = $r->fresh()->charge;
+    expect($charge)->not->toBeNull()->and((int) $charge->amount)->toBe(150000)->and($charge->status)->toBe('issued');
+
+    // Attempt to re-issue / inflate while already issued must fail.
+    $ws->call('openReportModal', $r->id)
+        ->assertSet('giveChargeOption', false)
+        ->set('giveChargeOption', true)
+        ->set('amount', '300000')
+        ->set('reason', 'Mencoba menaikkan tagihan yang sudah terbit')
+        ->call('saveReportDecision')
+        ->assertHasErrors('action');
+    expect((int) $charge->fresh()->amount)->toBe(150000);
+
+    // Borrower pays in full and admin confirms -> status paid.
+    $p = paymentFor($this, $charge, 150000, 'paid-full-damage');
+    app(SettleCharge::class)->change($this->admin, $this->org, $charge->id, 'confirm', ['payment_id' => $p->id]);
+    expect($charge->fresh()->settlement)->toBe('paid')->and($charge->fresh()->balance)->toBe(0);
+
+    // Report list shows Sudah Terbayar (Lunas) and re-issuing is still rejected.
+    $ws->call('showDamageReports')
+        ->assertSee('Sudah Terbayar (Lunas)')
+        ->call('openReportModal', $r->id)
+        ->assertSee('sudah terbayar / dibebaskan')
+        ->set('giveChargeOption', true)
+        ->set('amount', '200000')
+        ->set('reason', 'Mencoba menagih ulang laporan yang sudah lunas')
+        ->call('saveReportDecision')
+        ->assertHasErrors('action');
+    expect(BorrowerCharge::where('damage_report_id', $r->id)->count())->toBe(1)
+        ->and((int) $charge->fresh()->amount)->toBe(150000);
 });

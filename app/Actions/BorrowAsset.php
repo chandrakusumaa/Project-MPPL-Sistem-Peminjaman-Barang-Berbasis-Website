@@ -70,14 +70,28 @@ class BorrowAsset extends WorkspaceAction
             $condition = $data['condition'];
             $this->check(in_array($condition, ['good', 'minor_damage', 'major_damage', 'lost']), 'Kondisi tidak valid.');
             $this->check($condition === 'good' || mb_strlen(trim($data['notes'] ?? '')) >= 3, 'Catatan inspeksi wajib.');
-            $returned = CarbonImmutable::parse($data['returned_at'] ?? now(), 'UTC');
-            $this->check($returned->lte(now()) && $returned->gte($b->approved_at), 'Waktu pengembalian tidak valid.');
+            $now = CarbonImmutable::now('UTC');
+            $returned = isset($data['returned_at']) && $data['returned_at'] !== ''
+                ? CarbonImmutable::parse($data['returned_at'], 'UTC')
+                : $now;
+            $approvedAt = $b->approved_at->utc();
+            if ($returned->lt($approvedAt) && $returned->format('Y-m-d H:i') === $approvedAt->format('Y-m-d H:i')) {
+                $returned = $approvedAt;
+            }
+            $this->check(
+                $returned->gte($approvedAt),
+                'Waktu pengembalian tidak boleh sebelum waktu persetujuan pinjaman ('.$approvedAt->setTimezone('Asia/Jakarta')->format('d M Y, H:i').' WIB).'
+            );
+            $this->check(
+                $returned->lte($now),
+                'Waktu pengembalian tidak boleh di masa depan (maksimal '.$now->setTimezone('Asia/Jakarta')->format('d M Y, H:i').' WIB). Kosongkan kolom waktu untuk mencatat waktu sekarang.'
+            );
             $days = max(0, (int) CarbonImmutable::parse($b->due_date->toDateString(), 'Asia/Jakarta')->diffInDays($returned->setTimezone('Asia/Jakarta')->startOfDay(), false));
             $calculated = $days * (int) $b->late_fine_per_day_snapshot;
             $fine = isset($data['fine_amount']) ? (int) $data['fine_amount'] : $calculated;
             $this->check($fine >= 0 && $fine <= 99999999999999, 'Denda tidak valid.');
             $this->check($fine === $calculated || mb_strlen(trim($data['fine_override_reason'] ?? '')) >= 3, 'Alasan override wajib.');
-            $b->update(['status' => 'returned', 'returned_at' => $returned, 'processed_by' => $actor->id, 'return_processed_at' => now(), 'return_condition' => $condition, 'return_notes' => $data['notes'] ?? null, 'late_days' => $days, 'calculated_fine_amount' => $calculated, 'fine_amount' => $fine, 'fine_override_reason' => $data['fine_override_reason'] ?? null]);
+            $b->update(['status' => 'returned', 'returned_at' => $returned, 'processed_by' => $actor->id, 'return_processed_at' => $now, 'return_condition' => $condition, 'return_notes' => $data['notes'] ?? null, 'late_days' => $days, 'calculated_fine_amount' => $calculated, 'fine_amount' => $fine, 'fine_override_reason' => $data['fine_override_reason'] ?? null]);
             $asset->update(['status' => match ($condition) {
                 'major_damage' => 'maintenance','lost' => 'lost',default => 'available'
             }, 'physical_condition' => $condition === 'lost' ? 'unknown' : $condition]);
@@ -89,6 +103,16 @@ class BorrowAsset extends WorkspaceAction
             }
             $this->log($actor, $org, $asset, 'returned', $b->id);
             $this->audit($actor, $org, 'borrowing.inspected', $b);
+        });
+    }
+
+    public function requestReturn(User $actor, Organization $org, int $id): void
+    {
+        $this->transact($actor, $org, 'view', function ($org) use ($actor, $id) {
+            $b = Borrowing::where('organization_id', $org->id)->lockForUpdate()->findOrFail($id);
+            $this->check($b->user_id === $actor->id, 'Hanya peminjam yang dapat mengajukan pengembalian.');
+            $this->check(in_array($b->status, ['borrowed', 'overdue'], true), 'Peminjaman ini tidak sedang aktif.');
+            $this->audit($actor, $org, 'borrowing.return_requested', $b);
         });
     }
 }

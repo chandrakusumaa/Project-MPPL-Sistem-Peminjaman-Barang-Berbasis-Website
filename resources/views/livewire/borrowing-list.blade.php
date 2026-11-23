@@ -60,6 +60,9 @@
                             @elseif(!$org->archived_at && $operator && in_array($borrowing->status, ['borrowed', 'overdue'], true))
                                 <button type="button" id="oi-borrowing-inspect-{{ $borrowing->id }}" class="oi-btn oi-btn-sm"
                                     wire:click="openBorrowingAction({{ $borrowing->id }}, 'inspect')" wire:loading.attr="disabled" aria-haspopup="dialog">Catat Pengembalian</button>
+                            @elseif(!$org->archived_at && ! $operator && $borrowing->user_id === auth()->id() && in_array($borrowing->status, ['borrowed', 'overdue'], true))
+                                <button type="button" class="oi-btn oi-btn-sm"
+                                    wire:click="requestReturn({{ $borrowing->id }})" wire:confirm="Kirim pemberitahuan pengembalian ke Admin/Staff? Serahkan barang secara fisik agar pengelola mencatat inspeksi pengembalian." wire:loading.attr="disabled">Kembalikan Barang</button>
                             @else
                                 <span class="muted">—</span>
                             @endif

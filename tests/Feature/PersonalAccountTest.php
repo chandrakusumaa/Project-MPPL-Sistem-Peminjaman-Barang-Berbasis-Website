@@ -164,3 +164,26 @@ it('keeps validation and direct membership feedback visible during Livewire upda
     Livewire::actingAs($this->other)->test(Home::class)->call('join', $this->org->id)
         ->assertSee('Berhasil bergabung.')->assertSee('Kamu sekarang menjadi Member');
 });
+
+it('lets a member submit payment from personal charges and notifies admin for confirmation', function () {
+    $charge = personalCharge($this, 120000, 'Biaya kerusakan lensa');
+
+    Livewire::actingAs($this->member)->test(PersonalCharges::class)
+        ->call('openPaymentModal', $charge->id)
+        ->set('amount', '120000')
+        ->set('method', 'bank_transfer')
+        ->set('reference', 'BCA-2026-991')
+        ->set('paymentNotes', 'Transfer manual dari rekening pribadi')
+        ->call('submitPayment')
+        ->assertHasNoErrors()
+        ->assertSet('selectedChargeId', 0);
+
+    $payment = ChargePayment::where('charge_id', $charge->id)->firstOrFail();
+    expect($payment->status)->toBe('pending')
+        ->and((int) $payment->amount)->toBe(120000)
+        ->and($payment->reference)->toBe('BCA-2026-991')
+        ->and($charge->fresh()->balance)->toBe(120000);
+
+    app(SettleCharge::class)->change($this->admin, $this->org, $charge->id, 'confirm', ['payment_id' => $payment->id]);
+    expect($charge->fresh()->balance)->toBe(0)->and($charge->fresh()->settlement)->toBe('paid');
+});

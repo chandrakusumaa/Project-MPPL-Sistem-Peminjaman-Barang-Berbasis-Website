@@ -18,6 +18,16 @@
     </div>
 
     <!-- MAIN CARD TABLE -->
+    @if(session('status'))
+        <div role="status" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1.25rem; color: #166534; font-size: 0.875rem; font-weight: 600;">
+            {{ session('status') }}
+        </div>
+    @endif
+    @error('action')
+        <div role="alert" style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1.25rem; color: #b91c1c; font-size: 0.875rem; font-weight: 600;">
+            {{ $message }}
+        </div>
+    @enderror
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.125rem; padding: 1.75rem 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
         
         <!-- TOOLBAR FILTER PILLS (SESUAI FOTO 2) -->
@@ -99,16 +109,18 @@
                                 @endif
                             </td>
                             <td style="padding: 1rem; white-space: nowrap; text-align: right;">
-                                @if($b->status === 'pending')
-                                    <button type="button" class="pill-btn" style="background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; padding: 0.35rem 0.85rem; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
+                                @if($b->status === 'pending' && !$b->organization->archived_at)
+                                    <button type="button" class="pill-btn" style="background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; padding: 0.35rem 0.85rem; font-size: 0.75rem; font-weight: 700; white-space: nowrap; cursor: pointer;"
+                                        wire:click="cancelBorrowing({{ $b->id }})" wire:confirm="Batalkan pengajuan peminjaman ini?" wire:loading.attr="disabled">
                                         Batalkan
                                     </button>
-                                @elseif($b->status === 'borrowed')
-                                    <a href="{{ route('workspace', $b->organization) }}" class="pill-btn btn-secondary-light" style="padding: 0.35rem 0.85rem; font-size: 0.75rem; font-weight: 700; text-decoration: none; white-space: nowrap;">
-                                        QR Serah Terima
-                                    </a>
+                                @elseif(in_array($b->status, ['borrowed', 'overdue'], true) && !$b->organization->archived_at)
+                                    <button type="button" class="btn-maroon" style="padding: 0.35rem 0.85rem; font-size: 0.75rem; font-weight: 700; border-radius: 9999px; border: none; white-space: nowrap; cursor: pointer;"
+                                        wire:click="requestReturn({{ $b->id }})" wire:confirm="Kirim pemberitahuan pengembalian ke Admin/Staff? Serahkan barang secara fisik agar pengelola mencatat inspeksi pengembalian." wire:loading.attr="disabled">
+                                        Kembalikan Barang
+                                    </button>
                                 @else
-                                    <a href="{{ route('timeline') }}" class="pill-btn btn-secondary-light" style="padding: 0.35rem 0.85rem; font-size: 0.75rem; font-weight: 700; text-decoration: none; white-space: nowrap;">
+                                    <a href="{{ route('asset.timeline', [$b->organization, $b->asset]) }}" class="pill-btn btn-secondary-light" style="padding: 0.35rem 0.85rem; font-size: 0.75rem; font-weight: 700; text-decoration: none; white-space: nowrap;">
                                         Timeline
                                     </a>
                                 @endif

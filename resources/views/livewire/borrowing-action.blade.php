@@ -36,9 +36,20 @@
                     <textarea wire:model="borrowingNotes" placeholder="Contoh: Dudukan lensa retak saat diperiksa."></textarea>
                 </label>
                 <label>Waktu pengembalian aktual (WIB)
-                    <input type="datetime-local" wire:model="returnedAt" aria-describedby="oi-borrowing-return-time-help">
+                    <input type="datetime-local" wire:model="returnedAt"
+                        @if($selectedBorrowing->approved_at) min="{{ $selectedBorrowing->approved_at->setTimezone('Asia/Jakarta')->format('Y-m-d\TH:i') }}" @endif
+                        max="{{ now('Asia/Jakarta')->format('Y-m-d\TH:i') }}"
+                        aria-describedby="oi-borrowing-return-time-help">
                 </label>
-                <p id="oi-borrowing-return-time-help" class="muted">Kosongkan untuk mencatat waktu sekarang.</p>
+                <p id="oi-borrowing-return-time-help" class="muted">
+                    Kosongkan untuk mencatat waktu sekarang.
+                    @if($selectedBorrowing->approved_at)
+                        Rentang valid: {{ $selectedBorrowing->approved_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB s.d. sekarang (tidak boleh di masa depan).
+                    @endif
+                    @if($returnedAt !== '')
+                        <button type="button" class="secondary" style="margin-left: 0.5rem; padding: 0.2rem 0.6rem; font-size: 0.75rem;" wire:click="$set('returnedAt', '')">Pakai waktu sekarang</button>
+                    @endif
+                </p>
                 <details class="card" @if($fineOverride !== '') open @endif>
                     <summary>Ubah denda keterlambatan (opsional)</summary>
                     <label>Denda final (Rp)<input type="number" min="0" step="1" wire:model="fineOverride"></label>

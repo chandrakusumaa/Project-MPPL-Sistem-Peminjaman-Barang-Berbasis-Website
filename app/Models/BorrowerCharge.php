@@ -8,7 +8,7 @@ class BorrowerCharge extends Model
 {
     protected $table = 'borrower_charges';
 
-    protected $guarded = ['id', 'active_guard', 'pending_guard', 'open_user_guard', 'maintenance_guard', 'inspection_guard'];
+    protected $guarded = ['id', 'active_guard', 'pending_guard', 'open_user_guard', 'maintenance_guard', 'inspection_guard', 'damage_report_guard'];
 
     public function organization()
     {
@@ -18,6 +18,16 @@ class BorrowerCharge extends Model
     public function asset()
     {
         return $this->belongsTo(Asset::class)->withTrashed();
+    }
+
+    public function borrower()
+    {
+        return $this->belongsTo(User::class, 'borrower_id')->withTrashed();
+    }
+
+    public function borrowing()
+    {
+        return $this->belongsTo(Borrowing::class);
     }
 
     public function payments()

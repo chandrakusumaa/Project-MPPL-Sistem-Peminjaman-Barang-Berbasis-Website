@@ -18,22 +18,13 @@
             </div>
             
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <span style="font-size: 0.6875rem; font-weight: 800; color: #475467; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.35rem 0.75rem; border-radius: 9999px; text-transform: uppercase;">
-                    LIHAT SEBAGAI: {{ $admin ? 'ADMIN' : ($operator ? 'STAFF' : 'MEMBER') }}
+                <span style="font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.04em; padding: 0.35rem 0.85rem; border-radius: 9999px; text-transform: uppercase; {{ $admin ? 'background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3;' : ($operator ? 'background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe;' : 'background: #f1f5f9; color: #475467; border: 1px solid #e2e8f0;') }}">
+                    {{ $admin ? 'ADMIN' : ($operator ? 'STAFF' : 'MEMBER') }}
                 </span>
 
                 @if(!$operator)
                     <button type="button" class="btn-maroon" style="padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 700;" wire:click="$set('tab', 'inventory')">
                         + Ajukan Pinjam
-                    </button>
-                @else
-                    @if($tab === 'inventory')
-                        <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.45rem 0.85rem; font-size: 0.75rem; font-weight: 700;" wire:click="openCategoryForm">
-                            + Tambah Kategori
-                        </button>
-                    @endif
-                    <button type="button" class="pill-btn" style="background: #0f172a; color: #ffffff; padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 9999px; border: none; cursor: pointer;" wire:click="openAssetForm">
-                        + Tambah Aset
                     </button>
                 @endif
 

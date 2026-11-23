@@ -16,15 +16,6 @@
             </a>
         </div>
 
-        <!-- ROLE BADGE AT TOP OF SIDEBAR -->
-        <div style="margin-bottom: 1.25rem; padding: 0 0.5rem;">
-            <div style="background: {{ $admin ? '#ffe4e6' : ($operator ? '#dbeafe' : '#f1f5f9') }}; border-radius: 9999px; padding: 0.35rem 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                <span style="font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em; color: {{ $admin ? '#9f1239' : ($operator ? '#1e40af' : '#475467') }}; text-transform: uppercase;">
-                    PERAN: {{ $admin ? 'ADMINISTRATOR' : ($operator ? 'STAFF OPERASIONAL' : 'MEMBER') }}
-                </span>
-            </div>
-        </div>
-
         <!-- 1. NAVIGASI KOMUNITAS -->
         <div style="margin-bottom: 1.25rem;">
             <div style="font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.08em; color: #94a3b8; text-transform: uppercase; padding: 0 0.75rem 0.4rem 0.75rem;">

@@ -11,6 +11,7 @@ use App\Models\DamageReport;
 use App\Models\Organization;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
 
 class SettleCharge extends WorkspaceAction
@@ -125,7 +126,7 @@ class SettleCharge extends WorkspaceAction
             $evidencePath = $data['evidence_path'] ?? $report->photo;
 
             $existingCharge = BorrowerCharge::where('organization_id', $org->id)
-                ->where('borrowing_id', $b->id)
+                ->where('damage_report_id', $report->id)
                 ->whereIn('charge_type', ['damage', 'loss'])
                 ->whereIn('status', ['draft', 'issued'])
                 ->lockForUpdate()
@@ -135,6 +136,16 @@ class SettleCharge extends WorkspaceAction
             $canDirectlyIssue = $b->user_id !== $actor->id;
 
             if ($existingCharge) {
+                if ($existingCharge->status === 'issued') {
+                    $settled = in_array($existingCharge->settlement, ['paid', 'waived'], true);
+                    $this->check(
+                        false,
+                        $settled
+                            ? 'Tagihan untuk laporan ini sudah terbayar/dibebaskan dan tidak dapat diubah atau ditagihkan ulang.'
+                            : 'Tagihan untuk laporan ini sudah diterbitkan dan terkunci. Tidak dapat diubah atau ditagihkan ulang.'
+                    );
+                }
+
                 $existingCharge->update([
                     'damage_report_id' => $report->id,
                     'charge_type' => $chargeType,
@@ -186,7 +197,7 @@ class SettleCharge extends WorkspaceAction
 
                 return $existing;
             }
-            $this->check(! BorrowerCharge::where('borrowing_id', $b->id)->whereIn('charge_type', ['damage', 'loss'])->whereIn('status', ['draft', 'issued'])->exists(), 'Tagihan damage/loss aktif sudah ada.');
+            $this->check(! BorrowerCharge::where('damage_report_id', $report->id)->whereIn('charge_type', ['damage', 'loss'])->whereIn('status', ['draft', 'issued'])->exists(), 'Tagihan damage/loss aktif untuk laporan ini sudah ada.');
             $this->check((int) $data['amount'] > 0 && mb_strlen(trim($data['reason'])) >= 10, 'Nominal dan dasar tanggung jawab wajib valid.');
             $basis = $b->damage_policy_snapshot ?: trim($data['policy_basis'] ?? '');
             $this->check(mb_strlen($basis) > 0, 'Dasar kebijakan wajib. Transaksi lama memerlukan persetujuan peminjam sebelum penerbitan.');
@@ -200,8 +211,16 @@ class SettleCharge extends WorkspaceAction
 
     public function change(User $actor, Organization $org, int $id, string $action, array $data = []): void
     {
-        $this->transact($actor, $org, $action === 'acknowledge' ? 'view' : (in_array($action, ['payment', 'edit']) ? 'operate' : 'administer'), function ($org) use ($actor, $id, $action, $data) {
+        $ability = match ($action) {
+            'acknowledge', 'payment' => 'view',
+            'edit' => 'operate',
+            default => 'administer',
+        };
+        $this->transact($actor, $org, $ability, function ($org) use ($actor, $id, $action, $data) {
             $c = BorrowerCharge::where('organization_id', $org->id)->lockForUpdate()->findOrFail($id);
+            if ($action === 'payment' && ! Gate::forUser($actor)->allows('operate', $org) && $c->borrower_id !== $actor->id) {
+                throw new AuthorizationException('Anda tidak berwenang mencatat pembayaran untuk tagihan ini.');
+            }
             if ($action === 'acknowledge') {
                 $this->check($c->borrower_id === $actor->id && $c->status === 'draft', 'Hanya peminjam dapat mengakui dasar kewajiban pada draft.');
                 $c->update(['liability_acknowledged_at' => now()]);

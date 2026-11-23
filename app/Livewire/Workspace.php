@@ -296,7 +296,7 @@ class Workspace extends Component
         $this->amount = $r->charge ? (string) ((int) $r->charge->amount) : '';
         $this->reason = $r->charge?->reason ?: $r->description;
         $this->policy = $r->charge?->policy_basis ?: ($org->damage_charge_policy ?? '');
-        $this->giveChargeOption = $r->charge !== null;
+        $this->giveChargeOption = $r->charge !== null && $r->charge->status === 'draft';
         $this->startMaintenanceOption = $r->status === 'in_maintenance';
         $this->evidence = null;
     }
@@ -376,23 +376,30 @@ class Workspace extends Component
     {
         abort_unless(in_array($action, ['payment', 'credit', 'cancel']), 422);
         $org = $this->org();
-        Gate::authorize('operate', $org);
-        $c = BorrowerCharge::where('organization_id', $org->id)->with('payments', 'credits')->findOrFail($chargeId);
+        $operator = Gate::allows('operate', $org);
+        if ($action !== 'payment') {
+            Gate::authorize('operate', $org);
+        }
+        $c = BorrowerCharge::where('organization_id', $org->id)
+            ->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))
+            ->with('payments', 'credits')
+            ->findOrFail($chargeId);
 
         $this->resetValidation();
         $this->selectedChargeId = $c->id;
         $this->chargeModalAction = $action;
         $this->amount = $action === 'cancel' ? '' : (string) max(1, (int) $c->balance);
-        $this->method = 'cash';
+        $this->method = $operator ? 'cash' : 'bank_transfer';
         $this->reference = '';
         $this->paidAt = '';
         $this->paymentNotes = '';
         $this->notes = '';
+        $this->evidence = null;
     }
 
     public function closeChargeModal(): void
     {
-        $this->reset('selectedChargeId', 'chargeModalAction', 'amount', 'reference', 'paidAt', 'paymentNotes', 'notes');
+        $this->reset('selectedChargeId', 'chargeModalAction', 'amount', 'reference', 'paidAt', 'paymentNotes', 'notes', 'evidence');
         $this->resetValidation();
     }
 
@@ -402,35 +409,55 @@ class Workspace extends Component
     public function submitChargeModal(): void
     {
         $org = $this->org();
-        Gate::authorize('operate', $org);
-        $c = BorrowerCharge::where('organization_id', $org->id)->with('payments', 'credits')->findOrFail($this->selectedChargeId);
+        $operator = Gate::allows('operate', $org);
+        if ($this->chargeModalAction !== 'payment') {
+            Gate::authorize('operate', $org);
+        }
+        $c = BorrowerCharge::where('organization_id', $org->id)
+            ->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))
+            ->with('payments', 'credits')
+            ->findOrFail($this->selectedChargeId);
 
         if ($this->chargeModalAction === 'payment') {
             $this->validate([
                 'amount' => 'required|integer|min:1|max:'.max(1, (int) $c->balance),
                 'method' => 'required|in:cash,bank_transfer,other',
+                'evidence' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             ], [
                 'amount.required' => 'Nominal pembayaran wajib diisi.',
                 'amount.min' => 'Nominal pembayaran minimal Rp1.',
                 'amount.max' => 'Nominal tidak boleh melebihi sisa tagihan (Rp'.number_format($c->balance, 0, ',', '.').').',
+                'evidence.mimes' => 'Bukti pembayaran harus berformat JPG, PNG, atau PDF.',
+                'evidence.max' => 'Ukuran bukti pembayaran maksimal 2 MB.',
             ]);
 
-            if ($this->method === 'bank_transfer' && trim($this->reference) === '') {
-                $this->reference = 'TF-'.now('Asia/Jakarta')->format('YmdHis');
+            $reference = trim($this->reference);
+            if ($this->method === 'bank_transfer' && $reference === '' && ! $this->evidence) {
+                if ($operator) {
+                    $reference = 'TF-'.now('Asia/Jakarta')->format('YmdHis');
+                } else {
+                    $this->addError('reference', 'Isi nomor referensi transfer atau unggah bukti pembayaran.');
+
+                    return;
+                }
             }
-            $noteText = trim($this->paymentNotes) !== '' ? trim($this->paymentNotes) : 'Pembayaran diterima oleh pengelola';
+            $noteText = trim($this->paymentNotes) !== ''
+                ? trim($this->paymentNotes)
+                : ($operator ? 'Pembayaran diterima oleh pengelola' : 'Pembayaran diajukan oleh peminjam');
+            $evidencePath = $this->evidence ? $this->evidence->store('evidence/'.$org->id, 'local') : null;
 
             app(SettleCharge::class)->change(auth()->user(), $org, $c->id, 'payment', [
                 'amount' => (int) $this->amount,
                 'method' => $this->method,
-                'reference' => $this->reference ?: null,
+                'reference' => $reference !== '' ? $reference : null,
+                'evidence_path' => $evidencePath,
                 'notes' => $noteText,
-                'paid_at' => $this->paidAt ? CarbonImmutable::parse($this->paidAt, 'Asia/Jakarta')->utc() : now()->toDateTimeString(),
+                'paid_at' => $this->paidAt ? CarbonImmutable::parse($this->paidAt, 'Asia/Jakarta')->utc()->format('Y-m-d H:i:s.u') : now('UTC')->format('Y-m-d H:i:s.u'),
                 'idempotency_key' => $this->idempotencyKey,
             ]);
             $this->closeChargeModal();
             $this->success();
-            session()->flash('status', 'Pembayaran berhasil dicatat.');
+            session()->flash('status', $operator ? 'Pembayaran berhasil dicatat.' : 'Pembayaran berhasil dikirim dan menunggu konfirmasi Admin.');
 
             return;
         }
@@ -704,18 +731,18 @@ class Workspace extends Component
         if ($this->borrowingAction === 'inspect') {
             $this->validate([
                 'inspectionCondition' => 'required|in:good,minor_damage,major_damage,lost',
-                'returnedAt' => 'nullable|date_format:Y-m-d\TH:i',
+                'returnedAt' => ['nullable', 'regex:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/'],
                 'fineOverride' => 'nullable|integer|min:0|max:999999999999',
             ], [
-                'returnedAt.date_format' => 'Masukkan tanggal dan jam pengembalian yang valid.',
+                'returnedAt.regex' => 'Masukkan tanggal dan jam pengembalian yang valid.',
                 'fineOverride.integer' => 'Denda harus berupa angka bulat dalam rupiah.',
                 'fineOverride.min' => 'Denda minimal Rp0.',
                 'fineOverride.max' => 'Nominal denda terlalu besar.',
             ]);
 
             $data = ['condition' => $this->inspectionCondition, 'notes' => $notes];
-            if ($this->returnedAt !== '') {
-                $data['returned_at'] = CarbonImmutable::parse($this->returnedAt, 'Asia/Jakarta')->utc();
+            if (trim($this->returnedAt) !== '') {
+                $data['returned_at'] = CarbonImmutable::parse(trim($this->returnedAt), 'Asia/Jakarta')->utc();
             }
             if ($this->fineOverride !== '') {
                 $data['fine_amount'] = (int) $this->fineOverride;
@@ -742,6 +769,13 @@ class Workspace extends Component
     {
         app(BorrowAsset::class)->decide(auth()->user(), $this->org(), $id, 'cancel');
         $this->success();
+    }
+
+    public function requestReturn(int $id): void
+    {
+        app(BorrowAsset::class)->requestReturn(auth()->user(), $this->org(), $id);
+        $this->success();
+        session()->flash('status', 'Pemberitahuan pengembalian terkirim ke Admin/Staff. Silakan serahkan unit fisik agar pengelola mencatat inspeksi pengembalian.');
     }
 
     public function draft(): void
@@ -917,7 +951,8 @@ class Workspace extends Component
 
         $selectedCharge = $this->selectedChargeId
             ? BorrowerCharge::where('organization_id', $org->id)
-                ->with(['asset', 'payments', 'credits'])
+                ->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))
+                ->with(['asset', 'borrower', 'payments', 'credits'])
                 ->find($this->selectedChargeId)
             : null;
 
@@ -964,7 +999,7 @@ class Workspace extends Component
                 ->when($this->reportStatus, fn ($q) => $q->where('status', $this->reportStatus))
                 ->when($this->reportSeverity, fn ($q) => $q->where('severity', $this->reportSeverity))
                 ->when($this->reportSource, fn ($q) => $q->where('source', $this->reportSource))
-                ->with(['asset', 'reporter', 'borrowing.borrower', 'charge'])
+                ->with(['asset', 'reporter', 'borrowing.borrower', 'charge.payments', 'charge.credits'])
                 ->latest()
                 ->paginate(20, ['*'], 'reportsPage') : null,
             'org' => $org,
@@ -982,7 +1017,7 @@ class Workspace extends Component
                     ->whereHas('asset', fn ($a) => $a->where('name', 'like', '%'.$this->borrowSearch.'%'))
                     ->orWhereHas('borrower', fn ($u) => $u->where('name', 'like', '%'.$this->borrowSearch.'%'))))
                 ->with('asset', 'borrower')->latest()->orderByDesc('id')->paginate(20, ['*'], 'borrowingsPage') : null,
-            'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('asset', 'payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'),
+            'charges' => BorrowerCharge::where('organization_id', $org->id)->when(! $operator, fn ($q) => $q->where('borrower_id', auth()->id()))->when($this->chargeStatus, fn ($q) => $q->where('status', $this->chargeStatus))->with('asset', 'borrower', 'borrowing', 'payments', 'credits')->latest()->paginate(20, ['*'], 'chargesPage'),
             'members' => $admin ? Membership::where('organization_id', $org->id)->with('user')->get() : collect(),
             'audits' => $admin ? AuditLog::where('organization_id', $org->id)->latest('id')->limit(50)->get() : collect(),
             'counts' => Asset::where('organization_id', $org->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status'),

@@ -260,7 +260,11 @@
                                 <h3 style="font-size: 1rem; font-weight: 800; margin: 0; color: #0f172a;">
                                     Tagihan #{{ $c->id }} · {{ $c->charge_type === 'damage' ? 'Biaya Kerusakan' : ($c->charge_type === 'loss' ? 'Penggantian Kehilangan' : 'Denda Keterlambatan') }}
                                 </h3>
-                                <p class="muted" style="margin: 0.25rem 0 0 0;">Aset: <strong>{{ $c->asset?->name ?? '-' }}</strong></p>
+                                <p class="muted" style="margin: 0.25rem 0 0 0;">
+                                    Peminjam: <strong style="color: #0f172a;">{{ $c->borrower?->name ?? 'User #'.$c->borrower_id }}</strong>@if($c->borrower?->email) ({{ $c->borrower->email }})@endif
+                                    · Aset: <strong style="color: #0f172a;">{{ $c->asset?->name ?? '-' }}</strong>
+                                    @if($c->borrowing_id) · Peminjaman #{{ $c->borrowing_id }}@endif
+                                </p>
                             </div>
                             <span class="oi-tag {{ $c->status === 'issued' ? 'oi-tag-blue' : ($c->status === 'draft' ? 'oi-tag-amber' : 'oi-tag-neutral') }}">
                                 {{ strtoupper($c->status) }} / {{ strtoupper($c->settlement) }}
@@ -299,6 +303,10 @@
                                         <button type="button" class="oi-btn oi-btn-secondary oi-btn-sm" style="border-radius: 9999px;" wire:loading.attr="disabled" wire:click="openChargeModal({{ $c->id }}, 'cancel')">Batalkan Tagihan</button>
                                     @endif
                                 </div>
+                            @elseif(!$org->archived_at && $c->borrower_id === auth()->id() && $c->status === 'issued' && $c->balance > 0)
+                                <div class="oi-action-group" style="margin-top: 1rem;">
+                                    <button type="button" class="oi-btn oi-btn-primary oi-btn-sm" style="border-radius: 9999px;" wire:loading.attr="disabled" wire:click="openChargeModal({{ $c->id }}, 'payment')">Bayar Tagihan</button>
+                                </div>
                             @endif
 
                             @if($c->payments->isNotEmpty())
@@ -311,6 +319,16 @@
                                                 <span class="oi-tag {{ $p->status === 'confirmed' ? 'oi-tag-green' : ($p->status === 'pending' ? 'oi-tag-amber' : 'oi-tag-red') }}" style="margin-left: 0.5rem;">
                                                     {{ strtoupper($p->status) }}
                                                 </span>
+                                                @if($p->reference || $p->notes || $p->evidence_path)
+                                                    <div class="oi-table-sub" style="margin-top: 0.25rem;">
+                                                        @if($p->reference)<span>Ref: {{ $p->reference }}</span>@endif
+                                                        @if($p->reference && $p->notes)<span> · </span>@endif
+                                                        @if($p->notes)<span>{{ $p->notes }}</span>@endif
+                                                        @if($p->evidence_path)
+                                                            <a href="{{ route('evidence', [$c, $p->id]) }}" style="margin-left: 0.5rem; font-weight: 700; text-decoration: underline;">Bukti Bayar ↗</a>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </div>
                                             @if($admin && $p->status === 'pending')
                                                 <div class="oi-action-group">
@@ -356,7 +374,7 @@
                                     Batalkan Tagihan
                                 @endif
                             </h2>
-                            <p class="muted">Aset: <strong>{{ $selectedCharge->asset?->name ?? '-' }}</strong> · Total Tagihan: Rp{{ number_format($selectedCharge->amount, 0, ',', '.') }}</p>
+                            <p class="muted">Peminjam: <strong>{{ $selectedCharge->borrower?->name ?? 'User #'.$selectedCharge->borrower_id }}</strong> · Aset: <strong>{{ $selectedCharge->asset?->name ?? '-' }}</strong> · Total Tagihan: Rp{{ number_format($selectedCharge->amount, 0, ',', '.') }}</p>
                         </div>
                         <button type="button" class="oi-modal-close" wire:click="closeChargeModal" aria-label="Tutup popup">✕</button>
                     </div>
@@ -392,7 +410,7 @@
                                 </div>
 
                                 <div class="grid two">
-                                    <label>Referensi Transfer (opsional untuk tunai)
+                                    <label>Referensi Transfer {{ $method === 'bank_transfer' && !$operator ? '(wajib jika tidak unggah bukti)' : '(opsional untuk tunai)' }}
                                         <input wire:model="reference" placeholder="No. referensi / rekening">
                                     </label>
                                     <label>Waktu Pembayaran Aktual (kosong = sekarang)
@@ -400,8 +418,12 @@
                                     </label>
                                 </div>
 
-                                <label>Catatan Penerimaan
-                                    <textarea wire:model="paymentNotes" rows="2" placeholder="Contoh: Diterima tunai oleh admin di sekretariat..."></textarea>
+                                <label>Bukti Pembayaran (JPG, PNG, atau PDF maks 2 MB)
+                                    <input type="file" wire:model="evidence" accept="image/jpeg,image/png,application/pdf">
+                                </label>
+
+                                <label>Catatan Penerimaan / Pembayaran
+                                    <textarea wire:model="paymentNotes" rows="2" placeholder="Contoh: Sudah transfer lunas / diterima tunai di sekretariat..."></textarea>
                                 </label>
                             @elseif($chargeModalAction === 'credit')
                                 <label>Nominal Pembebasan / Diskon (Rp)
@@ -417,9 +439,9 @@
                             @endif
 
                             <div class="oi-modal-actions">
-                                <button type="submit" class="primary" wire:loading.attr="disabled">
+                                <button type="submit" class="primary" wire:loading.attr="disabled" wire:target="submitChargeModal,evidence">
                                     @if($chargeModalAction === 'payment')
-                                        Simpan Pembayaran
+                                        {{ $operator ? 'Simpan Pembayaran' : 'Kirim Pembayaran' }}
                                     @elseif($chargeModalAction === 'credit')
                                         Simpan Pembebasan
                                     @else
@@ -571,8 +593,18 @@
                                 </td>
                                 <td>
                                     @if($r->charge)
+                                        @php
+                                            $reportSettlement = $r->charge->settlement;
+                                            [$chargeBadgeLabel, $chargeBadgeClass] = match ($reportSettlement) {
+                                                'paid' => ['Sudah Terbayar (Lunas)', 'oi-tag-green'],
+                                                'waived' => ['Dibebaskan', 'oi-tag-green'],
+                                                'partial' => ['Sebagian Dibayar', 'oi-tag-amber'],
+                                                'unpaid' => ['Tagihan Aktif', 'oi-tag-blue'],
+                                                default => ['Draft', 'oi-tag-amber'],
+                                            };
+                                        @endphp
                                         <div class="oi-table-title">Rp{{ number_format($r->charge->amount, 0, ',', '.') }}</div>
-                                        <span class="oi-tag {{ $r->charge->status === 'issued' ? 'oi-tag-blue' : 'oi-tag-amber' }}">{{ $r->charge->status === 'issued' ? 'Tagihan Aktif' : 'Draft' }}</span>
+                                        <span class="oi-tag {{ $chargeBadgeClass }}">{{ $chargeBadgeLabel }}</span>
                                     @else
                                         <span class="muted">Belum ditetapkan</span>
                                     @endif
@@ -649,17 +681,30 @@
                             </div>
                         @endif
 
+                        @php
+                            $selectedChargeSettlement = $selectedReport->charge?->settlement;
+                            $chargeLocked = $selectedReport->charge !== null && $selectedReport->charge->status === 'issued';
+                            $chargeSettled = $chargeLocked && in_array($selectedChargeSettlement, ['paid', 'waived'], true);
+                            $selectedChargeStatusText = match ($selectedChargeSettlement) {
+                                'paid' => 'Sudah Terbayar (Lunas)',
+                                'waived' => 'Dibebaskan (Waived)',
+                                'partial' => 'Sebagian Dibayar · Sisa Rp'.number_format($selectedReport->charge->balance, 0, ',', '.'),
+                                'unpaid' => 'Sudah Diterbitkan ke Peminjam',
+                                default => 'Draft - Menunggu Penerbitan',
+                            };
+                        @endphp
+
                         @if($selectedReport->charge)
                             <div class="notice">
                                 <strong>Biaya Kerusakan Terdaftar:</strong> Rp{{ number_format($selectedReport->charge->amount, 0, ',', '.') }}
-                                ({{ $selectedReport->charge->status === 'issued' ? 'Sudah Diterbitkan ke Peminjam' : 'Draft - Menunggu Penerbitan' }})
+                                ({{ $selectedChargeStatusText }})
                                 <br><small>Keterangan: {{ $selectedReport->charge->reason }}</small>
                             </div>
                         @endif
 
                         @if($operator && !$org->archived_at)
                             <form wire:submit="saveReportDecision" class="oi-modal-form">
-                                @if($selectedReport->status === 'open' || $giveChargeOption)
+                                @if($selectedReport->status === 'open' || ($giveChargeOption && !$chargeLocked))
                                     <label>Tingkat Kerusakan (Severity)
                                         <select wire:model="severity">
                                             <option value="minor">Ringan (Minor)</option>
@@ -679,51 +724,64 @@
                                     </div>
                                 @endif
 
-                                <div class="oi-charge-toggle-box">
-                                    <label class="oi-checkbox-card">
-                                        <input type="checkbox" wire:model.live="giveChargeOption">
-                                        <span><strong>Tetapkan Biaya Kerusakan / Ganti Rugi kepada Peminjam</strong></span>
-                                    </label>
+                                @if($chargeLocked)
+                                    <div class="oi-report-detail-box">
+                                        <h3>Status Tagihan Terkunci</h3>
+                                        <p class="muted" style="margin: 0;">
+                                            @if($chargeSettled)
+                                                Tagihan untuk laporan ini <strong>sudah terbayar / dibebaskan</strong> dan tidak dapat diubah atau ditagihkan ulang.
+                                            @else
+                                                Tagihan untuk laporan ini <strong>sudah diterbitkan</strong> sehingga nominalnya terkunci. Kelola pembayaran atau pembebasan melalui menu <strong>Tagihan</strong>.
+                                            @endif
+                                        </p>
+                                    </div>
+                                @else
+                                    <div class="oi-charge-toggle-box">
+                                        <label class="oi-checkbox-card">
+                                            <input type="checkbox" wire:model.live="giveChargeOption">
+                                            <span><strong>Tetapkan Biaya Kerusakan / Ganti Rugi kepada Peminjam</strong></span>
+                                        </label>
 
-                                    @if($giveChargeOption)
-                                        <div class="oi-charge-form-fields">
-                                            <div class="grid two">
-                                                <label>Peminjaman Terkait
-                                                    <select wire:model="borrowingId">
-                                                        <option value="0">Otomatis kaitkan peminjaman aset ini</option>
-                                                        @foreach($selectedReportBorrowings as $b)
-                                                            <option value="{{ $b->id }}">#{{ $b->id }} · {{ $b->borrower?->name }} ({{ $b->borrow_date->format('d M Y') }})</option>
-                                                        @endforeach
-                                                    </select>
+                                        @if($giveChargeOption)
+                                            <div class="oi-charge-form-fields">
+                                                <div class="grid two">
+                                                    <label>Peminjaman Terkait
+                                                        <select wire:model="borrowingId">
+                                                            <option value="0">Otomatis kaitkan peminjaman aset ini</option>
+                                                            @foreach($selectedReportBorrowings as $b)
+                                                                <option value="{{ $b->id }}">#{{ $b->id }} · {{ $b->borrower?->name }} ({{ $b->borrow_date->format('d M Y') }})</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </label>
+                                                    <label>Jenis Tagihan
+                                                        <select wire:model="chargeType">
+                                                            <option value="damage">Biaya Kerusakan (Damage)</option>
+                                                            <option value="loss">Ganti Rugi Kehilangan (Loss)</option>
+                                                        </select>
+                                                    </label>
+                                                </div>
+
+                                                <label>Nominal Biaya Kerusakan (Rp)
+                                                    <input type="number" min="1" wire:model="amount" placeholder="Contoh: 150000" required>
                                                 </label>
-                                                <label>Jenis Tagihan
-                                                    <select wire:model="chargeType">
-                                                        <option value="damage">Biaya Kerusakan (Damage)</option>
-                                                        <option value="loss">Ganti Rugi Kehilangan (Loss)</option>
-                                                    </select>
+
+                                                <label>Rincian / Alasan Biaya Kerusakan (minimal 10 karakter)
+                                                    <textarea wire:model="reason" rows="2" placeholder="Jelaskan rincian komponen yang rusak dan dasar perhitungan biaya..." required></textarea>
+                                                </label>
+
+                                                <label>Lampiran Bukti Tambahan (opsional jika foto laporan sudah ada, JPG/PNG/PDF maks 2 MB)
+                                                    <input type="file" wire:model="evidence" accept="image/jpeg,image/png,application/pdf">
                                                 </label>
                                             </div>
-
-                                            <label>Nominal Biaya Kerusakan (Rp)
-                                                <input type="number" min="1" wire:model="amount" placeholder="Contoh: 150000" required>
-                                            </label>
-
-                                            <label>Rincian / Alasan Biaya Kerusakan (minimal 10 karakter)
-                                                <textarea wire:model="reason" rows="2" placeholder="Jelaskan rincian komponen yang rusak dan dasar perhitungan biaya..." required></textarea>
-                                            </label>
-
-                                            <label>Lampiran Bukti Tambahan (opsional jika foto laporan sudah ada, JPG/PNG/PDF maks 2 MB)
-                                                <input type="file" wire:model="evidence" accept="image/jpeg,image/png,application/pdf">
-                                            </label>
-                                        </div>
-                                    @endif
-                                </div>
+                                        @endif
+                                    </div>
+                                @endif
 
                                 <div class="oi-modal-actions">
-                                    @if($selectedReport->status === 'open' || $giveChargeOption)
+                                    @if($selectedReport->status === 'open' || ($giveChargeOption && !$chargeLocked))
                                         <button type="submit" class="primary" wire:loading.attr="disabled" wire:target="saveReportDecision,evidence">
                                             <span wire:loading.remove wire:target="saveReportDecision">
-                                                {{ $giveChargeOption ? 'Simpan & Tetapkan Biaya Kerusakan' : 'Simpan Penilaian Laporan' }}
+                                                {{ $giveChargeOption && !$chargeLocked ? 'Simpan & Tetapkan Biaya Kerusakan' : 'Simpan Penilaian Laporan' }}
                                             </span>
                                             <span wire:loading wire:target="saveReportDecision">Menyimpan...</span>
                                         </button>

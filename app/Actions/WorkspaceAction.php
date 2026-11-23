@@ -46,6 +46,8 @@ abstract class WorkspaceAction
         $title = match ($event) {
             'membership.joined' => 'Anggota baru bergabung',
             'membership.changed' => 'Keanggotaan diperbarui',
+            'borrowing.return_requested' => 'Pengajuan pengembalian aset dari peminjam',
+            'charge.payment' => 'Pembayaran tagihan menunggu konfirmasi',
             default => $event,
         };
         // Membership changes notify administrators and the affected member only;
