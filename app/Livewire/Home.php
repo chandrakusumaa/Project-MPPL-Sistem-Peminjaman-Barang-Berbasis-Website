@@ -18,6 +18,8 @@ class Home extends Component
     #[Url(except: 'mine')]
     public string $listing = 'mine';
 
+    public string $filterRole = 'all';
+
     public string $filterCategory = '';
 
     public string $name = '';
@@ -30,6 +32,12 @@ class Home extends Component
 
     #[Url(as: 'create', except: false)]
     public bool $creating = false;
+
+    public function setFilterRole(string $role): void
+    {
+        $this->filterRole = $role;
+        $this->resetPage();
+    }
 
     public function showListing(string $listing): void
     {
@@ -102,12 +110,34 @@ class Home extends Component
 
     public function render()
     {
+        $userId = auth()->id();
+        $memberships = auth()->check()
+            ? Membership::where('user_id', $userId)->where('status', 'active')->get()
+            : collect();
+
+        $allCount = $memberships->count();
+        $adminCount = $memberships->where('role', 'admin')->count();
+        $operatorCount = $memberships->where('role', 'operator')->count();
+        $memberCount = $memberships->where('role', 'member')->count();
+
+        $filteredMembershipOrgIds = $memberships
+            ->when($this->filterRole !== 'all', fn ($c) => $c->where('role', $this->filterRole))
+            ->pluck('organization_id');
+
+        $organizations = Organization::query()
+            ->whereIn('id', $filteredMembershipOrgIds)
+            ->when($this->search, fn ($q) => $q->where('name', 'like', '%'.$this->search.'%'))
+            ->withCount(['assets', 'memberships' => fn ($q) => $q->where('status', 'active')])
+            ->latest('id')
+            ->paginate(12);
+
         return view('livewire.home', [
-            'organizations' => Organization::query()
-                ->when($this->listing === 'mine', fn ($query) => $query->whereIn('id', Membership::where('user_id', auth()->id())->where('status', 'active')->select('organization_id')), fn ($query) => $query->whereNull('archived_at'))
-                ->when($this->filterCategory, fn ($query) => $query->where('category', $this->filterCategory))
-                ->where('name', 'like', '%'.$this->search.'%')->withCount('assets')->latest('id')->paginate(12),
-            'memberships' => auth()->check() ? Membership::where('user_id', auth()->id())->get()->keyBy('organization_id') : collect(),
+            'organizations' => $organizations,
+            'memberships' => $memberships->keyBy('organization_id'),
+            'allCount' => $allCount,
+            'adminCount' => $adminCount,
+            'operatorCount' => $operatorCount,
+            'memberCount' => $memberCount,
         ])->layout('components.layout', ['context' => 'account', 'showFeedback' => false]);
     }
 }

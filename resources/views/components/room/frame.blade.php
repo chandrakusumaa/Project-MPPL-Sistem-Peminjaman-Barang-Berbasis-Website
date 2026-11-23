@@ -1,11 +1,51 @@
 @props(['org', 'operator', 'admin', 'tab', 'livewireNavigation' => true, 'showFeedback' => true])
-<div class="oi-room" x-data="{ menuOpen: false }" @oi-review-borrowing.window="$nextTick(() => document.getElementById('oi-borrowing-' + $event.detail.id)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))" @keydown.escape.window="menuOpen = false" @oi-focus-field.window="$nextTick(() => { const field = document.getElementById('oi-' + $event.detail.field); if (field) { field.focus(); field.scrollIntoView({ block: 'center', behavior: 'smooth' }); } })">
-    <x-room.topbar />
-    <button type="button" class="oi-sidebar-backdrop" x-cloak x-show="menuOpen" @click="menuOpen = false" aria-label="Tutup menu Organization" tabindex="-1"></button>
-    <div class="oi-app-layout">
-        <x-room.sidebar :org="$org" :operator="$operator" :admin="$admin" :tab="$tab" :livewire-navigation="$livewireNavigation" />
-        <main class="oi-main" id="room-content">
-            <div class="oi-context"><span><b>{{ $org->name }}</b> · Peran {{ $admin ? 'ADMIN' : ($operator ? 'STAFF' : 'MEMBER') }} pada Organization ini</span><a href="{{ route('dashboard') }}">← Dashboard pribadi</a></div>
+<div class="app-wrapper oi-room" @oi-review-borrowing.window="$nextTick(() => document.getElementById('oi-borrowing-' + $event.detail.id)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))" @oi-focus-field.window="$nextTick(() => { const field = document.getElementById('oi-' + $event.detail.field); if (field) { field.focus(); field.scrollIntoView({ block: 'center', behavior: 'smooth' }); } })" style="background: transparent; min-height: 100vh;">
+    <!-- Elemen Backdrop untuk menutup sidebar saat klik di luar (khusus mobile) -->
+    <div class="sidebar-backdrop" onclick="toggleSidebar()"></div>
+    
+    <x-room.sidebar :org="$org" :operator="$operator" :admin="$admin" :tab="$tab" :livewire-navigation="$livewireNavigation" />
+    
+    <div class="app-main" style="background-color: transparent;">
+        <!-- TOPBAR (SESUAI FOTO 1 & 2) -->
+        <header class="app-topbar" style="height: 64px; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 20;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button onclick="toggleSidebar()" class="btn-toggle-sidebar" title="Buka / Tutup Sidebar">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                    <span style="font-size: 1.125rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">{{ $org->name }}</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 0.6875rem; font-weight: 800; color: #475467; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.35rem 0.75rem; border-radius: 9999px; text-transform: uppercase;">
+                    LIHAT SEBAGAI: {{ $admin ? 'ADMIN' : ($operator ? 'STAFF' : 'MEMBER') }}
+                </span>
+
+                @if(!$operator)
+                    <button type="button" class="btn-maroon" style="padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 700;" wire:click="$set('tab', 'inventory')">
+                        + Ajukan Pinjam
+                    </button>
+                @else
+                    @if($tab === 'inventory')
+                        <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.45rem 0.85rem; font-size: 0.75rem; font-weight: 700;" wire:click="openCategoryForm">
+                            + Tambah Kategori
+                        </button>
+                    @endif
+                    <button type="button" class="pill-btn" style="background: #0f172a; color: #ffffff; padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 9999px; border: none; cursor: pointer;" wire:click="openAssetForm">
+                        + Tambah Aset
+                    </button>
+                @endif
+
+                <a href="{{ route('notifications') }}" style="position: relative; width: 36px; height: 36px; border-radius: 9999px; border: 1px solid #e2e8f0; background: #ffffff; display: flex; align-items: center; justify-content: center; color: #64748b; text-decoration: none;" title="Notifikasi">
+                    <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    <span style="position: absolute; top: 7px; right: 8px; width: 7px; height: 7px; border-radius: 9999px; background: #80142B; border: 1.5px solid #ffffff;"></span>
+                </a>
+            </div>
+        </header>
+
+        <!-- MAIN BODY SELALU CENTER / DI TENGAH SESUAI FOTO 1 & 2 -->
+        <main class="oi-main page-container" id="room-content" style="flex: 1; padding: 2rem 2.25rem 3.5rem 2.25rem; max-width: 1240px; width: 100%; margin-left: auto; margin-right: auto; box-sizing: border-box;">
             @if($showFeedback)<x-feedback />@endif
             {{ $slot }}
         </main>

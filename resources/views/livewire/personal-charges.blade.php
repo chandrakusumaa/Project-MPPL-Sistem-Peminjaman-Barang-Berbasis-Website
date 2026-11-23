@@ -1,51 +1,214 @@
-<div class="oi-personal-charges" wire:poll.30s>
+<div class="oi-personal-charges" wire:poll.30s style="max-width: 72rem; margin: 0 auto; padding-bottom: 3rem;">
     @php
-        $chargeTypes = ['late_fee' => 'Denda keterlambatan', 'damage' => 'Biaya kerusakan', 'loss' => 'Penggantian kehilangan'];
-        $settlements = ['unpaid' => 'Belum dibayar', 'partial' => 'Sebagian dibayar', 'paid' => 'Lunas', 'waived' => 'Dibebaskan', 'draft' => 'Draft', 'cancelled' => 'Dibatalkan'];
-        $paymentLabels = ['pending' => 'Menunggu verifikasi', 'confirmed' => 'Terkonfirmasi', 'rejected' => 'Ditolak', 'voided' => 'Dibatalkan'];
-        $methods = ['cash' => 'Tunai', 'bank_transfer' => 'Transfer bank', 'other' => 'Lainnya'];
+        $chargeTypes = ['late_fee' => 'Denda Keterlambatan', 'damage' => 'Biaya Kerusakan', 'loss' => 'Penggantian Kehilangan'];
+        $settlements = ['unpaid' => 'Belum Dibayar', 'partial' => 'Sebagian Dibayar', 'paid' => 'Lunas', 'waived' => 'Dibebaskan', 'draft' => 'Draft Usulan', 'cancelled' => 'Dibatalkan'];
+        $paymentLabels = ['pending' => 'Menunggu Verifikasi Admin', 'confirmed' => 'Terkonfirmasi Lunas', 'rejected' => 'Ditolak', 'voided' => 'Dibatalkan'];
+        $methods = ['cash' => 'Tunai', 'bank_transfer' => 'Transfer Bank Manual', 'other' => 'Lainnya'];
     @endphp
-    <div class="oi-page-head"><div><h1>Tagihan Saya</h1><p>Ringkasan tagihan, denda, dan riwayat pembayaranmu di semua Organization.</p></div><a class="oi-btn oi-secondary" href="{{ route('personal.borrowings') }}">Lihat peminjaman →</a></div>
-    <div class="oi-stats oi-finance-stats">
-        <x-room.stat label="Total tagihan" :value="$summary->total" prefix="Rp" note="Tagihan yang sudah diterbitkan" icon="layers" />
-        <x-room.stat label="Sudah dibayar" :value="$summary->paid" prefix="Rp" note="Pembayaran terkonfirmasi" icon="check" />
-        <x-room.stat label="Sisa tagihan" :value="$summary->outstanding" prefix="Rp" note="Jumlah yang belum lunas" icon="clock" />
-        <x-room.stat label="Pembebasan" :value="$summary->credited" prefix="Rp" note="Pengurangan tagihan oleh pengelola" icon="report" />
-    </div>
-    @if($pendingPayments > 0)<div class="oi-payment-notice" role="status"><x-icon name="clock" /><span>Pembayaran <strong>Rp{{ number_format($pendingPayments, 0, ',', '.') }}</strong> menunggu verifikasi pengelola. Sisa tagihan berkurang setelah pembayaran dikonfirmasi.</span></div>@endif
-    <section class="oi-panel" aria-labelledby="charges-heading">
-        <div class="oi-panel-head"><div><h2 id="charges-heading">Daftar tagihan & denda</h2><p class="oi-panel-caption">Lihat keterangan serta status pembayaran setiap tagihan.</p></div></div>
-        <div class="oi-filters">
-            <label>Status tagihan<select class="oi-select" aria-label="Status tagihan" wire:model.live="status"><option value="">Semua status</option><option value="outstanding">Belum lunas</option><option value="paid">Lunas</option><option value="waived">Dibebaskan</option><option value="draft">Draft</option><option value="cancelled">Dibatalkan</option></select></label>
-            <label>Jenis tagihan<select class="oi-select" aria-label="Jenis tagihan" wire:model.live="type"><option value="">Semua jenis</option>@foreach($chargeTypes as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach</select></label>
+
+    <!-- PAGE HEAD -->
+    <div class="oi-page-head" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <div>
+            <h1 style="font-size: 1.75rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em; margin: 0 0 0.375rem 0;">
+                Tagihan & Denda Saya
+            </h1>
+            <p style="font-size: 0.875rem; color: #64748b; margin: 0;">
+                Ringkasan kewajiban denda keterlambatan, biaya kerusakan, dan verifikasi pembayaran manual di seluruh komunitas.
+            </p>
         </div>
-        <div wire:loading.delay role="status" class="oi-loading">Memuat tagihan…</div>
-        <div class="oi-table-wrap"><table class="oi-table oi-charges-table"><thead><tr><th>Tagihan & keterangan</th><th>Organization / aset</th><th>Nominal</th><th>Dibayar</th><th>Sisa</th><th>Status</th></tr></thead><tbody>
-            @forelse($charges as $charge)
-                @php($settlement = $charge->settlement)
-                <tr wire:key="personal-charge-{{ $charge->id }}">
-                    <td><div class="oi-table-title">#{{ $charge->id }} · {{ $chargeTypes[$charge->charge_type] }}</div><p class="oi-charge-description">{{ $charge->reason }}</p><details class="oi-charge-details"><summary>Dasar tagihan</summary><p>{{ $charge->policy_basis }}</p>@foreach($charge->credits as $credit)<p>Pembebasan Rp{{ number_format($credit->amount, 0, ',', '.') }}: {{ $credit->reason }}</p>@endforeach @if($charge->cancellation_reason)<p>Alasan pembatalan: {{ $charge->cancellation_reason }}</p>@endif</details></td>
-                    <td><div class="oi-table-title">{{ $charge->organization->name }}</div><div class="oi-table-sub">{{ $charge->asset->name }}</div></td>
-                    <td class="oi-money">Rp{{ number_format($charge->amount, 0, ',', '.') }}</td><td class="oi-money">Rp{{ number_format($charge->payments->where('status', 'confirmed')->sum('amount'), 0, ',', '.') }}</td>
-                    <td class="oi-money">{{ $charge->status === 'issued' ? 'Rp'.number_format($charge->balance, 0, ',', '.') : '—' }}</td>
-                    <td><span class="oi-tag {{ in_array($settlement, ['paid', 'waived']) ? 'oi-tag-green' : (in_array($settlement, ['unpaid', 'partial']) ? 'oi-tag-amber' : '') }}">{{ $settlements[$settlement] }}</span></td>
-                </tr>
-            @empty
-                <tr><td colspan="6"><div class="oi-empty"><x-icon name="layers" :size="28" /><h3>Belum ada tagihan{{ $status || $type ? ' yang sesuai filter' : '' }}</h3><p>Tagihan denda, kerusakan, atau kehilangan akan tampil beserta keterangannya.</p></div></td></tr>
-            @endforelse
-        </tbody></table></div>
-        @if($charges->hasPages())<div class="oi-pagination">{{ $charges->links() }}</div>@endif
+        <div class="oi-head-actions">
+            <a class="pill-btn btn-secondary-light" style="font-size: 0.8125rem; padding: 0.5rem 1rem;" href="{{ route('personal.borrowings') }}">
+                Lihat Peminjaman &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 STAT METRIC CARDS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem;">
+            <span style="font-size: 0.8125rem; font-weight: 700; color: #64748b; display: block; margin-bottom: 0.5rem;">Total Tagihan</span>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em;">Rp{{ number_format($summary->total, 0, ',', '.') }}</div>
+            <p style="font-size: 0.75rem; color: #94a3b8; margin: 0.25rem 0 0 0;">Tagihan resmi diterbitkan Admin</p>
+        </div>
+
+        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem;">
+            <span style="font-size: 0.8125rem; font-weight: 700; color: #059669; display: block; margin-bottom: 0.5rem;">Sudah Terkonfirmasi</span>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #059669; letter-spacing: -0.03em;">Rp{{ number_format($summary->paid, 0, ',', '.') }}</div>
+            <p style="font-size: 0.75rem; color: #94a3b8; margin: 0.25rem 0 0 0;">Pembayaran diverifikasi lunas</p>
+        </div>
+
+        <div class="feature-card card-accent-red" style="padding: 1.5rem; border-radius: 1.25rem;">
+            <span style="font-size: 0.8125rem; font-weight: 700; color: #dc2626; display: block; margin-bottom: 0.5rem;">Sisa Kewajiban</span>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #dc2626; letter-spacing: -0.03em;">Rp{{ number_format($summary->outstanding, 0, ',', '.') }}</div>
+            <p style="font-size: 0.75rem; color: #64748b; margin: 0.25rem 0 0 0;">Jumlah yang belum lunas</p>
+        </div>
+
+        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem;">
+            <span style="font-size: 0.8125rem; font-weight: 700; color: #64748b; display: block; margin-bottom: 0.5rem;">Pembebasan (Waived)</span>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #334155; letter-spacing: -0.03em;">Rp{{ number_format($summary->credited, 0, ',', '.') }}</div>
+            <p style="font-size: 0.75rem; color: #94a3b8; margin: 0.25rem 0 0 0;">Denda dimaafkan oleh Admin</p>
+        </div>
+    </div>
+
+    <!-- ALERT BANNER PEMBAYARAN MENUNGGU VERIFIKASI -->
+    @if($pendingPayments > 0)
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; color: #92400e; font-size: 0.8125rem;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>
+                Pembayaran transfer sebesar <strong>Rp{{ number_format($pendingPayments, 0, ',', '.') }}</strong> sedang menunggu verifikasi Admin komunitas. Sisa tagihan Anda akan berkurang secara otomatis begitu Admin mengonfirmasi resi transfer Anda.
+            </span>
+        </div>
+    @endif
+
+    <!-- SECTION 1: DAFTAR TAGIHAN -->
+    <section class="feature-card" style="padding: 1.75rem; margin-bottom: 2.5rem;" aria-labelledby="charges-heading">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 id="charges-heading" style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0;">Daftar Tagihan & Denda</h2>
+                <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Rincian biaya denda dan status pelunasan.</p>
+            </div>
+            
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <select class="form-input" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8125rem;" wire:model.live="status" aria-label="Status tagihan">
+                    <option value="">Semua Status</option>
+                    <option value="outstanding">Belum Lunas</option>
+                    <option value="paid">Lunas</option>
+                    <option value="waived">Dibebaskan (Waived)</option>
+                    <option value="draft">Draft Usulan</option>
+                    <option value="cancelled">Dibatalkan</option>
+                </select>
+
+                <select class="form-input" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8125rem;" wire:model.live="type" aria-label="Jenis tagihan">
+                    <option value="">Semua Jenis</option>
+                    @foreach($chargeTypes as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <div wire:loading.delay role="status" style="font-size: 0.8125rem; color: #dc2626; margin-bottom: 0.5rem; font-weight: 600;">Memuat tagihan…</div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8125rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.75rem;">
+                        <th style="padding: 0.75rem 1rem;">No & Jenis Biaya</th>
+                        <th style="padding: 0.75rem 1rem;">Komunitas / Aset</th>
+                        <th style="padding: 0.75rem 1rem;">Total Biaya</th>
+                        <th style="padding: 0.75rem 1rem;">Terkonfirmasi</th>
+                        <th style="padding: 0.75rem 1rem;">Sisa Tagihan</th>
+                        <th style="padding: 0.75rem 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($charges as $charge)
+                        @php($settlement = $charge->settlement)
+                        <tr wire:key="personal-charge-{{ $charge->id }}" style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 1rem;">
+                                <strong style="color: #0f172a; display: block;">#{{ $charge->id }} · {{ $chargeTypes[$charge->charge_type] }}</strong>
+                                <span style="font-size: 0.75rem; color: #64748b;">{{ $charge->reason }}</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <strong style="color: #334155; display: block;">{{ $charge->organization->name }}</strong>
+                                <small style="color: #94a3b8;">{{ $charge->asset->name }}</small>
+                            </td>
+                            <td style="padding: 1rem; font-weight: 700; color: #0f172a;">Rp{{ number_format($charge->amount, 0, ',', '.') }}</td>
+                            <td style="padding: 1rem; color: #059669; font-weight: 600;">Rp{{ number_format($charge->payments->where('status', 'confirmed')->sum('amount'), 0, ',', '.') }}</td>
+                            <td style="padding: 1rem; font-weight: 800; color: #dc2626;">{{ $charge->status === 'issued' ? 'Rp'.number_format($charge->balance, 0, ',', '.') : '—' }}</td>
+                            <td style="padding: 1rem;">
+                                <span class="micro-badge {{ in_array($settlement, ['paid', 'waived']) ? 'micro-badge-green' : (in_array($settlement, ['unpaid', 'partial']) ? 'micro-badge-red' : '') }}">
+                                    {{ $settlements[$settlement] }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: #94a3b8;">
+                                <p style="font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">Tidak ada tagihan{{ $status || $type ? ' yang sesuai filter' : '' }}</p>
+                                <p style="font-size: 0.75rem; margin: 0;">Tagihan denda keterlambatan atau kerusakan akan tercatat di sini.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($charges->hasPages())
+            <div style="margin-top: 1.25rem;">{{ $charges->links() }}</div>
+        @endif
     </section>
-    <section class="oi-panel" aria-labelledby="payments-heading">
-        <div class="oi-panel-head"><div><h2 id="payments-heading">Riwayat pembayaran</h2><p class="oi-panel-caption">Pembayaran terkonfirmasi, menunggu verifikasi, ditolak, dan dibatalkan.</p></div></div>
-        <div class="oi-filters"><label>Status pembayaran<select class="oi-select" aria-label="Status pembayaran" wire:model.live="paymentStatus"><option value="">Semua pembayaran</option>@foreach($paymentLabels as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach</select></label></div>
-        <div class="oi-table-wrap"><table class="oi-table oi-payments-table"><thead><tr><th>Tanggal pembayaran</th><th>Tagihan / Organization</th><th>Nominal</th><th>Metode & keterangan</th><th>Status</th></tr></thead><tbody>
-            @forelse($payments as $payment)
-                <tr wire:key="personal-payment-{{ $payment->id }}"><td>{{ $payment->paid_at->timezone('Asia/Jakarta')->format('d M Y') }}<div class="oi-table-sub">{{ $payment->paid_at->timezone('Asia/Jakarta')->format('H:i') }} WIB</div></td><td><div class="oi-table-title">#{{ $payment->charge_id }} · {{ $chargeTypes[$payment->charge->charge_type] }}</div><div class="oi-table-sub">{{ $payment->charge->organization->name }} · {{ $payment->charge->asset->name }}</div></td><td class="oi-money">Rp{{ number_format($payment->amount, 0, ',', '.') }}</td><td>{{ $methods[$payment->method] }}<p class="oi-charge-description">{{ $payment->notes ?: $payment->reference }}</p>@if($payment->rejection_reason || $payment->void_reason)<div class="oi-table-sub">{{ $payment->rejection_reason ?: $payment->void_reason }}</div>@endif</td><td><span class="oi-tag {{ $payment->status === 'confirmed' ? 'oi-tag-green' : ($payment->status === 'pending' ? 'oi-tag-amber' : 'oi-tag-red') }}">{{ $paymentLabels[$payment->status] }}</span></td></tr>
-            @empty
-                <tr><td colspan="5"><div class="oi-empty"><x-icon name="clock" :size="28" /><h3>Belum ada pembayaran{{ $paymentStatus ? ' dengan status ini' : '' }}</h3><p>Pembayaran yang dicatat pengelola Organization akan muncul di sini.</p></div></td></tr>
-            @endforelse
-        </tbody></table></div>
-        @if($payments->hasPages())<div class="oi-pagination">{{ $payments->links() }}</div>@endif
+
+    <!-- SECTION 2: RIWAYAT PEMBAYARAN TRANSFER MANUAL -->
+    <section class="feature-card" style="padding: 1.75rem;" aria-labelledby="payments-heading">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 id="payments-heading" style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0;">Riwayat Pembayaran Manual</h2>
+                <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Catatan bukti transfer manual yang Anda kirimkan ke Admin.</p>
+            </div>
+            
+            <div>
+                <select class="form-input" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8125rem;" wire:model.live="paymentStatus" aria-label="Status pembayaran">
+                    <option value="">Semua Pembayaran</option>
+                    @foreach($paymentLabels as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8125rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.75rem;">
+                        <th style="padding: 0.75rem 1rem;">Waktu Transfer</th>
+                        <th style="padding: 0.75rem 1rem;">Tagihan & Komunitas</th>
+                        <th style="padding: 0.75rem 1rem;">Nominal Bayar</th>
+                        <th style="padding: 0.75rem 1rem;">Metode / Keterangan</th>
+                        <th style="padding: 0.75rem 1rem;">Status Verifikasi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($payments as $payment)
+                        <tr wire:key="personal-payment-{{ $payment->id }}" style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 1rem; color: #334155;">
+                                <strong>{{ $payment->paid_at->timezone('Asia/Jakarta')->format('d M Y') }}</strong>
+                                <small style="display: block; color: #94a3b8;">{{ $payment->paid_at->timezone('Asia/Jakarta')->format('H:i') }} WIB</small>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <strong style="color: #0f172a; display: block;">#{{ $payment->charge_id }} · {{ $chargeTypes[$payment->charge->charge_type] }}</strong>
+                                <small style="color: #64748b;">{{ $payment->charge->organization->name }} · {{ $payment->charge->asset->name }}</small>
+                            </td>
+                            <td style="padding: 1rem; font-weight: 800; color: #0f172a;">Rp{{ number_format($payment->amount, 0, ',', '.') }}</td>
+                            <td style="padding: 1rem; color: #64748b;">
+                                <span>{{ $methods[$payment->method] }}</span>
+                                @if($payment->notes || $payment->reference)
+                                    <small style="display: block; color: #94a3b8;">{{ $payment->notes ?: $payment->reference }}</small>
+                                @endif
+                                @if($payment->rejection_reason || $payment->void_reason)
+                                    <small style="display: block; color: #dc2626; font-weight: 600;">Alasan: {{ $payment->rejection_reason ?: $payment->void_reason }}</small>
+                                @endif
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="micro-badge {{ $payment->status === 'confirmed' ? 'micro-badge-green' : ($payment->status === 'pending' ? 'micro-badge-yellow' : 'micro-badge-red') }}">
+                                    {{ $paymentLabels[$payment->status] }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2.5rem 1rem; color: #94a3b8;">
+                                <p style="font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">Belum ada riwayat pembayaran{{ $paymentStatus ? ' dengan status ini' : '' }}</p>
+                                <p style="font-size: 0.75rem; margin: 0;">Pembayaran yang dikonfirmasi Admin akan tercatat di sini.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($payments->hasPages())
+            <div style="margin-top: 1.25rem;">{{ $payments->links() }}</div>
+        @endif
     </section>
 </div>

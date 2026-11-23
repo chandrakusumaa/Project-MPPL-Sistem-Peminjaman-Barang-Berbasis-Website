@@ -11,3 +11,53 @@ document.addEventListener('livewire:navigated',setup);
 let refreshTimer;
 function watchUpdates(){window.Livewire.hook('morph.updated',()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(setup,0);});}
 if(window.Livewire)watchUpdates();else document.addEventListener('livewire:init',watchUpdates);
+
+// Mobbin Landing & UI Helpers
+function initMobbinUI() {
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  const stickyNavbar = document.querySelector('.sticky-navbar');
+
+  const handleScroll = () => {
+    const scrollPos = window.scrollY || document.documentElement.scrollTop;
+    if (scrollPos > 120) {
+      backToTopBtn?.classList.add('is-visible');
+    } else {
+      backToTopBtn?.classList.remove('is-visible');
+    }
+    if (scrollPos > 40) {
+      stickyNavbar?.classList.add('scrolled');
+    } else {
+      stickyNavbar?.classList.remove('scrolled');
+    }
+  };
+
+  window.removeEventListener('scroll', handleScroll);
+  window.addEventListener('scroll', handleScroll, { passive: true });
+
+  backToTopBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+document.addEventListener('DOMContentLoaded', initMobbinUI);
+document.addEventListener('livewire:navigated', initMobbinUI);
+
+// Sidebar Toggle Function & Shortcut
+window.toggleSidebar = function toggleSidebar() {
+  const wrapper = document.querySelector('.app-wrapper');
+  const sidebar = document.querySelector('.app-sidebar');
+  const backdrop = document.querySelector('.sidebar-backdrop');
+
+  if (window.innerWidth > 1024) {
+    if (wrapper) wrapper.classList.toggle('sidebar-collapsed');
+  } else {
+    if (sidebar) sidebar.classList.toggle('is-open');
+    if (backdrop) backdrop.classList.toggle('is-active', sidebar.classList.contains('is-open'));
+  }
+};
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+    e.preventDefault();
+    if (window.toggleSidebar) window.toggleSidebar();
+  }
+});
