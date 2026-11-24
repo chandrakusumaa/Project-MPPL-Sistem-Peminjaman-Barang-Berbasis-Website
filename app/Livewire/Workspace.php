@@ -232,6 +232,8 @@ class Workspace extends Component
 
     public string $settingPolicy = '';
 
+    public string $settingPaymentAccount = '';
+
     public int $maxDays = 7;
 
     public int $dailyFine = 0;
@@ -559,8 +561,20 @@ class Workspace extends Component
 
     public function settings(): void
     {
-        $this->validate(['settingName' => 'required|string|max:150', 'settingPolicy' => 'nullable|string|max:10000', 'maxDays' => 'required|integer|min:1|max:365', 'dailyFine' => 'required|integer|min:0|max:999999999999']);
-        app(ManageMembers::class)->settings(auth()->user(), $this->org(), ['name' => $this->settingName, 'damage_charge_policy' => $this->settingPolicy ?: null, 'max_borrow_days' => $this->maxDays, 'late_fine_per_day' => $this->dailyFine]);
+        $this->validate([
+            'settingName' => 'required|string|max:150',
+            'settingPolicy' => 'nullable|string|max:10000',
+            'settingPaymentAccount' => 'nullable|string|max:255',
+            'maxDays' => 'required|integer|min:1|max:365',
+            'dailyFine' => 'required|integer|min:0|max:999999999999',
+        ]);
+        app(ManageMembers::class)->settings(auth()->user(), $this->org(), [
+            'name' => $this->settingName,
+            'damage_charge_policy' => $this->settingPolicy ?: null,
+            'payment_account' => trim($this->settingPaymentAccount) ?: null,
+            'max_borrow_days' => $this->maxDays,
+            'late_fine_per_day' => $this->dailyFine,
+        ]);
         $this->success();
     }
 
@@ -587,6 +601,7 @@ class Workspace extends Component
         $this->organizationId = $organization->id;
         $this->settingName = $organization->name;
         $this->settingPolicy = $organization->damage_charge_policy ?? '';
+        $this->settingPaymentAccount = $organization->payment_account ?? '';
         $this->maxDays = $organization->max_borrow_days;
         $this->dailyFine = (int) $organization->late_fine_per_day;
         $this->idempotencyKey = (string) Str::uuid();

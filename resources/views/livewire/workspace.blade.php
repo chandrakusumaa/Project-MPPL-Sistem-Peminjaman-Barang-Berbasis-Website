@@ -23,7 +23,7 @@
                     </span>
                 </div>
                 <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0.35rem 0 0 0;">
-                    {{ $org->description ? Str::limit($org->description, 60) . ' · ' : '' }}Maks Pinjam: <strong style="font-weight: 700; color: #0f172a;">{{ $org->max_borrow_days }} Hari</strong> · Denda: <strong style="font-weight: 700; color: #0f172a;">Rp {{ number_format($org->late_fine_per_day, 0, ',', '.') }}/hari</strong>
+                    {{ $org->description ? Str::limit($org->description, 60) . ' · ' : '' }}Maks Pinjam: <strong style="font-weight: 700; color: #0f172a;">{{ $org->max_borrow_days }} Hari</strong> · Denda: <strong style="font-weight: 700; color: #0f172a;">Rp {{ number_format($org->late_fine_per_day, 0, ',', '.') }}/hari</strong>@if($org->payment_account) · Rekening: <strong style="font-weight: 700; color: #0f172a;">{{ $org->payment_account }}</strong>@endif
                 </p>
             </div>
         </div>
@@ -421,6 +421,12 @@
                             <h3>Keterangan Tagihan</h3>
                             <p>{{ $selectedCharge->reason }}</p>
                             <p class="muted">Sisa tagihan saat ini: <strong>Rp{{ number_format($selectedCharge->balance, 0, ',', '.') }}</strong></p>
+                            @if($chargeModalAction === 'payment' && !$operator)
+                                <p class="muted" style="margin-top: 0.5rem;">
+                                    <strong>Rekening Tujuan ({{ $org->name }}):</strong>
+                                    {{ $org->payment_account ?: 'Belum diatur oleh Admin Organization — hubungi pengelola atau bayar tunai.' }}
+                                </p>
+                            @endif
                         </div>
 
                         <form wire:submit="submitChargeModal" class="oi-modal-form">
@@ -857,7 +863,7 @@
                         </div>
                         <label>
                             <span style="font-weight: 700; font-size: 0.84rem; color: #0f172a; display: block; margin-bottom: 0.4rem;">Rekening Bank untuk Pembayaran Denda Manual</span>
-                            <input class="oi-input" placeholder="BCA 827-019-2819 a.n Media Kreatif Lab" style="max-width: 460px; width: 100%; border-radius: 0.625rem; border: 1px solid #e2e8f0; padding: 0.65rem 0.85rem;">
+                            <input class="oi-input" wire:model="settingPaymentAccount" maxlength="255" placeholder="Contoh: BCA 827-019-2819 a.n. Kas Organisasi" style="max-width: 460px; width: 100%; border-radius: 0.625rem; border: 1px solid #e2e8f0; padding: 0.65rem 0.85rem;">
                         </label>
                         <div style="display: flex; justify-content: flex-start; margin-top: 0.5rem;">
                             <button type="submit" class="pill-btn btn-solid-black" style="border-radius: 9999px; padding: 0.65rem 1.75rem; font-size: 0.84rem; font-weight: 700; cursor: pointer; border: none;">Simpan Perubahan</button>

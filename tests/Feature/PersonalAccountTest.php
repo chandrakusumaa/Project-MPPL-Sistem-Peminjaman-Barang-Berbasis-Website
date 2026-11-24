@@ -187,3 +187,36 @@ it('lets a member submit payment from personal charges and notifies admin for co
     app(SettleCharge::class)->change($this->admin, $this->org, $charge->id, 'confirm', ['payment_id' => $payment->id]);
     expect($charge->fresh()->balance)->toBe(0)->and($charge->fresh()->settlement)->toBe('paid');
 });
+
+it('shows separate payment accounts per organization when a member has unpaid charges across organizations', function () {
+    $this->actingAs($this->admin);
+    Livewire::test(\App\Livewire\Workspace::class, ['organization' => $this->org])
+        ->set('settingPaymentAccount', 'BCA 111-222-333 a.n. Peralatan Raka')
+        ->call('settings')
+        ->assertHasNoErrors();
+    expect($this->org->fresh()->payment_account)->toBe('BCA 111-222-333 a.n. Peralatan Raka');
+
+    $secondOrg = app(ManageWorkspace::class)->create($this->other, ['name' => 'Studio Audio Kampus', 'category' => 'komunitas']);
+    $secondOrg->update(['payment_account' => 'Mandiri 999-888-777 a.n. Studio Audio']);
+    app(ManageWorkspace::class)->join($this->member, $secondOrg);
+
+    personalCharge($this, 25000, 'Denda organisasi pertama');
+    $secondBorrowing = personalRequest($this, $this->member, 'Mikrofon Studio', $secondOrg);
+    app(BorrowAsset::class)->decide($this->other, $secondOrg, $secondBorrowing->id, 'approve');
+    $secondCharge = BorrowerCharge::create([
+        'organization_id' => $secondOrg->id, 'borrowing_id' => $secondBorrowing->id, 'asset_id' => $secondBorrowing->asset_id,
+        'borrower_id' => $this->member->id, 'charge_type' => 'late_fee', 'amount' => 40000, 'status' => 'issued',
+        'reason' => 'Denda organisasi kedua', 'policy_basis' => 'Tarif keterlambatan', 'issued_at' => now()->subMinute(),
+        'idempotency_key' => (string) Str::uuid(),
+    ]);
+
+    Livewire::actingAs($this->member)->test(PersonalCharges::class)
+        ->assertSee('BCA 111-222-333 a.n. Peralatan Raka')
+        ->assertSee('Mandiri 999-888-777 a.n. Studio Audio')
+        ->assertSee('Rp25.000')
+        ->assertSee('Rp40.000')
+        ->assertDontSee('827-019-2819')
+        ->call('openPaymentModal', $secondCharge->id)
+        ->assertSee('Rekening Tujuan · Studio Audio Kampus')
+        ->assertSee('Mandiri 999-888-777 a.n. Studio Audio');
+});

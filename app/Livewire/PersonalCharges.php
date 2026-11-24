@@ -172,8 +172,21 @@ class PersonalCharges extends Component
                 ->find($this->selectedChargeId)
             : null;
 
+        $outstandingByOrg = BorrowerCharge::where('borrower_id', auth()->id())
+            ->where('status', 'issued')
+            ->with('organization', 'payments', 'credits')
+            ->get()
+            ->filter(fn ($charge) => $charge->balance > 0)
+            ->groupBy('organization_id')
+            ->map(fn ($items) => (object) [
+                'organization' => $items->first()->organization,
+                'outstanding' => $items->sum(fn ($charge) => $charge->balance),
+            ])
+            ->values();
+
         return view('livewire.personal-charges', [
             'summary' => $summary,
+            'outstandingByOrg' => $outstandingByOrg,
             'selectedCharge' => $selectedCharge,
             'charges' => BorrowerCharge::whereIn('id', $ids->select('id'))
                 ->when($this->type, fn ($query) => $query->where('charge_type', $this->type))

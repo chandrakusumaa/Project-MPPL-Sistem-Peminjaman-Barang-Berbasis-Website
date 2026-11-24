@@ -44,15 +44,36 @@
                 </p>
             </div>
 
-            <div style="max-width: 32rem; font-size: 0.8125rem; color: #9a3412; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 1rem; padding: 1.125rem; display: flex; flex-direction: column; gap: 0.625rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                    <div><strong>Rekening Resmi:</strong> Bank BCA: <code style="font-family: monospace; font-size: 0.95rem; font-weight: 800; background: #ffedd5; padding: 0.15rem 0.4rem; border-radius: 4px;">827-019-2819</code> a.n. Kas Komunitas</div>
-                    <button type="button" onclick="copyBankAccount('8270192819')" class="pill-btn btn-primary-red" style="font-size: 0.6875rem; padding: 0.25rem 0.6rem; cursor: pointer;">
-                        📋 Salin Rekening
-                    </button>
+            <div style="flex: 1; min-width: 280px; max-width: 34rem; font-size: 0.8125rem; color: #9a3412; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 1rem; padding: 1.125rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #7c2d12;">
+                    Rekening Tujuan per Organization ({{ $outstandingByOrg->count() }} Organization)
                 </div>
+                @foreach($outstandingByOrg as $orgItem)
+                    <div style="background: #ffffff; border: 1px solid #fed7aa; border-radius: 0.75rem; padding: 0.75rem 0.875rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <div style="min-width: 0;">
+                            <div style="font-weight: 800; color: #0f172a; font-size: 0.8125rem;">
+                                {{ $orgItem->organization->name }}
+                                <span style="color: #c2410c; font-weight: 800; margin-left: 0.35rem;">(Rp{{ number_format($orgItem->outstanding, 0, ',', '.') }})</span>
+                            </div>
+                            @if($orgItem->organization->payment_account)
+                                <div style="margin-top: 0.25rem; font-family: monospace; font-size: 0.8125rem; font-weight: 700; color: #7c2d12; word-break: break-word;">
+                                    {{ $orgItem->organization->payment_account }}
+                                </div>
+                            @else
+                                <div style="margin-top: 0.2rem; font-size: 0.75rem; color: #64748b;">
+                                    Rekening belum diatur oleh Admin Organization — hubungi pengelola atau bayar tunai.
+                                </div>
+                            @endif
+                        </div>
+                        @if($orgItem->organization->payment_account)
+                            <button type="button" onclick="copyBankAccount(@js($orgItem->organization->payment_account))" class="pill-btn btn-primary-red" style="font-size: 0.6875rem; padding: 0.3rem 0.7rem; cursor: pointer; flex-shrink: 0;">
+                                Salin Rekening
+                            </button>
+                        @endif
+                    </div>
+                @endforeach
                 <div style="font-size: 0.75rem; color: #7c2d12;">
-                    Setelah mentransfer, klik <strong>Kirim Bukti Transfer</strong> agar admin Organization dapat memverifikasi dan memperbarui saldo Anda.
+                    Transfer sesuai nominal masing-masing Organization, lalu klik <strong>Bayar / Kirim Bukti</strong> pada baris tagihan terkait.
                 </div>
             </div>
         </div>
@@ -322,6 +343,26 @@
                         <strong style="display: block; font-size: 0.8125rem; color: #0f172a; margin-bottom: 0.25rem;">Rincian Tagihan</strong>
                         <p style="font-size: 0.8125rem; color: #334155; margin: 0 0 0.35rem 0;">{{ $selectedCharge->reason }}</p>
                         <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Sisa tagihan saat ini: <strong style="color: #dc2626;">Rp{{ number_format($selectedCharge->balance, 0, ',', '.') }}</strong>. Pembayaran akan berstatus menunggu verifikasi hingga Admin mengonfirmasinya.</p>
+                    </div>
+
+                    <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 0.75rem; padding: 0.875rem 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <div style="min-width: 0;">
+                            <span style="display: block; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #9a3412;">Rekening Tujuan · {{ $selectedCharge->organization->name }}</span>
+                            @if($selectedCharge->organization->payment_account)
+                                <div style="font-family: monospace; font-size: 0.875rem; font-weight: 800; color: #0f172a; margin-top: 0.2rem; word-break: break-word;">
+                                    {{ $selectedCharge->organization->payment_account }}
+                                </div>
+                            @else
+                                <div style="font-size: 0.78rem; color: #7c2d12; margin-top: 0.2rem;">
+                                    Admin Organization ini belum mengisi rekening bank. Silakan hubungi pengelola atau pilih metode Tunai.
+                                </div>
+                            @endif
+                        </div>
+                        @if($selectedCharge->organization->payment_account)
+                            <button type="button" onclick="copyBankAccount(@js($selectedCharge->organization->payment_account))" class="pill-btn btn-primary-red" style="font-size: 0.6875rem; padding: 0.3rem 0.7rem; cursor: pointer; flex-shrink: 0;">
+                                Salin Rekening
+                            </button>
+                        @endif
                     </div>
 
                     <form wire:submit="submitPayment">
