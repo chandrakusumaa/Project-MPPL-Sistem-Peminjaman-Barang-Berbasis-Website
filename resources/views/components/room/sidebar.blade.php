@@ -22,11 +22,13 @@
                 NAVIGASI KOMUNITAS
             </div>
             <nav style="display: flex; flex-direction: column; gap: 0.2rem;">
-                <!-- Ringkasan Komunitas -->
-                <button type="button" wire:click="$set('tab', 'dashboard')" style="width: 100%; border: none; background: {{ $tab === 'dashboard' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'dashboard' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'dashboard' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left; transition: all 0.15s ease;">
-                    <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                    <span>Ringkasan Komunitas</span>
-                </button>
+                @if($operator)
+                    <!-- Ringkasan Komunitas (khusus Admin & Staff sesuai otorisasi dashboard manajemen) -->
+                    <button type="button" wire:click="$set('tab', 'dashboard')" style="width: 100%; border: none; background: {{ $tab === 'dashboard' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'dashboard' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'dashboard' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left; transition: all 0.15s ease;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span>Ringkasan Komunitas</span>
+                    </button>
+                @endif
 
                 <!-- Peminjaman & Tagihan Pribadi (HANYA DITAMPILKAN JIKA MEMBER, KARENA ADMIN ADALAH PENGELOLA) -->
                 @if(!$operator)
