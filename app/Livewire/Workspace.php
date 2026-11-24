@@ -980,6 +980,7 @@ class Workspace extends Component
                 'borrowed' => (int) ($borrowingCounts['borrowed'] ?? 0) + (int) ($borrowingCounts['overdue'] ?? 0),
                 'overdue' => (int) ($borrowingCounts['overdue'] ?? 0),
                 'pendingRequests' => Borrowing::where('organization_id', $org->id)->where('status', 'pending')->with('asset', 'borrower')->latest()->limit(4)->get(),
+                'recentBorrowings' => Borrowing::where('organization_id', $org->id)->with('asset', 'borrower')->latest()->orderByDesc('id')->limit(5)->get(),
                 'overdueBorrowings' => Borrowing::where('organization_id', $org->id)->where('status', 'overdue')->with('asset', 'borrower')->orderBy('due_date')->limit(5)->get(),
                 'recentAssets' => Asset::where('organization_id', $org->id)->latest()->orderByDesc('id')->limit(5)->get(),
                 'reports' => DamageReport::where('organization_id', $org->id)->where('status', 'open')->count(),

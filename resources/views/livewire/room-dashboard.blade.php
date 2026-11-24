@@ -1,6 +1,6 @@
 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-    <!-- 4 STAT METRIC CARDS ROW (SESUAI FOTO 6) -->
+    <!-- 4 STAT METRIC CARDS ROW (DATA REAL PER ORGANIZATION) -->
     <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem;">
         
         <!-- Stat 1: Total Inventaris Fisik -->
@@ -15,10 +15,10 @@
             </div>
             <div>
                 <div style="font-size: 1.75rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em;">
-                    {{ $counts->sum() > 0 ? $counts->sum() : 48 }} Unit
+                    {{ $counts->sum() }} Unit
                 </div>
                 <small style="display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 0.25rem;">
-                    Taksiran nilai Rp 284.500.000
+                    {{ $counts['available'] ?? 0 }} tersedia · {{ $counts['maintenance'] ?? 0 }} perbaikan
                 </small>
             </div>
         </div>
@@ -35,10 +35,14 @@
             </div>
             <div>
                 <div style="font-size: 1.75rem; font-weight: 900; color: #15803d; letter-spacing: -0.03em;">
-                    {{ $summary['borrowed'] > 0 ? $summary['borrowed'] : 3 }} Unit Fisik
+                    {{ $summary['borrowed'] }} Unit Fisik
                 </div>
                 <small style="display: block; font-size: 0.72rem; color: #166534; margin-top: 0.25rem;">
-                    Dipinjam oleh anggota lab
+                    @if($summary['overdue'] > 0)
+                        {{ $summary['overdue'] }} melewati batas kembali
+                    @else
+                        Dipinjam oleh anggota {{ $org->name }}
+                    @endif
                 </small>
             </div>
         </div>
@@ -55,10 +59,10 @@
             </div>
             <div>
                 <div style="font-size: 1.75rem; font-weight: 900; color: #b45309; letter-spacing: -0.03em;">
-                    {{ $summary['pending'] > 0 ? $summary['pending'] : 2 }} Pengajuan
+                    {{ $summary['pending'] }} Pengajuan
                 </div>
                 <small style="display: block; font-size: 0.72rem; color: #92400e; margin-top: 0.25rem;">
-                    Memerlukan review Staff / Admin
+                    {{ $summary['pending'] > 0 ? 'Memerlukan review Staff / Admin' : 'Tidak ada antrean persetujuan' }}
                 </small>
             </div>
         </div>
@@ -75,10 +79,14 @@
             </div>
             <div>
                 <div style="font-size: 1.75rem; font-weight: 900; color: #7f112e; letter-spacing: -0.03em;">
-                    Rp {{ number_format($summary['balance'] > 0 ? $summary['balance'] : 50000, 0, ',', '.') }}
+                    Rp{{ number_format($summary['balance'], 0, ',', '.') }}
                 </div>
                 <small style="display: block; font-size: 0.72rem; color: #9f1239; margin-top: 0.25rem;">
-                    1 transfer manual menunggu konfirmasi
+                    @if($summary['pendingPayments'] > 0)
+                        {{ $summary['pendingPayments'] }} pembayaran manual menunggu konfirmasi
+                    @else
+                        Tidak ada pembayaran menunggu konfirmasi
+                    @endif
                 </small>
             </div>
         </div>
@@ -86,6 +94,17 @@
     </div>
 
     <!-- SECTION: RINGKASAN OPERASIONAL & LOG TRANSAKSI TERKINI -->
+    @php
+        $dashStatuses = [
+            'pending' => ['Menunggu Approval', '#eff6ff', '#1d4ed8'],
+            'borrowed' => ['Sedang Dipinjam', '#fefce8', '#b45309'],
+            'overdue' => ['Terlambat', '#fef2f2', '#b91c1c'],
+            'returned' => ['Dikembalikan', '#f0fdf4', '#15803d'],
+            'rejected' => ['Ditolak', '#fef2f2', '#b91c1c'],
+            'cancelled' => ['Dibatalkan', '#f1f5f9', '#475467'],
+        ];
+        $recentTransactions = $summary['recentBorrowings'] ?? collect();
+    @endphp
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.125rem; padding: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; gap: 1rem;">
             <div>
@@ -114,107 +133,116 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($summary['pendingRequests']->isNotEmpty())
-                        @foreach($summary['pendingRequests']->take(3) as $borrowing)
-                            <tr style="border-bottom: 1px solid #f8fafc;">
-                                <td style="padding: 0.875rem 0.75rem;">
-                                    <span style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 6px; font-family: monospace; font-size: 0.75rem; font-weight: 700; color: #334155;">
-                                        {{ $borrowing->asset->code }}
-                                    </span>
-                                </td>
-                                <td style="padding: 0.875rem 0.75rem; font-weight: 700; color: #0f172a;">
-                                    {{ $borrowing->asset->name }}
-                                </td>
-                                <td style="padding: 0.875rem 0.75rem; color: #334155; font-weight: 600;">
-                                    {{ $borrowing->borrower->name }}
-                                </td>
-                                <td style="padding: 0.875rem 0.75rem; color: #64748b; font-weight: 600;">
-                                    {{ $borrowing->due_date ? $borrowing->due_date->format('d M Y') : '22 Nov 2026' }}
-                                </td>
-                                <td style="padding: 0.875rem 0.75rem;">
-                                    <span style="background: #fefce8; color: #b45309; border-radius: 9999px; padding: 0.25rem 0.625rem; font-size: 0.6875rem; font-weight: 800;">
-                                        • H-2 JATUH TEMPO
-                                    </span>
-                                </td>
-                                <td style="padding: 0.875rem 0.75rem;">
-                                    <button type="button" class="pill-btn" style="background: #fff1f2; color: #7f112e; border: 1px solid #fecdd3; padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700;" wire:click="showDamageReports">
-                                        Lapor Insiden
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    @else
-                        <!-- Default Row matching Foto 6 -->
-                        <tr style="border-bottom: 1px solid #f8fafc;">
-                            <td style="padding: 0.875rem 0.75rem;">
+                    @forelse($recentTransactions as $borrowing)
+                        @php([$stLabel, $stBg, $stColor] = $dashStatuses[$borrowing->status] ?? [strtoupper($borrowing->status), '#f1f5f9', '#475467'])
+                        <tr wire:key="dash-borrowing-{{ $borrowing->id }}" style="border-bottom: 1px solid #f8fafc;">
+                            <td style="padding: 0.875rem 0.75rem; white-space: nowrap;">
                                 <span style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 6px; font-family: monospace; font-size: 0.75rem; font-weight: 700; color: #334155;">
-                                    AST-0025
+                                    {{ $borrowing->asset?->code ?? '-' }}
                                 </span>
                             </td>
                             <td style="padding: 0.875rem 0.75rem; font-weight: 700; color: #0f172a;">
-                                Tripod Manfrotto 055 Carbon Fiber
+                                {{ $borrowing->asset?->name ?? '-' }}
                             </td>
                             <td style="padding: 0.875rem 0.75rem; color: #334155; font-weight: 600;">
-                                {{ auth()->user()->name }}
+                                {{ $borrowing->borrower?->name ?? '-' }}
                             </td>
-                            <td style="padding: 0.875rem 0.75rem; color: #64748b; font-weight: 600;">
-                                22 Nov 2026
+                            <td style="padding: 0.875rem 0.75rem; color: #64748b; font-weight: 600; white-space: nowrap;">
+                                {{ $borrowing->due_date ? $borrowing->due_date->format('d M Y') : '—' }}
                             </td>
-                            <td style="padding: 0.875rem 0.75rem;">
-                                <span style="background: #fefce8; color: #b45309; border-radius: 9999px; padding: 0.25rem 0.625rem; font-size: 0.6875rem; font-weight: 800;">
-                                    • H-2 JATUH TEMPO
+                            <td style="padding: 0.875rem 0.75rem; white-space: nowrap;">
+                                <span style="background: {{ $stBg }}; color: {{ $stColor }}; border-radius: 9999px; padding: 0.25rem 0.625rem; font-size: 0.6875rem; font-weight: 800;">
+                                    • {{ strtoupper($stLabel) }}
                                 </span>
                             </td>
-                            <td style="padding: 0.875rem 0.75rem;">
-                                <button type="button" class="pill-btn" style="background: #fff1f2; color: #7f112e; border: 1px solid #fecdd3; padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700;" wire:click="showDamageReports">
-                                    Lapor Insiden
-                                </button>
+                            <td style="padding: 0.875rem 0.75rem; white-space: nowrap;">
+                                @if($borrowing->status === 'pending')
+                                    <button type="button" class="pill-btn" style="background: #fff1f2; color: #7f112e; border: 1px solid #fecdd3; padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700; cursor: pointer;" wire:click="reviewBorrowing({{ $borrowing->id }})">
+                                        Tinjau Pengajuan
+                                    </button>
+                                @else
+                                    <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700; cursor: pointer;" wire:click="$set('tab', 'borrowings')">
+                                        Lihat Detail
+                                    </button>
+                                @endif
                             </td>
                         </tr>
-                    @endif
+                    @empty
+                        <tr>
+                            <td colspan="6" style="padding: 2rem 0.75rem; text-align: center; color: #94a3b8;">
+                                <p style="font-weight: 700; color: #0f172a; margin: 0 0 0.25rem 0;">Belum ada transaksi peminjaman di {{ $org->name }}</p>
+                                <p style="font-size: 0.75rem; margin: 0;">Pengajuan dan aktivitas peminjaman unit fisik akan tampil otomatis di sini.</p>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- BOTTOM 2 CARDS GRID (ATURAN & REKENING RESMI LAB) -->
+    <!-- BOTTOM 2 CARDS GRID (ATURAN & REKENING RESMI ORGANIZATION) -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
         
-        <!-- Card 1: Aturan Peminjaman Laboratorium -->
+        <!-- Card 1: Aturan Peminjaman Organization -->
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.125rem; padding: 1.5rem;">
             <h3 style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin: 0 0 1rem 0;">
-                Aturan Peminjaman Laboratorium
+                Aturan Peminjaman {{ $org->name }}
             </h3>
             <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.8125rem; color: #475467; line-height: 1.6; display: flex; flex-direction: column; gap: 0.5rem;">
-                <li>Maksimal durasi peminjaman adalah <strong>7 hari kalender</strong>.</li>
-                <li>Pengambilan barang fisik wajib di meja inspeksi setelah status <strong>Disetujui</strong>.</li>
-                <li>Denda keterlambatan berlaku <strong>Rp 25.000 / hari</strong> tanpa dispensasi otomatis.</li>
-                <li>Kerusakan fisik unit menjadi tanggung jawab peminjam berdasarkan estimasi biaya perbaikan teknisi lab.</li>
+                <li>Maksimal durasi peminjaman adalah <strong>{{ $org->max_borrow_days }} hari kalender</strong>.</li>
+                <li>Pengambilan dan pengembalian barang fisik diverifikasi pengelola setelah status <strong>Disetujui</strong>.</li>
+                <li>
+                    @if((int) $org->late_fine_per_day > 0)
+                        Denda keterlambatan berlaku <strong>Rp{{ number_format($org->late_fine_per_day, 0, ',', '.') }} / hari</strong> berdasarkan snapshot saat persetujuan.
+                    @else
+                        Tarif denda keterlambatan saat ini <strong>Rp0 / hari</strong> (tanpa denda keterlambatan otomatis).
+                    @endif
+                </li>
+                <li>
+                    @if($org->damage_charge_policy)
+                        {{ $org->damage_charge_policy }}
+                    @else
+                        Kerusakan fisik atau kehilangan unit dinilai oleh pengelola sesuai laporan kerusakan yang tercatat.
+                    @endif
+                </li>
             </ul>
         </div>
 
-        <!-- Card 2: Rekening Pembayaran Resmi Lab -->
+        <!-- Card 2: Rekening Pembayaran Resmi Organization -->
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.125rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <h3 style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0;">
-                    Rekening Pembayaran Resmi Lab
+                    Rekening Pembayaran {{ $org->name }}
                 </h3>
                 <p style="font-size: 0.78rem; color: #64748b; margin: 0 0 1.25rem 0;">
-                    Seluruh pembayaran denda dilakukan melalui transfer manual ke rekening laboratorium berikut:
+                    Seluruh pembayaran denda atau biaya kerusakan manual ditujukan ke rekening resmi Organization berikut:
                 </p>
             </div>
 
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.875rem; padding: 1rem 1.25rem;">
-                <span style="font-size: 0.72rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 0.25rem;">
-                    Bank Central Asia (BCA)
-                </span>
-                <strong style="font-size: 1.25rem; font-weight: 900; color: #0f172a; letter-spacing: 0.04em; display: block;">
-                    827-019-2819
-                </strong>
-                <small style="font-size: 0.75rem; color: #475467; display: block; margin-top: 0.25rem;">
-                    a.n {{ $org->name }}
-                </small>
-            </div>
+            @if($org->payment_account)
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.875rem; padding: 1rem 1.25rem;">
+                    <span style="font-size: 0.72rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 0.25rem;">
+                        Rekening Resmi
+                    </span>
+                    <strong style="font-size: 1.1rem; font-weight: 900; color: #0f172a; letter-spacing: 0.02em; display: block; word-break: break-word;">
+                        {{ $org->payment_account }}
+                    </strong>
+                    <small style="font-size: 0.75rem; color: #475467; display: block; margin-top: 0.25rem;">
+                        Organization: {{ $org->name }}
+                    </small>
+                </div>
+            @else
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0.875rem; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                    <div style="font-size: 0.8125rem; color: #64748b;">
+                        Rekening bank belum diatur oleh Admin Organization.
+                    </div>
+                    @if($admin)
+                        <button type="button" class="pill-btn btn-secondary-light" style="font-size: 0.75rem; padding: 0.35rem 0.85rem; font-weight: 700; cursor: pointer;" wire:click="$set('tab', 'settings')">
+                            Atur Rekening &rarr;
+                        </button>
+                    @endif
+                </div>
+            @endif
         </div>
 
     </div>

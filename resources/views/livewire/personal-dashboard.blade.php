@@ -2,13 +2,15 @@
     $userName = auth()->user()->name ?? 'User';
     $firstName = explode(' ', trim($userName))[0] ?? 'User';
 
-    // Financial check for Open Charges
+    // Financial check for Open Charges (compute real outstanding balance, not raw amount)
     $openCharges = \App\Models\BorrowerCharge::where('borrower_id', auth()->id())
         ->where('status', 'issued')
-        ->with('organization')
-        ->get();
-    $totalOpenCharge = $openCharges->sum('amount');
+        ->with('organization', 'payments', 'credits')
+        ->get()
+        ->filter(fn ($charge) => $charge->balance > 0);
+    $totalOpenCharge = $openCharges->sum(fn ($charge) => $charge->balance);
     $firstOpenCharge = $openCharges->first();
+    $openOrgCount = $openCharges->pluck('organization_id')->unique()->count();
 @endphp
 
 <div class="oi-personal-dashboard" wire:poll.30s style="width: 100%; box-sizing: border-box; max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
@@ -180,8 +182,8 @@
                                             <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
                                         </svg>
                                     </div>
-                                    <span class="micro-badge {{ $role === 'admin' ? 'badge-role-admin' : ($role === 'operator' ? 'badge-role-staff' : 'badge-role-member') }}" style="font-size: 0.625rem; font-weight: 800;">
-                                        {{ $role === 'admin' ? 'ADMIN ORGANIZATION' : ($role === 'operator' ? 'STAFF OPERASIONAL' : 'MEMBER AKTIF') }}
+                                    <span class="micro-badge {{ $role === 'admin' ? 'badge-role-admin' : ($role === 'staff' ? 'badge-role-staff' : 'badge-role-member') }}" style="font-size: 0.625rem; font-weight: 800;">
+                                        {{ $role === 'admin' ? 'ADMIN ORGANIZATION' : ($role === 'staff' ? 'STAFF OPERASIONAL' : 'MEMBER AKTIF') }}
                                     </span>
                                 </div>
                                 <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0;">{{ $org->name }}</h3>
@@ -189,7 +191,7 @@
                             </div>
                             <div style="margin-top: 1.25rem;">
                                 <a href="{{ route('workspace', $org) }}" class="pill-btn {{ $role === 'admin' ? 'btn-primary-red' : 'btn-solid-black' }} btn-sm" style="width: 100%; justify-content: center; text-decoration: none; padding: 0.45rem 1rem;">
-                                    Pinjam Barang &rarr;
+                                    {{ $role === 'admin' ? 'Kelola Organization' : 'Pinjam Barang' }} &rarr;
                                 </a>
                             </div>
                         </div>
@@ -219,7 +221,11 @@
                 </div>
                 <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.5rem; line-height: 1.5;">
                     @if($totalOpenCharge > 0)
-                        Tagihan denda atau penggantian fisik di <strong>{{ $firstOpenCharge?->organization?->name ?? 'Organization' }}</strong>.
+                        @if($openOrgCount > 1)
+                            Sisa kewajiban tersebar di <strong>{{ $openOrgCount }} Organization</strong>.
+                        @else
+                            Tagihan denda atau penggantian fisik di <strong>{{ $firstOpenCharge?->organization?->name ?? 'Organization' }}</strong>.
+                        @endif
                     @else
                         Tidak ada kewajiban denda keterlambatan yang tertunggak.
                     @endif
