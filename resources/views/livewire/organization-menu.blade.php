@@ -1,14 +1,14 @@
 <details class="oi-org-menu" @if($expanded) open @endif>
-    <summary class="oi-side-link"><x-icon name="grid" /><span>Komunitas Saya</span><span class="oi-menu-count">{{ $organizations->count() }}</span><x-icon name="chevron-down" class="oi-menu-chevron" /></summary>
-    <nav class="oi-org-links" aria-label="Komunitas Anda">
-        <a class="oi-side-link" href="{{ route('personal.organizations') }}">Semua Komunitas</a>
+    <summary class="oi-side-link"><x-icon name="grid" /><span>Organization Saya</span><span class="oi-menu-count">{{ $organizations->count() }}</span><x-icon name="chevron-down" class="oi-menu-chevron" /></summary>
+    <nav class="oi-org-links" aria-label="Organization Anda">
+        <a class="oi-side-link" href="{{ route('personal.organizations') }}">Semua Organization</a>
         @forelse($organizations as $organization)
             <a class="oi-side-link oi-org-link {{ $current?->id === $organization->id ? 'is-current' : '' }}" href="{{ route('workspace', $organization) }}">
                 <x-avatar :name="$organization->name" type="community" />
                 <span><b>{{ $organization->name }}</b><small>{{ strtoupper($organization->memberships->first()->role) }}{{ $organization->archived_at ? ' · Diarsipkan' : '' }}</small></span>
             </a>
         @empty
-            <p class="oi-menu-empty">Belum mengikuti Komunitas.</p>
+            <p class="oi-menu-empty">Belum mengikuti Organization.</p>
         @endforelse
         <a class="oi-side-link" href="{{ route('personal.organizations', ['create' => 1]) }}"><x-icon name="plus" /><span>Buat Komunitas Baru</span></a>
     </nav>

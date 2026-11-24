@@ -4,11 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Organization Inventory — Barang Tertata, Peminjaman Tercatat</title>
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=16.0">
   <style>
+/**
+ * Organization Inventory - Landing Page Self-Contained Swiss Minimalist Styles
+ * Ensures 100% rock-solid styling even when opened directly via file:// or cached
+ */
 :root {
-  --oi-red: #dc2626;
-  --oi-red-dark: #b91c1c;
+  --oi-red: #7f112e;
+  --oi-red-dark: #680e2c;
   --oi-black: #0f172a;
   --oi-ink: #172033;
   --oi-muted: #64748b;
@@ -67,7 +71,7 @@ body.guest-body {
   transform: translateX(-50%);
   width: 650px;
   height: 320px;
-  background: radial-gradient(circle, rgba(220, 38, 38, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(127, 17, 46, 0.055) 0%, transparent 70%);
   filter: blur(50px);
   border-radius: 9999px;
 }
@@ -115,6 +119,39 @@ body.guest-body {
   color: var(--oi-black);
 }
 
+.brand-badge {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background-color: var(--oi-black);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.8125rem;
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: -0.025em;
+  color: var(--oi-black);
+}
+
+.brand-dot {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 9999px;
+  background-color: var(--oi-red);
+  display: inline-block;
+}
+
 .nav-links {
   display: none;
   align-items: center;
@@ -149,6 +186,21 @@ body.guest-body {
   gap: 0.75rem;
 }
 
+.link-login {
+  text-decoration: none;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #334155;
+  padding: 0.5rem 0.875rem;
+  border-radius: 9999px;
+  transition: all 0.15s ease;
+}
+
+.link-login:hover {
+  color: var(--oi-black);
+  background-color: rgba(241, 245, 249, 0.8);
+}
+
 /* Pill Buttons */
 .pill-btn {
   border-radius: 9999px;
@@ -170,12 +222,12 @@ body.guest-body {
 .btn-primary-red {
   background-color: var(--oi-red);
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.22);
+  box-shadow: 0 4px 12px rgba(127, 17, 46, 0.22);
 }
 
 .btn-primary-red:hover {
   background-color: var(--oi-red-dark);
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 6px 16px rgba(127, 17, 46, 0.3);
 }
 
 .btn-solid-black {
@@ -185,6 +237,17 @@ body.guest-body {
 
 .btn-solid-black:hover {
   background-color: #000000;
+}
+
+.btn-secondary-light {
+  background-color: #ffffff;
+  color: var(--oi-black) !important;
+  border-color: var(--oi-line);
+}
+
+.btn-secondary-light:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 /* Hero Section */
@@ -217,8 +280,8 @@ body.guest-body {
 }
 
 .text-accent-orange {
-  color: #dc2626;
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #0f172a 100%);
+  color: #7f112e;
+  background: linear-gradient(135deg, #7f112e 0%, #a03850 50%, #05214c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -324,7 +387,7 @@ body.guest-body {
 }
 
 .feature-card.card-accent-red:hover {
-  border-color: rgba(220, 38, 38, 0.4);
+  border-color: rgba(127, 17, 46, 0.4);
 }
 
 .card-top {
@@ -414,6 +477,14 @@ body.guest-body {
   height: 0.375rem;
   border-radius: 9999px;
   background-color: #10b981;
+}
+
+.status-dot-red {
+  background-color: var(--oi-red);
+}
+
+.status-dot-blue {
+  background-color: #3b82f6;
 }
 
 .action-link {
@@ -524,6 +595,7 @@ body.guest-body {
 
   <!-- BACKGROUND SILUET & VECTOR WATERMARK (Halus, Elegan, 4-5% Opacity) -->
   <div class="bg-siluet-layer" aria-hidden="true">
+    <!-- Grid Dot Matrix -->
     <svg style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.035;" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="grid-dots" width="32" height="32" patternUnits="userSpaceOnUse">
@@ -560,6 +632,7 @@ body.guest-body {
       <line x1="70" y1="8" x2="70" y2="34" />
     </svg>
 
+    <!-- Ambient Glow Merah Lembut -->
     <div class="ambient-glow"></div>
   </div>
 
@@ -569,23 +642,25 @@ body.guest-body {
     <!-- STICKY FLOATING NAVBAR -->
     <header class="sticky-navbar">
       <a href="{{ route('landing') }}" class="brand-logo" aria-label="Organization Inventory">
-        <img src="{{ asset('images/organizing-inventory-logo.png') }}" alt="Organizing Inventory" class="app-logo" style="height: 38px; width: auto; object-fit: contain;">
-      </a>
+          <img src="{{ asset('images/logo.png') }}" alt="Organization Inventory" class="app-logo" style="height: 38px; width: auto; object-fit: contain;">
+        </a>
 
       <nav class="nav-links" aria-label="Navigasi Utama">
         <a href="#fitur" class="nav-link">Fitur Utama</a>
-        <a href="{{ route('organizations') }}" class="nav-link">Jelajahi Komunitas</a>
+        <a href="{{ route('organizations') }}" class="nav-link">Jelajahi Organization</a>
         <a href="#tentang" class="nav-link">Tentang</a>
       </nav>
 
-      <div class="nav-actions">
+      <div class="nav-actions" id="navAuthActions">
         @auth
           <a href="{{ route('dashboard') }}" class="pill-btn btn-solid-black" style="font-size: 0.8125rem; padding: 0.45rem 1.125rem;">
             Dashboard &rarr;
           </a>
         @else
-          <a href="{{ route('login') }}" class="nav-link" style="color: #0f172a; font-weight: 700; text-decoration: none; padding: 0.4rem 0.75rem; font-size: 0.875rem;">Masuk</a>
-          <a href="{{ route('register') }}" class="pill-btn btn-solid-black" style="font-size: 0.8125rem; padding: 0.45rem 1rem;">Buat Akun</a>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <a href="{{ route('login') }}" class="nav-link" style="color: #0f172a; font-weight: 700; text-decoration: none; padding: 0.4rem 0.75rem; font-size: 0.875rem;">Masuk</a>
+            <a href="{{ route('register') }}" class="pill-btn btn-solid-black" style="font-size: 0.8125rem; padding: 0.45rem 1rem;">Buat Akun</a>
+          </div>
         @endauth
       </div>
     </header>
@@ -599,13 +674,13 @@ body.guest-body {
       </h1>
 
       <p class="hero-subtitle">
-        Kelola perlengkapan pribadi dan kelompok melalui Komunitas. Temukan barang fisik dengan QR code, ajukan peminjaman instan, dan telusuri pengembaliannya.
+        Kelola perlengkapan pribadi dan kelompok melalui Organization. Temukan barang fisik dengan kode unit unik, ajukan peminjaman instan, dan telusuri pengembaliannya.
       </p>
 
-      <!-- Dual Pill Action Buttons -->
+      <!-- Dual Pill Action Buttons (Image 1 Style) -->
       <div class="hero-cta">
         <a href="{{ route('organizations') }}" class="pill-btn btn-primary-red" style="font-size: 0.8125rem; padding: 0.75rem 1.625rem; gap: 0.5rem;">
-          Jelajahi Komunitas &rarr;
+          Jelajahi Organization &rarr;
         </a>
         @auth
           <a href="{{ route('dashboard') }}" class="pill-btn btn-solid-black" style="font-size: 0.8125rem; padding: 0.75rem 1.625rem;">
@@ -620,13 +695,13 @@ body.guest-body {
 
       <!-- Micro Indicators with Checkmarks -->
       <div class="hero-indicators">
-        <span><strong class="indicator-dot-red">&#10003;</strong> Satu unit satu kode QR fisik</span>
-        <span><strong class="indicator-dot-black">&#10003;</strong> Peran independen per komunitas</span>
-        <span><strong class="indicator-dot-red">&#10003;</strong> Riwayat audit terverifikasi</span>
+        <span><strong class="indicator-dot-red">✓</strong> Satu unit satu kode fisik unik</span>
+        <span><strong class="indicator-dot-black">✓</strong> Peran independen per Organization</span>
+        <span><strong class="indicator-dot-red">✓</strong> Riwayat audit terverifikasi</span>
       </div>
     </main>
 
-    <!-- 3 FEATURE CARDS -->
+    <!-- 3 FEATURE CARDS (Ikon SVG Profesional, Micro-Badges Bersih) -->
     <section id="fitur" class="features-section">
       <div class="features-grid">
 
@@ -640,18 +715,15 @@ body.guest-body {
                 </svg>
               </div>
 
-              <!-- Micro-Badge: QR Fisik -->
+              <!-- Micro-Badge: Kode Fisik -->
               <div class="micro-badge" style="font-family: monospace;">
-                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14-2h4v2h-4v-2zm-4 0h2v4h-2v-4zm4 4h4v4h-4v-4zm-4 2h2v2h-2v-2zm-2-2h2v2h-2v-2z" />
-                </svg>
                 <strong style="color: var(--oi-black);">AST-0024</strong>
               </div>
             </div>
 
             <h2 class="card-title">Satu barang, satu identitas</h2>
             <p class="card-description">
-              Satu unit fisik memiliki kode QR dan nomor seri unik yang stabil. Bukan sistem stok abstrak, melainkan pelacakan unit nyata di rak atau lemari.
+              Satu unit fisik memiliki kode unik dan nomor seri stabil yang tercatat rapi. Bukan sistem stok abstrak, melainkan pelacakan unit nyata di rak atau lemari.
             </p>
           </div>
 
@@ -659,11 +731,11 @@ body.guest-body {
             <span class="status-valid">
               <span class="status-dot"></span> Stiker Fisik Valid
             </span>
-            <a href="{{ route('organizations') }}" class="action-link action-link-red">Label QR &rarr;</a>
+            <a href="{{ route('organizations') }}" class="action-link action-link-red">Katalog Aset →</a>
           </div>
         </article>
 
-        <!-- Card 2: Peran Sesuai Komunitas -->
+        <!-- Card 2: Peran Sesuai Organization -->
         <article class="feature-card card-accent-red">
           <div>
             <div class="card-top">
@@ -681,17 +753,17 @@ body.guest-body {
               </div>
             </div>
 
-            <h2 class="card-title">Peran sesuai Komunitas</h2>
+            <h2 class="card-title">Peran sesuai Organization</h2>
             <p class="card-description">
-              Satu akun dapat menjadi Admin di Komunitas miliknya sendiri, dan menjadi Member di komunitas lain tanpa mencampur otorisasi atau hak akses data.
+              Satu akun dapat menjadi Admin di Organization miliknya sendiri, dan menjadi Member di Organization lain tanpa mencampur otorisasi atau hak akses data.
             </p>
           </div>
 
           <div class="card-footer">
-            <span class="status-valid">
-              <span class="status-dot status-dot-red"></span> Role Independen
+            <span class="status-valid" style="color: #475467;">
+              <span class="status-dot status-dot-red"></span> Otorisasi Mandiri
             </span>
-            <a href="{{ route('organizations') }}" class="action-link action-link-black">Lihat Komunitas &rarr;</a>
+            <a href="{{ route('organizations') }}" class="action-link action-link-red">Aturan Peran →</a>
           </div>
         </article>
 
@@ -701,30 +773,28 @@ body.guest-body {
             <div class="card-top">
               <div class="card-icon-box icon-black">
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
 
-              <!-- Micro-Badge: 100% Audit Trail -->
-              <div class="micro-badge">
-                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <strong style="color: #047857;">100% TERCATAT</strong>
+              <!-- Micro-Badge: Audit Trail -->
+              <div class="micro-badge" style="font-family: monospace;">
+                <span class="status-dot status-dot-blue"></span>
+                <strong style="color: var(--oi-black);">100% TERCATAT</strong>
               </div>
             </div>
 
             <h2 class="card-title">Riwayat yang terjaga</h2>
             <p class="card-description">
-              Setiap serah terima, inspeksi kembali, dan denda terlambat tercatat di log audit. Pembayaran diverifikasi langsung oleh Admin secara transparan.
+              Catat inventaris dan aktivitas peminjaman dalam Organization yang Anda kelola. Seluruh audit log, kondisi fisik, dan denda tersimpan transparan.
             </p>
           </div>
 
           <div class="card-footer">
-            <span class="status-valid">
-              <span class="status-dot status-dot-blue"></span> Audit Trail Finansial
+            <span class="status-valid" style="color: #475467;">
+              <span class="status-dot status-dot-blue"></span> Log Tak Terhapus
             </span>
-            <a href="{{ route('register') }}" class="action-link action-link-red">Pelajari &rarr;</a>
+            <a href="{{ route('login') }}" class="action-link action-link-red">Pelaporan →</a>
           </div>
         </article>
 
@@ -732,42 +802,54 @@ body.guest-body {
     </section>
 
     <!-- CALL TO ACTION BANNER -->
-    <section class="cta-banner" id="tentang">
+    <section id="explore" class="cta-banner">
       <div class="cta-banner-content">
-        <h2 class="cta-title">Siap merapikan inventaris komunitas Anda?</h2>
-        <p class="cta-subtitle">
-          Buat ruang inventaris pertama Anda dalam hitungan menit. Gratis, tanpa biaya tersembunyi.
-        </p>
+        <h3 class="cta-title">Siap merapikan inventaris kelompok Anda?</h3>
+        <p class="cta-subtitle">Mulai buat Organization atau temukan Organization Anda sekarang.</p>
         <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
-          <a href="{{ route('register') }}" class="pill-btn btn-primary-red" style="font-size: 0.8125rem; padding: 0.75rem 1.625rem;">
-            Mulai Sekarang — Gratis
+          <a href="{{ route('register') }}" class="pill-btn btn-primary-red" style="font-size: 0.8125rem; padding: 0.625rem 1.375rem;">
+            Mulai Gratis →
           </a>
-          <a href="{{ route('organizations') }}" class="pill-btn btn-secondary-light" style="font-size: 0.8125rem; padding: 0.75rem 1.625rem;">
-            Jelajahi Komunitas
+          <a href="{{ route('organizations') }}" class="pill-btn btn-secondary-light" style="font-size: 0.8125rem; padding: 0.625rem 1.375rem;">
+            Jelajahi Organization
           </a>
         </div>
       </div>
     </section>
 
     <!-- FOOTER -->
-    <footer class="site-footer">
-      <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-        <span style="font-weight: 800; color: var(--oi-black);">Organization Inventory</span>
-        <span>•</span>
-        <span>Sistem Peminjaman Barang Berbasis Website</span>
-      </div>
-      <div>&copy; {{ date('Y') }} Organization Inventory. Seluruh hak cipta dilindungi.</div>
+    <footer id="tentang" class="site-footer">
+      <p>Organization Inventory · Solusi pengelolaan inventaris fisik dan peminjaman barang.</p>
     </footer>
 
   </div>
 
-  <!-- FLOATING BACK TO TOP BUTTON -->
-  <button id="backToTopBtn" class="back-to-top-btn" type="button" aria-label="Kembali ke atas">
-    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <!-- FLOATING TOMBOL KEMBALI KE ATAS -->
+  <button id="backToTopBtn" class="pill-btn back-to-top-btn" aria-label="Kembali ke atas">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
     </svg>
     <span>Kembali ke atas</span>
   </button>
 
+  <script src="{{ asset('js/app.js') }}?v=16.0"></script>
+  <script>
+    // Smooth scrolling & Back to Top logic
+    document.addEventListener('DOMContentLoaded', () => {
+      const backToTopBtn = document.getElementById('backToTopBtn');
+      const handleScroll = () => {
+        const scrollPos = window.scrollY || document.documentElement.scrollTop;
+        if (scrollPos > 120) {
+          backToTopBtn?.classList.add('is-visible');
+        } else {
+          backToTopBtn?.classList.remove('is-visible');
+        }
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      backToTopBtn?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  </script>
 </body>
 </html>

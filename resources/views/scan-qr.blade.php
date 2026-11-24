@@ -25,13 +25,13 @@
             <!-- Red Target Frame -->
             <div style="width: 220px; height: 160px; margin: 0 auto 2rem auto; position: relative; display: flex; align-items: center; justify-content: center;">
                 <!-- Corners -->
-                <div style="position: absolute; top: 0; left: 0; width: 24px; height: 24px; border-top: 3px solid #80142B; border-left: 3px solid #80142B; border-top-left-radius: 8px;"></div>
-                <div style="position: absolute; top: 0; right: 0; width: 24px; height: 24px; border-top: 3px solid #80142B; border-right: 3px solid #80142B; border-top-right-radius: 8px;"></div>
-                <div style="position: absolute; bottom: 0; left: 0; width: 24px; height: 24px; border-bottom: 3px solid #80142B; border-left: 3px solid #80142B; border-bottom-left-radius: 8px;"></div>
-                <div style="position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; border-bottom: 3px solid #80142B; border-right: 3px solid #80142B; border-bottom-right-radius: 8px;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 24px; height: 24px; border-top: 3px solid #7f112e; border-left: 3px solid #7f112e; border-top-left-radius: 8px;"></div>
+                <div style="position: absolute; top: 0; right: 0; width: 24px; height: 24px; border-top: 3px solid #7f112e; border-right: 3px solid #7f112e; border-top-right-radius: 8px;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 24px; height: 24px; border-bottom: 3px solid #7f112e; border-left: 3px solid #7f112e; border-bottom-left-radius: 8px;"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; border-bottom: 3px solid #7f112e; border-right: 3px solid #7f112e; border-bottom-right-radius: 8px;"></div>
 
                 <!-- Red Scan Line -->
-                <div style="position: absolute; left: 10px; right: 10px; height: 2px; background: #80142B; box-shadow: 0 0 12px #80142B;"></div>
+                <div style="position: absolute; left: 10px; right: 10px; height: 2px; background: #7f112e; box-shadow: 0 0 12px #7f112e;"></div>
 
                 <!-- Center QR Silhouette -->
                 <svg width="48" height="48" fill="none" stroke="rgba(255,255,255,0.2)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>

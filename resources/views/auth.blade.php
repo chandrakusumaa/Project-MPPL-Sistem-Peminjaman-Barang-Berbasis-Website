@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ match($mode){'register'=>'Buat Akun Baru','forgot-password'=>'Pemulihan Sandi','reset-password'=>'Kata Sandi Baru',default=>'Selamat Datang'} }} — Organizing Inventory</title>
+  <title>{{ match($mode){'register'=>'Buat Akun Baru','forgot-password'=>'Pemulihan Sandi','reset-password'=>'Kata Sandi Baru',default=>'Selamat Datang'} }} — Organization Inventory</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -62,11 +62,11 @@
     }
     .form-input:focus {
       outline: none;
-      border-color: #80142B;
-      box-shadow: 0 0 0 3px rgba(128, 20, 43, 0.12);
+      border-color: #7f112e;
+      box-shadow: 0 0 0 3px rgba(127, 17, 46, 0.14);
     }
     .btn-maroon {
-      background-color: #80142B;
+      background-color: #7f112e;
       color: #ffffff !important;
       border-radius: 9999px;
       display: inline-flex;
@@ -78,11 +78,11 @@
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid transparent;
       white-space: nowrap;
-      box-shadow: 0 4px 14px rgba(128, 20, 43, 0.25);
+      box-shadow: 0 4px 14px rgba(127, 17, 46, 0.25);
     }
     .btn-maroon:hover {
-      background-color: #671023;
-      box-shadow: 0 6px 18px rgba(128, 20, 43, 0.35);
+      background-color: #680e2c;
+      box-shadow: 0 6px 18px rgba(127, 17, 46, 0.35);
     }
     .alert-box {
       padding: 0.75rem 1rem;
@@ -137,7 +137,7 @@
     <!-- Brand Logo Top Center -->
     <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
       <a href="{{ route('landing') }}" style="display: inline-flex; justify-content: center; text-decoration: none;">
-        <img src="{{ asset('images/logo.png') }}" alt="Organizing Inventory" style="height: 48px; width: auto; object-fit: contain;">
+        <img src="{{ asset('images/logo.png') }}" alt="Organization Inventory" style="height: 48px; width: auto; object-fit: contain;">
       </a>
     </div>
 
@@ -153,10 +153,10 @@
       </h1>
       <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0 0 1.75rem 0; line-height: 1.5;">
         {{ match($mode){
-          'register' => 'Mulai pinjam barang fisik dan kelola komunitas organisasi Anda.',
+          'register' => 'Mulai pinjam barang fisik dan kelola Organization Anda.',
           'forgot-password' => 'Masukkan email terdaftar untuk menerima tautan atur ulang sandi.',
           'reset-password' => 'Tentukan kata sandi baru yang aman untuk akun Anda.',
-          default => 'Masuk ke akun Anda untuk mengelola komunitas & peminjaman.'
+          default => 'Masuk ke akun Anda untuk mengelola Organization & peminjaman.'
         } }}
       </p>
 
@@ -239,7 +239,7 @@
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
               <label class="form-label" style="margin-bottom: 0;">Kata Sandi</label>
-              <a href="{{ route('password.request') }}" style="font-size: 0.75rem; color: #80142B; text-decoration: none; font-weight: 600;">Lupa Sandi?</a>
+              <a href="{{ route('password.request') }}" style="font-size: 0.75rem; color: #7f112e; text-decoration: none; font-weight: 600;">Lupa Sandi?</a>
             </div>
             <input type="password" id="auth-password" name="password" class="form-input" required autocomplete="current-password" placeholder="••••••••">
           </div>
@@ -278,7 +278,7 @@
         @elseif($mode === 'register')
           Sudah memiliki akun? <a href="{{ route('login') }}" style="color: #0f172a; font-weight: 700; text-decoration: none; margin-left: 0.2rem;">Masuk di sini</a>
         @else
-          <a href="{{ route('login') }}" style="color: #80142B; font-weight: 700; text-decoration: none;">&larr; Kembali ke halaman Masuk</a>
+          <a href="{{ route('login') }}" style="color: #7f112e; font-weight: 700; text-decoration: none;">&larr; Kembali ke halaman Masuk</a>
         @endif
       </div>
     </div>

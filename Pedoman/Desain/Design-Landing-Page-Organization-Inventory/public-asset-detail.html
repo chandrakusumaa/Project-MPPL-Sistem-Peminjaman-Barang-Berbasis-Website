@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sony Alpha 7 IV (Body Only) — Detail Aset Fisik | Organization Inventory</title>
+  <link rel="stylesheet" href="css/style.css?v=16.0">
+  <style>
+    .asset-gallery-card {
+      background: #ffffff;
+      border: 1px solid var(--oi-border);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+    }
+    .asset-img-stage {
+      width: 100%;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #f8fafc, #edf2f7);
+      border-radius: 1.25rem;
+      position: relative;
+      border: 1px solid #e2e8f0;
+    }
+    .booking-rail-card {
+      background: #ffffff;
+      border: 1px solid #fecdd6;
+      border-top: 4px solid var(--oi-wine);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      box-shadow: 0 10px 25px -5px rgba(127, 17, 46, 0.08);
+      position: sticky;
+      top: 5rem;
+    }
+    .spec-item {
+      display: flex;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.875rem;
+    }
+    .spec-label {
+      width: 38%;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .spec-value {
+      width: 62%;
+      color: #0f172a;
+      font-weight: 700;
+    }
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .breadcrumb-nav a {
+      color: #475467;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.15s ease;
+    }
+    .breadcrumb-nav a:hover {
+      color: var(--oi-wine);
+    }
+  </style>
+</head>
+<body class="guest-body">
+
+  <!-- BACKGROUND SILUET & VECTOR WATERMARK (Halus, Elegan, 3-4% Opacity) -->
+  <div class="bg-siluet-layer" aria-hidden="true">
+    <svg style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.035;" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid-dots-dash" width="32" height="32" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1.5" fill="#172033" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid-dots-dash)" />
+    </svg>
+
+    <!-- Siluet Kamera & Tripod -->
+    <svg style="position: absolute; left: 5%; top: 4rem; width: 22rem; height: 22rem; color: #05214c; opacity: 0.035; transform: rotate(-6deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+      <circle cx="12" cy="13" r="4" />
+      <path d="M12 17v4m-3 0h6m-3-4l-3 4m3-4l3 4" stroke-dasharray="2 2" />
+    </svg>
+
+    <!-- Siluet Ambient Glow -->
+    <div class="ambient-glow"></div>
+  </div>
+
+  <div class="content-wrapper">
+    
+    <!-- STICKY NAVBAR DENGAN LOGO RESMI & DYNAMIC AUTH STATE -->
+    <header class="sticky-navbar">
+      <a href="index.html" class="brand-logo" aria-label="Organization Inventory">
+        <img src="images/logo.png" alt="Organization Inventory" class="app-logo" style="height: 38px; width: auto; object-fit: contain;">
+      </a>
+
+      <nav class="nav-links" aria-label="Navigasi Utama">
+        <a href="explore-orgs.html" class="nav-link active">Jelajahi Komunitas</a>
+        <a href="index.html#fitur" class="nav-link">Fitur Utama</a>
+      </nav>
+
+      <div class="nav-actions" id="navAuthActions">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <a href="login.html" class="nav-link" style="color: #0f172a; font-weight: 700; text-decoration: none; padding: 0.4rem 0.75rem; font-size: 0.875rem;">Masuk</a>
+          <a href="register.html" class="pill-btn btn-solid-black" style="font-size: 0.8125rem; padding: 0.45rem 1rem;">Buat Akun</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- BREADCRUMB NAVIGATION -->
+    <nav class="breadcrumb-nav">
+      <a href="index.html">Beranda</a>
+      <span>/</span>
+      <a href="explore-orgs.html">Jelajahi Komunitas</a>
+      <span>/</span>
+      <a href="org-public-profile.html?id=1">Media Kreatif Lab</a>
+      <span>/</span>
+      <span style="color: #0f172a; font-weight: 700;">Sony Alpha 7 IV (CAM-001)</span>
+    </nav>
+
+    <!-- MAIN TWO-COLUMN CONTENT -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start; margin-bottom: 3.5rem;">
+      <style>
+        @media (min-width: 1024px) {
+          .detail-layout-grid {
+            display: grid !important;
+            grid-template-columns: 1.55fr 1fr !important;
+            gap: 2.25rem !important;
+          }
+        }
+      </style>
+
+      <div class="detail-layout-grid" style="display: flex; flex-direction: column; gap: 2rem;">
+        
+        <!-- LEFT COLUMN: PRODUCT IMAGE STAGE & SPECIFICATIONS -->
+        <div>
+          <!-- PRODUCT IMAGE SHOWCASE -->
+          <div class="asset-gallery-card">
+            <div class="asset-img-stage">
+              <!-- Physical Tag Badge Overlay -->
+              <div style="position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.5rem; align-items: center;">
+                <span class="micro-badge micro-badge-green" style="font-weight: 800; font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                  <span class="status-dot status-dot-green"></span> Unit Fisik Tersedia
+                </span>
+                <span style="background: rgba(15, 23, 42, 0.85); color: #ffffff; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;">
+                  KODE: CAM-001
+                </span>
+              </div>
+
+              <!-- High-Tech Scan Reticle / Product Visual Graphic -->
+              <svg width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="#7f112e" stroke-width="1.2" style="filter: drop-shadow(0 15px 25px rgba(127,17,46,0.2));">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <circle cx="12" cy="13" r="4.5" stroke="#05214c" stroke-width="1.5" />
+                <circle cx="12" cy="13" r="2" fill="#7f112e" opacity="0.4" />
+                <circle cx="17.5" cy="8.5" r="0.75" fill="#7f112e" />
+              </svg>
+
+              <!-- Physical Asset Code Tag -->
+              <div style="position: absolute; bottom: 1rem; right: 1rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 0.35rem 0.65rem; font-size: 0.6875rem; color: #475467; font-family: monospace; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <span style="font-weight: 800; color: #7f112e;">KODE FISIK:</span>
+                AST-7829-0024 (CAM-001)
+              </div>
+            </div>
+
+            <!-- Thumbnail Selector Strip -->
+            <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; width: 100%;">
+              <button style="flex: 1; height: 60px; border-radius: 0.75rem; border: 2px solid var(--oi-wine); background: #fdf2f4; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: var(--oi-wine);">Body Depan</span>
+              </button>
+              <button style="flex: 1; height: 60px; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <span style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Panel & LCD</span>
+              </button>
+              <button style="flex: 1; height: 60px; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <span style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Kelengkapan Case</span>
+              </button>
+              <button style="flex: 1; height: 60px; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <span style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Label & No Seri</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ASSET IDENTITY & DETAILS -->
+          <div class="panel-card" style="margin-top: 1.5rem; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--oi-wine); letter-spacing: 0.05em;">Kategori: Kamera & Video</span>
+                <h1 style="font-size: 1.75rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em; margin-top: 0.25rem;">Sony Alpha 7 IV (Body Only)</h1>
+                <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.35rem;">Milik Komunitas: <strong>Media Kreatif Lab</strong> · Gedung B Lt. 3 Studio 304</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 0.75rem; color: #64748b;">Nilai Taksiran Ganti Rugi</div>
+                <div style="font-size: 1.25rem; font-weight: 900; color: #05214c;">Rp 32.000.000</div>
+              </div>
+            </div>
+
+            <p style="font-size: 0.9375rem; color: #334155; line-height: 1.6; margin-bottom: 1.75rem;">
+              Kamera hybrid mirrorless full-frame generasi terbaru untuk produksi film pendek, dokumenter, siaran langsung, dan fotografi studio. Dilengkapi sensor 33MP Exmor R, perekaman 4K 60p 10-bit 4:2:2, dan sistem pendingin termal aktif.
+            </p>
+
+            <!-- SPESIFIKASI TABEL -->
+            <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem;">Spesifikasi & Kondisi Fisik</h3>
+            <div style="border-top: 1px solid #f1f5f9; margin-bottom: 1.75rem;">
+              <div class="spec-item">
+                <div class="spec-label">Kode Stiker Fisik</div>
+                <div class="spec-value" style="font-family: monospace; color: var(--oi-wine);">CAM-001 (AST-0024)</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Kondisi Fisik</div>
+                <div class="spec-value" style="color: #059669;">Sangat Baik (98% Mulus, Sensor Bersih, Shutter Count 4.210)</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Lokasi Simpan Fisik</div>
+                <div class="spec-value">Gedung B Lt. 3 · Studio 304 · Lemari A-01 (Kamera) · Rak A-02</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Kelengkapan Bawaan</div>
+                <div class="spec-value">1x Body Cap, 2x Baterai NP-FZ100, 1x Dual Fast Charger, 1x Strap Sony Original, 1x Hardcase Vanguard</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Batas Maksimal Pinjam</div>
+                <div class="spec-value">7 Hari Kalender (Denda keterlambatan: Rp 25.000 / hari)</div>
+              </div>
+            </div>
+
+            <!-- KEBIJAKAN LAB & INTEGRITAS FISIK -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem;">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <svg width="20" height="20" fill="none" stroke="#7f112e" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 0.15rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <div style="font-size: 0.8125rem; color: #475467; line-height: 1.5;">
+                  <strong>Perhatian Peminjam:</strong> Pengambilan dan pengembalian unit fisik WAJIB melalui Meja Inspeksi Staff di Studio 304 dengan verifikasi fisik barang di meja inspeksi. Kerusakan fisik atau kelalaian aksesoris akan dikenakan tagihan perbaikan resmi sesuai taksiran teknisi.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: INTERACTIVE BOOKING FORM (PRD v0.4 & SRS v1.2) -->
+        <div>
+          <!-- SIMULATION STATUS SWITCHER (FOR EVALUATION & DEMO) -->
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 0.875rem 1rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.6875rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Simulasi Status Unit Fisik:</span>
+              <span id="stateModeBadge" class="micro-badge micro-badge-green" style="font-size: 0.6875rem;">AVAILABLE</span>
+            </div>
+            <div style="display: flex; gap: 0.375rem;">
+              <button type="button" onclick="setAssetStatusState('available')" id="btnStateAvail" class="pill-btn btn-sm btn-solid-black" style="font-size: 0.6875rem; flex: 1; justify-content: center; padding: 0.35rem 0.5rem;">Tersedia</button>
+              <button type="button" onclick="setAssetStatusState('borrowed')" id="btnStateBorrowed" class="pill-btn btn-sm btn-ghost" style="font-size: 0.6875rem; flex: 1; justify-content: center; padding: 0.35rem 0.5rem;">Dipinjam</button>
+              <button type="button" onclick="setAssetStatusState('maintenance')" id="btnStateMaint" class="pill-btn btn-sm btn-ghost" style="font-size: 0.6875rem; flex: 1; justify-content: center; padding: 0.35rem 0.5rem;">Perbaikan</button>
+            </div>
+          </div>
+
+          <!-- BOOKING CARD -->
+          <div class="booking-rail-card" style="border: 1px solid #e2e8f0; border-top: 3px solid #7f112e; border-radius: 1.125rem; padding: 1.75rem; background: #ffffff; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06);">
+            
+            <!-- STATE A: AVAILABLE (FORM ACTIVE) -->
+            <div id="bookingStateAvailable">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                <div>
+                  <h2 style="font-size: 1.25rem; font-weight: 900; color: #0f172a; letter-spacing: -0.02em;">Ajukan Peminjaman Unit</h2>
+                  <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.2rem;">Satu pengajuan mengunci 1 unit fisik mandiri (CAM-001).</p>
+                </div>
+                <span class="micro-badge micro-badge-green" style="font-weight: 800;">Tersedia ✓</span>
+              </div>
+
+              <form onsubmit="handlePublicApply(event)" id="formApplyBorrow">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                  <div class="form-group">
+                    <label class="form-label" style="font-size: 0.8125rem; font-weight: 700;">Tgl Mulai Pinjam</label>
+                    <input type="date" id="applyStartDate" class="form-input" style="font-size: 0.8125rem;" onchange="validateBorrowDuration()" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" style="font-size: 0.8125rem; font-weight: 700;">Tgl Rencana Kembali</label>
+                    <input type="date" id="applyEndDate" class="form-input" style="font-size: 0.8125rem;" onchange="validateBorrowDuration()" required>
+                  </div>
+                </div>
+
+                <!-- LIVE DURATION INDICATOR (MAX 7 DAYS RULE) -->
+                <div id="durationNoticeBox" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.625rem 0.875rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+                  <span style="color: #64748b;">Durasi Peminjaman:</span>
+                  <span id="durationBadge" class="micro-badge micro-badge-green" style="font-weight: 800;">4 Hari (Sesuai Batas)</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                  <label class="form-label" style="font-size: 0.8125rem; font-weight: 700;">Alasan Peminjaman / Keperluan Proyek</label>
+                  <textarea id="applyPurpose" class="form-textarea" rows="3" placeholder="Jelaskan kebutuhan penggunaan unit (contoh: Produksi tugas film pendek mata kuliah Sinematografi di Studio B)..." style="font-size: 0.8125rem;" required minlength="10" oninput="updateReasonCounter(this)"></textarea>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.6875rem; color: #64748b; margin-top: 0.25rem;">
+                    <span>Wajib minimal 10 karakter alasan.</span>
+                    <span><span id="applyReasonCount">0</span>/10 karakter</span>
+                  </div>
+                </div>
+
+                <!-- CHECKBOX TANGGUNG JAWAB FISIK -->
+                <div style="background: #fdf2f4; border: 1px solid #fecdd6; border-radius: 0.75rem; padding: 0.875rem; margin-bottom: 1.25rem;">
+                  <label style="display: flex; gap: 0.625rem; align-items: flex-start; cursor: pointer; font-size: 0.75rem; color: #7f112e; line-height: 1.45;">
+                    <input type="checkbox" id="agreePhysicalRules" style="margin-top: 0.15rem; accent-color: var(--oi-wine);" required>
+                    <span>Saya menyetujui aturan denda keterlambatan <strong>Rp 25.000/hari</strong> dan bertanggung jawab penuh atas keutuhan fisik unit dan aksesoris bawaan.</span>
+                  </label>
+                </div>
+
+                <!-- CTA SUBMIT -->
+                <button type="submit" id="btnSubmitBorrow" class="pill-btn btn-primary-red btn-lg" style="width: 100%; justify-content: center; font-weight: 800; cursor: pointer; border: none; box-shadow: 0 4px 14px rgba(127, 17, 46, 0.25);">
+                  Kirim Pengajuan Pinjam →
+                </button>
+              </form>
+            </div>
+
+            <!-- STATE B: BORROWED (LOCKED STATE) -->
+            <div id="bookingStateBorrowed" style="display: none; text-align: center; padding: 1rem 0;">
+              <div style="width: 3.5rem; height: 3.5rem; border-radius: 9999px; background: #fffbeb; color: #b45309; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #fde68a;">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <h3 style="font-size: 1.125rem; font-weight: 900; color: #92400e; margin-bottom: 0.25rem;">Unit Sedang Aktif Dipinjam</h3>
+              <p style="font-size: 0.8125rem; color: #78350f; line-height: 1.5; margin-bottom: 1.25rem;">
+                Unit fisik <strong>Sony Alpha 7 IV (CAM-001)</strong> saat ini sedang dibawa oleh peminjam lain dan dijadwalkan kembali pada <strong>26 Nov 2026</strong>.
+              </p>
+              
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.875rem; text-align: left; font-size: 0.75rem; color: #475467; line-height: 1.5; margin-bottom: 1.25rem;">
+                ℹ️ <strong>Prinsip Sistem (PRD v0.4):</strong> Tidak ada sistem reservasi masa depan. Pengajuan peminjaman baru hanya dapat dilakukan setelah unit fisik kembali dan diverifikasi di Meja Inspeksi lab.
+              </div>
+
+              <button type="button" disabled class="pill-btn btn-secondary-light btn-lg" style="width: 100%; justify-content: center; opacity: 0.6; cursor: not-allowed; font-weight: 700;">
+                Unit Sedang Dipinjam 🔒
+              </button>
+            </div>
+
+            <!-- STATE C: MAINTENANCE (LOCKED STATE) -->
+            <div id="bookingStateMaintenance" style="display: none; text-align: center; padding: 1rem 0;">
+              <div style="width: 3.5rem; height: 3.5rem; border-radius: 9999px; background: #f1f5f9; color: #475467; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 2px solid #cbd5e1;">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+              <h3 style="font-size: 1.125rem; font-weight: 900; color: #0f172a; margin-bottom: 0.25rem;">Dalam Pemeliharaan Teknis</h3>
+              <p style="font-size: 0.8125rem; color: #64748b; line-height: 1.5; margin-bottom: 1.25rem;">
+                Unit sedang menjalani kalibrasi sensor atau perbaikan insiden fisik oleh teknisi lab. Peminjaman ditutup sementara demi keselamatan peralatan.
+              </p>
+
+              <button type="button" disabled class="pill-btn btn-secondary-light btn-lg" style="width: 100%; justify-content: center; opacity: 0.6; cursor: not-allowed; font-weight: 700;">
+                Dalam Pemeliharaan 🛠️
+              </button>
+            </div>
+
+            <div style="margin-top: 1.25rem; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 1rem;">
+              <a href="asset-timeline.html" style="font-size: 0.75rem; color: #64748b; text-decoration: none; font-weight: 600;">
+                Lihat Garis Waktu Riwayat Aset (Audit Trail) →
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER PUBLIK RINGKAS -->
+    <footer style="text-align: center; padding: 2rem 0; border-top: 1px solid #e2e8f0; font-size: 0.8125rem; color: #64748b; margin-top: 4rem;">
+      <p>Organization Inventory · Solusi pengelolaan inventaris fisik dan peminjaman peralatan kampus.</p>
+    </footer>
+
+  </div>
+
+    <script src="js/app.js?v=16.0"></script>
+  <script>
+    // Set default dates & validation
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const returnDate = new Date(today);
+      returnDate.setDate(returnDate.getDate() + 5);
+
+      const toISO = (d) => d.toISOString().split('T')[0];
+      const startInput = document.getElementById('applyStartDate');
+      const endInput = document.getElementById('applyEndDate');
+      if (startInput) {
+        startInput.value = toISO(tomorrow);
+        startInput.min = toISO(today);
+      }
+      if (endInput) {
+        endInput.value = toISO(returnDate);
+        endInput.min = toISO(tomorrow);
+      }
+      validateBorrowDuration();
+    });
+
+    function updateReasonCounter(textarea) {
+      const cnt = document.getElementById('applyReasonCount');
+      if (cnt) cnt.innerText = textarea.value.length;
+    }
+
+    function validateBorrowDuration() {
+      const startVal = document.getElementById('applyStartDate').value;
+      const endVal = document.getElementById('applyEndDate').value;
+      const badge = document.getElementById('durationBadge');
+      const submitBtn = document.getElementById('btnSubmitBorrow');
+
+      if (!startVal || !endVal) return;
+      const d1 = new Date(startVal);
+      const d2 = new Date(endVal);
+      const diffTime = d2 - d1;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) {
+        badge.className = 'micro-badge micro-badge-red';
+        badge.innerText = '⚠️ Tgl kembali harus setelah tgl mulai!';
+        if (submitBtn) submitBtn.disabled = true;
+      } else if (diffDays > 7) {
+        badge.className = 'micro-badge micro-badge-red';
+        badge.innerText = `⚠️ Durasi ${diffDays} Hari — Melebihi batas maksimal 7 hari!`;
+        if (submitBtn) submitBtn.disabled = true;
+      } else {
+        badge.className = 'micro-badge micro-badge-green';
+        badge.innerText = `Durasi: ${diffDays} Hari (Maksimal 7 Hari) ✓`;
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    }
+
+    function setAssetStatusState(state) {
+      const stateAvail = document.getElementById('bookingStateAvailable');
+      const stateBorrowed = document.getElementById('bookingStateBorrowed');
+      const stateMaint = document.getElementById('bookingStateMaintenance');
+      const badge = document.getElementById('stateModeBadge');
+
+      const btnAvail = document.getElementById('btnStateAvail');
+      const btnBorrowed = document.getElementById('btnStateBorrowed');
+      const btnMaint = document.getElementById('btnStateMaint');
+
+      btnAvail.className = 'pill-btn btn-sm ' + (state === 'available' ? 'btn-solid-black' : 'btn-ghost');
+      btnBorrowed.className = 'pill-btn btn-sm ' + (state === 'borrowed' ? 'btn-solid-black' : 'btn-ghost');
+      btnMaint.className = 'pill-btn btn-sm ' + (state === 'maintenance' ? 'btn-solid-black' : 'btn-ghost');
+
+      if (state === 'available') {
+        stateAvail.style.display = 'block';
+        stateBorrowed.style.display = 'none';
+        stateMaint.style.display = 'none';
+        badge.className = 'micro-badge micro-badge-green';
+        badge.innerText = 'AVAILABLE';
+      } else if (state === 'borrowed') {
+        stateAvail.style.display = 'none';
+        stateBorrowed.style.display = 'block';
+        stateMaint.style.display = 'none';
+        badge.className = 'micro-badge micro-badge-amber';
+        badge.innerText = 'BORROWED';
+      } else {
+        stateAvail.style.display = 'none';
+        stateBorrowed.style.display = 'none';
+        stateMaint.style.display = 'block';
+        badge.className = 'micro-badge micro-badge-red';
+        badge.innerText = 'MAINTENANCE';
+      }
+    }
+
+    function handlePublicApply(e) {
+      e.preventDefault();
+      const purpose = document.getElementById('applyPurpose').value;
+      if (purpose.trim().length < 10) {
+        showToast('Keperluan peminjaman harus minimal 10 karakter!', 'error');
+        return;
+      }
+
+      showToast('Pengajuan peminjaman berhasil dikirim! Menunggu approval Staff lab.', 'success');
+      setTimeout(() => {
+        window.location.href = 'my-borrowings.html';
+      }, 700);
+    }
+  </script>
+</body>
+</html>
