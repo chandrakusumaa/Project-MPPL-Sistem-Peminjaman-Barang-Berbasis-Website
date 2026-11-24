@@ -14,8 +14,10 @@
 
         @auth
             <button type="button" class="pill-btn btn-primary-red btn-lg" style="box-shadow: 0 4px 12px rgba(127, 17, 46, 0.22); font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;" wire:click="$toggle('creating')">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/></svg>
-                {{ $creating ? 'Tutup Formulir' : '+ Buat Organization Baru' }}
+                @if(!$creating)
+                    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/></svg>
+                @endif
+                {{ $creating ? 'Tutup Formulir' : 'Buat Organization Baru' }}
             </button>
         @endauth
     </div>

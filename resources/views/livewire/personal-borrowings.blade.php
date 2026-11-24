@@ -12,7 +12,7 @@
         <div class="oi-head-actions">
             <a class="pill-btn btn-primary-red" style="font-size: 0.8125rem; font-weight: 700; padding: 0.6rem 1.25rem; gap: 0.5rem; box-shadow: 0 4px 12px rgba(127, 17, 46, 0.22);" href="{{ route('organizations') }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/></svg>
-                + Pinjam Barang Baru
+                Pinjam Barang Baru
             </a>
         </div>
     </div>
