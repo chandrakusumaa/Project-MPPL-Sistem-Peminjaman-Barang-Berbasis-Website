@@ -23,18 +23,24 @@
                     </span>
                 </div>
                 <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0.35rem 0 0 0;">
-                    {{ $org->description ? Str::limit($org->description, 60) . ' · ' : '' }}Maks Pinjam: <strong style="font-weight: 700; color: #0f172a;">{{ $org->max_loan_days ?? 7 }} Hari</strong> · Denda: <strong style="font-weight: 700; color: #0f172a;">Rp {{ number_format($org->late_fee_per_day ?? 25000, 0, ',', '.') }}/hari</strong>
+                    {{ $org->description ? Str::limit($org->description, 60) . ' · ' : '' }}Maks Pinjam: <strong style="font-weight: 700; color: #0f172a;">{{ $org->max_borrow_days }} Hari</strong> · Denda: <strong style="font-weight: 700; color: #0f172a;">Rp {{ number_format($org->late_fine_per_day, 0, ',', '.') }}/hari</strong>
                 </p>
             </div>
         </div>
 
         <!-- ACTION BUTTONS: SESUAI FOTO 3 -->
         <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-            <button type="button" style="padding: 0.625rem 1.25rem; font-size: 0.8125rem; font-weight: 700; border-radius: 0.625rem; background: #7f112e; color: #ffffff; border: none; cursor: pointer; transition: background 0.15s ease;" wire:click="$set('tab', 'inventory')" onmouseover="this.style.background='#680e2c'" onmouseout="this.style.background='#7f112e'">
-                Ajukan Peminjaman Unit &rarr;
-            </button>
-            @if($operator)
-                <button type="button" style="padding: 0.625rem 1.15rem; font-size: 0.8125rem; font-weight: 700; border-radius: 0.625rem; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.15s ease;" wire:click="openAssetForm" wire:loading.attr="disabled" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+            @if(!$operator)
+                <button type="button" style="padding: 0.625rem 1.25rem; font-size: 0.8125rem; font-weight: 700; border-radius: 0.625rem; background: #7f112e; color: #ffffff; border: none; cursor: pointer; transition: background 0.15s ease;" wire:click="$set('tab', 'inventory')" onmouseover="this.style.background='#680e2c'" onmouseout="this.style.background='#7f112e'">
+                    Ajukan Peminjaman Unit &rarr;
+                </button>
+            @else
+                @if($tab === 'inventory')
+                    <button type="button" style="padding: 0.625rem 1.15rem; font-size: 0.8125rem; font-weight: 700; border-radius: 0.625rem; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.15s ease;" wire:click="openCategoryForm" wire:loading.attr="disabled" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                        + Tambah Kategori
+                    </button>
+                @endif
+                <button type="button" style="padding: 0.625rem 1.15rem; font-size: 0.8125rem; font-weight: 700; border-radius: 0.625rem; background: #7f112e; color: #ffffff; border: none; cursor: pointer; transition: background 0.15s ease;" wire:click="openAssetForm" wire:loading.attr="disabled" onmouseover="this.style.background='#680e2c'" onmouseout="this.style.background='#7f112e'">
                     + Tambah Unit Fisik
                 </button>
             @endif
@@ -192,29 +198,44 @@
                                     @endif
                                 </td>
                                 <td style="padding: 1.1rem 1.75rem; text-align: right; white-space: nowrap;">
-                                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; justify-content: flex-end;">
-                                        @if($a->status === 'available' && !$org->archived_at)
-                                            <button type="button" class="btn-maroon" style="padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #7f112e; color: #ffffff; border: none; cursor: pointer; transition: background 0.15s ease;" wire:click="openBorrowForm({{ $a->id }})" wire:loading.attr="disabled" onmouseover="this.style.background='#680e2c'" onmouseout="this.style.background='#7f112e'">
+                                    <div style="display: inline-flex; align-items: center; gap: 0.45rem; justify-content: flex-end; flex-wrap: wrap;">
+                                        @if($canBorrow && $a->status === 'available' && !$org->archived_at)
+                                            <button type="button" id="oi-borrow-asset-{{ $a->id }}" class="btn-maroon" style="padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #7f112e; color: #ffffff; border: none; cursor: pointer; transition: background 0.15s ease;" wire:click="openBorrowForm({{ $a->id }})" wire:loading.attr="disabled" aria-haspopup="dialog" onmouseover="this.style.background='#680e2c'" onmouseout="this.style.background='#7f112e'">
                                                 Ajukan Pinjam
                                             </button>
                                         @elseif($a->status === 'borrowed')
-                                            <span style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.04em;">
+                                            <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.04em;">
                                                 SEDANG DIPINJAM
                                             </span>
                                         @elseif($a->status === 'maintenance')
-                                            <span style="font-size: 0.75rem; font-weight: 800; color: #be123c; letter-spacing: 0.04em;">
+                                            <span style="font-size: 0.72rem; font-weight: 800; color: #be123c; letter-spacing: 0.04em;">
                                                 DI BENGKEL SERVIS
                                             </span>
-                                        @else
-                                            <span style="font-size: 0.75rem; font-weight: 800; color: #94a3b8;">
-                                                TIDAK TERSEDIA
+                                        @elseif($a->status === 'lost')
+                                            <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8;">
+                                                HILANG
                                             </span>
                                         @endif
 
+                                        <button type="button" id="oi-report-button-{{ $a->id }}" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; cursor: pointer; transition: all 0.15s ease;" wire:click="openDamageReport({{ $a->id }})" wire:loading.attr="disabled" aria-expanded="{{ $reportAssetId === $a->id ? 'true' : 'false' }}" aria-controls="oi-damage-report-form">
+                                            Laporkan Kerusakan
+                                        </button>
+                                        <a href="{{ route('asset.timeline', [$org, $a]) }}" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; text-decoration: none; transition: all 0.15s ease;">
+                                            Riwayat
+                                        </a>
+
                                         @if($operator)
-                                            <button type="button" title="Edit Aset" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.15s ease;" wire:click="editAsset({{ $a->id }})" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                                            <button type="button" id="oi-edit-asset-{{ $a->id }}" title="Edit Aset" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.15s ease;" wire:click="editAsset({{ $a->id }})" aria-haspopup="dialog" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
                                                 Edit
                                             </button>
+                                            <button type="button" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.15s ease;" wire:click="deleteAsset({{ $a->id }})" wire:confirm="Hapus aset ini secara soft delete?">
+                                                Hapus
+                                            </button>
+                                            @if($a->status === 'lost')
+                                                <button type="button" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; cursor: pointer;" wire:click="found({{ $a->id }})">
+                                                    Tandai ditemukan
+                                                </button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
