@@ -5,36 +5,38 @@
     $initials = $user ? collect(preg_split('/\s+/', trim($user->name)))->take(2)->map(fn($part) => mb_substr($part, 0, 1))->implode('') : 'U';
 @endphp
 
-<header style="height: 70px; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; position: sticky; top: 0; z-index: 30; width: 100%;">
-    <div style="max-width: 1200px; width: 100%; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
-        
+<div style="position: sticky; top: 14px; z-index: 50; max-width: 64rem; width: 100%; margin: 14px auto 1.5rem auto; padding: 0 1rem; box-sizing: border-box;">
+    <header style="height: auto; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; padding: 0.75rem 1.75rem; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 9999px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); transition: all 0.2s ease;">
+
         <!-- BRAND LOGO (KIRI) -->
-        <a href="{{ route('landing') }}" style="display: flex; align-items: center; text-decoration: none; flex-shrink: 0;">
-            <img src="{{ asset('images/logo.png') }}" alt="Organizing Inventory" style="height: 38px; width: auto; object-fit: contain;">
+        <a href="{{ route('landing') }}" style="display: flex; align-items: center; text-decoration: none; flex-shrink: 0;" aria-label="Organization Inventory">
+            <img src="{{ asset('images/logo.png') }}" alt="Organization Inventory" style="height: 38px; width: auto; object-fit: contain;">
         </a>
 
-        <!-- NAV LINKS (TENGAH - SESUAI FOTO 4 & 5) -->
-        <nav style="display: flex; align-items: center; gap: 2rem; font-size: 0.84rem; font-weight: 700;">
-            <a href="{{ route('organizations') }}" style="color: {{ request()->routeIs('organizations') ? '#7f112e' : '#475467' }}; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#7f112e'" onmouseout="this.style.color='{{ request()->routeIs('organizations') ? '#7f112e' : '#475467' }}'">
+        <!-- NAV LINKS (TENGAH - SAMA DENGAN LANDING PAGE) -->
+        <nav aria-label="Navigasi Utama" style="display: flex; align-items: center; gap: 2rem; font-size: 0.875rem; font-weight: 600;">
+            <a href="{{ route('landing') }}#fitur" style="color: #64748b; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#64748b'">
+                Fitur Utama
+            </a>
+            <a href="{{ route('organizations') }}" style="color: {{ request()->routeIs('organizations') ? '#7f112e' : '#64748b' }}; font-weight: {{ request()->routeIs('organizations') ? '700' : '600' }}; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='{{ request()->routeIs('organizations') ? '#7f112e' : '#64748b' }}'">
                 Jelajahi Organization
             </a>
-            <a href="{{ route('landing') }}#features" style="color: #475467; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#7f112e'" onmouseout="this.style.color='#475467'">
-                Fitur Utama
+            <a href="{{ route('landing') }}#tentang" style="color: #64748b; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#64748b'">
+                Tentang
             </a>
         </nav>
 
-        <!-- USER PILL / AUTH (KANAN - SESUAI FOTO 4 & 5) -->
-        <div style="display: flex; align-items: center; gap: 0.875rem;">
+        <!-- AUTH / USER ACTIONS (KANAN - SAMA DENGAN LANDING PAGE) -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
             @auth
-                <!-- User Pill matching Foto 4 & 5 -->
-                <div style="display: inline-flex; align-items: center; gap: 0.65rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 0.25rem 0.35rem 0.25rem 0.35rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                <div style="display: inline-flex; align-items: center; gap: 0.65rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 0.25rem 0.35rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                     <div style="width: 28px; height: 28px; border-radius: 9999px; background: #1e1b4b; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 800;">
-                        {{ $initials ?: 'WA' }}
+                        {{ $initials ?: 'U' }}
                     </div>
                     <span style="font-size: 0.8125rem; font-weight: 700; color: #0f172a; padding-right: 0.25rem;">
                         {{ $user->name }}
                     </span>
-                    <a href="{{ route('dashboard') }}" style="background: #fff1f2; color: #7f112e; border-radius: 9999px; padding: 0.25rem 0.75rem; font-size: 0.72rem; font-weight: 800; text-decoration: none; transition: all 0.15s ease;">
+                    <a href="{{ route('dashboard') }}" style="background: #0f172a; color: #ffffff; border-radius: 9999px; padding: 0.3rem 0.85rem; font-size: 0.75rem; font-weight: 700; text-decoration: none; transition: background 0.15s ease;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#0f172a'">
                         Dashboard &rarr;
                     </a>
                 </div>
@@ -45,14 +47,14 @@
                     </button>
                 @endif
             @else
-                <a href="{{ route('login') }}" class="pill-btn btn-secondary-light" style="padding: 0.45rem 1rem; font-size: 0.8125rem;">
+                <a href="{{ route('login') }}" style="color: #0f172a; font-weight: 700; text-decoration: none; padding: 0.4rem 0.75rem; font-size: 0.875rem; transition: color 0.15s ease;" onmouseover="this.style.color='#7f112e'" onmouseout="this.style.color='#0f172a'">
                     Masuk
                 </a>
-                <a href="{{ route('register') }}" class="btn-maroon" style="padding: 0.45rem 1.15rem; font-size: 0.8125rem;">
-                    Daftar
+                <a href="{{ route('register') }}" style="display: inline-flex; align-items: center; justify-content: center; background: #0f172a; color: #ffffff; border-radius: 9999px; font-weight: 700; font-size: 0.8125rem; padding: 0.5rem 1.15rem; text-decoration: none; transition: background 0.15s ease;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#0f172a'">
+                    Buat Akun
                 </a>
             @endauth
         </div>
 
-    </div>
-</header>
+    </header>
+</div>
