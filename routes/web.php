@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', fn () => view('landing'))->name('landing');
 Route::get('/organizations', ExploreOrganizations::class)->name('organizations');
-Route::get('/scan-qr', fn () => view('scan-qr'))->name('scan.qr');
+Route::get('/scan-qr', fn () => redirect()->route('organizations'))->name('scan.qr');
 Route::middleware('guest')->group(function () {
     Route::get('/login', fn () => view('auth', ['mode' => 'login']))->name('login');
     Route::get('/register', fn () => view('auth', ['mode' => 'register']))->name('register');

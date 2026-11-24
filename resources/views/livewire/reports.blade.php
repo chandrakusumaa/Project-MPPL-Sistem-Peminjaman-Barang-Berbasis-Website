@@ -3,7 +3,7 @@
         <div style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;">
             <div class="oi-page-head" style="margin-bottom: 0;">
                 <div>
-                    <h1 style="font-size: 1.75rem; font-weight: 900; color: #0f172a; margin: 0;">Laporan Komunitas {{ $org->name }}</h1>
+                    <h1 style="font-size: 1.75rem; font-weight: 900; color: #0f172a; margin: 0;">Laporan Organization {{ $org->name }}</h1>
                     <p style="font-size: 0.875rem; color: #64748b; margin: 0.25rem 0 0 0;">Filter data transaksi dan unduh berkas CSV untuk keperluan audit & LPJ.</p>
                 </div>
             </div>

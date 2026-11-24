@@ -74,7 +74,7 @@
                 </div>
             </div>
             <div>
-                <div style="font-size: 1.75rem; font-weight: 900; color: #80142B; letter-spacing: -0.03em;">
+                <div style="font-size: 1.75rem; font-weight: 900; color: #7f112e; letter-spacing: -0.03em;">
                     Rp {{ number_format($summary['balance'] > 0 ? $summary['balance'] : 50000, 0, ',', '.') }}
                 </div>
                 <small style="display: block; font-size: 0.72rem; color: #9f1239; margin-top: 0.25rem;">
@@ -137,7 +137,7 @@
                                     </span>
                                 </td>
                                 <td style="padding: 0.875rem 0.75rem;">
-                                    <button type="button" class="pill-btn" style="background: #fff1f2; color: #80142B; border: 1px solid #fecdd3; padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700;" wire:click="showDamageReports">
+                                    <button type="button" class="pill-btn" style="background: #fff1f2; color: #7f112e; border: 1px solid #fecdd3; padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700;" wire:click="showDamageReports">
                                         Lapor Insiden
                                     </button>
                                 </td>
@@ -166,7 +166,7 @@
                                 </span>
                             </td>
                             <td style="padding: 0.875rem 0.75rem;">
-                                <button type="button" class="pill-btn" style="background: #fff1f2; color: #80142B; border: 1px solid #fecdd3; padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700;" wire:click="showDamageReports">
+                                <button type="button" class="pill-btn" style="background: #fff1f2; color: #7f112e; border: 1px solid #fecdd3; padding: 0.3rem 0.75rem; font-size: 0.72rem; font-weight: 700;" wire:click="showDamageReports">
                                     Lapor Insiden
                                 </button>
                             </td>

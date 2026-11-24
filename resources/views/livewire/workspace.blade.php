@@ -1,14 +1,14 @@
 <div wire:poll.30s>
     <x-room.frame :org="$org" :operator="$operator" :admin="$admin" :tab="$tab"
         :show-feedback="!$selectedMaintenance && !$selectedBorrowing && !($tab === 'inventory' && (($canBorrow && $borrowAssetId) || ($operator && ($assetFormOpen || $categoryFormOpen))))">
-    @if($org->archived_at)<div class="notice">Komunitas diarsipkan. Data hanya dapat dibaca.</div>@endif
+    @if($org->archived_at)<div class="notice">Organization diarsipkan. Data hanya dapat dibaca.</div>@endif
     @php
-        $titles = ['dashboard' => $org->name, 'inventory' => 'Inventaris', 'borrowings' => 'Peminjaman', 'charges' => 'Riwayat Tagihan & Pembayaran', 'members' => 'Anggota Komunitas', 'audit' => 'Audit Aktivitas', 'damage-reports' => 'Laporan Kerusakan', 'maintenance' => 'Maintenance', 'settings' => 'Pengaturan Komunitas'];
+        $titles = ['dashboard' => $org->name, 'inventory' => 'Inventaris', 'borrowings' => 'Peminjaman', 'charges' => 'Riwayat Tagihan & Pembayaran', 'members' => 'Anggota Organization', 'audit' => 'Audit Aktivitas', 'damage-reports' => 'Laporan Kerusakan', 'maintenance' => 'Maintenance', 'settings' => 'Pengaturan Organization'];
         $statusLabels = ['open' => 'Laporan Baru', 'noted' => 'Sudah Dicatat', 'in_maintenance' => 'Dalam Perbaikan', 'resolved' => 'Selesai'];
         $sourceLabels = ['member_report' => 'Laporan Member', 'staff_report' => 'Laporan Pengelola', 'return_inspection' => 'Inspeksi Pengembalian'];
     @endphp
-    <!-- WORKSPACE HEADER CARD (SESUAI FOTO 6-12 DENGAN REVISI ROLE ADMIN vs MEMBER) -->
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.5rem 1.75rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+    <!-- WORKSPACE HEADER CARD (SESUAI FOTO 3) -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.25rem 1.75rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
         <div style="display: flex; align-items: center; gap: 1.15rem; min-width: 0;">
             <div style="width: 48px; height: 48px; border-radius: 9999px; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -17,32 +17,24 @@
             </div>
             <div>
                 <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
-                    <h1 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">{{ $org->name }}</h1>
-                    <span style="font-size: 0.65rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 9999px; text-transform: uppercase; {{ $admin ? 'background: #ffe4e6; color: #9f1239;' : ($operator ? 'background: #dbeafe; color: #1e40af;' : 'background: #f1f5f9; color: #475467;') }}">
+                    <h1 style="font-size: 1.375rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">{{ $org->name }}</h1>
+                    <span style="font-size: 0.65rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 9999px; text-transform: uppercase; {{ $admin ? 'background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3;' : ($operator ? 'background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe;' : 'background: #f1f5f9; color: #475467;') }}">
                         {{ $admin ? 'ADMINISTRATOR' : ($operator ? 'STAFF OPERASIONAL' : 'MEMBER') }}
                     </span>
                 </div>
-                <p style="font-size: 0.78rem; font-weight: 400; color: #64748b; margin: 0.35rem 0 0 0;">
-                    Gedung B Lt. 3 Komunitas 304 · Maks Pinjam: <strong style="font-weight: 700; color: #0f172a;">7 Hari</strong> · Denda: <strong style="font-weight: 700; color: #0f172a;">Rp 25.000/hari</strong> · Rekening: <strong style="font-weight: 700; color: #0f172a;">BCA 827-019-2819</strong>
+                <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0.35rem 0 0 0;">
+                    {{ $org->description ? Str::limit($org->description, 60) . ' · ' : '' }}Maks Pinjam: <strong style="font-weight: 700; color: #0f172a;">{{ $org->max_loan_days ?? 7 }} Hari</strong> · Denda: <strong style="font-weight: 700; color: #0f172a;">Rp {{ number_format($org->late_fee_per_day ?? 25000, 0, ',', '.') }}/hari</strong>
                 </p>
             </div>
         </div>
 
-        <!-- ACTION BUTTONS: DIKONDISIKAN SESUAI ROLE -->
+        <!-- ACTION BUTTONS: SESUAI FOTO 3 -->
         <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-            @if(!$operator)
-                <!-- JIKA MEMBER: BISA AJUKAN PINJAM -->
-                <button type="button" class="btn-maroon" style="padding: 0.6rem 1.25rem; font-size: 0.8125rem; font-weight: 700; gap: 0.5rem;" wire:click="$set('tab', 'inventory')">
-                    Ajukan Peminjaman Unit &rarr;
-                </button>
-            @else
-                <!-- JIKA ADMIN/STAFF: HANYA TAMBAH ASET / MANAJEMEN (ADMIN TIDAK PINJAM DARI KOMUNITAS SENDIRI) -->
-                @if($tab === 'inventory')
-                    <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.55rem 1rem; font-size: 0.8125rem; font-weight: 700;" wire:click="openCategoryForm" wire:loading.attr="disabled">
-                        + Tambah Kategori
-                    </button>
-                @endif
-                <button type="button" class="btn-maroon" style="padding: 0.6rem 1.25rem; font-size: 0.8125rem; font-weight: 700; gap: 0.5rem;" wire:click="openAssetForm" wire:loading.attr="disabled">
+            <button type="button" style="padding: 0.625rem 1.25rem; font-size: 0.8125rem; font-weight: 700; border-radius: 0.625rem; background: #7f112e; color: #ffffff; border: none; cursor: pointer; transition: background 0.15s ease;" wire:click="$set('tab', 'inventory')" onmouseover="this.style.background='#680e2c'" onmouseout="this.style.background='#7f112e'">
+                Ajukan Peminjaman Unit &rarr;
+            </button>
+            @if($operator)
+                <button type="button" style="padding: 0.625rem 1.15rem; font-size: 0.8125rem; font-weight: 700; border-radius: 0.625rem; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.15s ease;" wire:click="openAssetForm" wire:loading.attr="disabled" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
                     + Tambah Unit Fisik
                 </button>
             @endif
@@ -123,99 +115,115 @@
             @include('livewire.damage-report-form')
         @endif
 
-        <section class="panel-card oi-panel">
-            <div class="panel-header oi-panel-head">
+        <section class="panel-card oi-panel" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.125rem; overflow: hidden; margin-bottom: 2rem;">
+            <div class="panel-header" style="padding: 1.5rem 1.75rem 1.25rem 1.75rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; gap: 1.25rem; flex-wrap: wrap;">
                 <div>
-                    <h2 class="panel-title">Katalog Inventaris</h2>
-                    <p class="oi-panel-caption">Daftar unit fisik barang yang terdaftar di Komunitas ini. Setiap unit memiliki kode fisik unik.</p>
+                    <h2 class="panel-title" style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
+                        {{ $admin ? 'Master Inventaris Fisik (Administrator)' : ($operator ? 'Master Inventaris Fisik (Staff)' : 'Katalog Inventaris Fisik') }}
+                    </h2>
+                    <p style="font-size: 0.8125rem; color: #64748b; margin: 0.25rem 0 0 0;">
+                        {{ $operator ? 'Akses penuh: Daftarkan unit baru, mutasi lokasi simpan, atau tinjau riwayat aset.' : 'Daftar unit fisik barang yang terdaftar di Organization ini. Setiap unit memiliki kode unik stabil.' }}
+                    </p>
                 </div>
-            </div>
-            <div class="oi-filters" style="display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.25rem 1.75rem; border-bottom: 1px solid #f1f5f9; background: #fafbfc;">
-                <div style="flex: 1; min-width: 200px;">
-                    <input class="oi-input" placeholder="Cari nama atau kode aset..." wire:model.live.debounce.300ms="search" style="width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                    <div style="position: relative; min-width: 240px;">
+                        <input class="oi-input" placeholder="Cari nama atau kode unit..." wire:model.live.debounce.300ms="search" style="width: 100%; padding: 0.5rem 0.85rem 0.5rem 2.25rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; font-size: 0.8125rem;">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    @if($operator)
+                        <button type="button" wire:click="openAssetForm" style="background: #05214c; color: #ffffff; border: none; border-radius: 0.5rem; padding: 0.55rem 1.1rem; font-size: 0.8125rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.15s ease;" onmouseover="this.style.background='#021430'" onmouseout="this.style.background='#05214c'">
+                            + Tambah Aset Baru
+                        </button>
+                    @endif
                 </div>
-                <select class="oi-select" wire:model.live="filterCategory">
-                    <option value="0">Semua kategori</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                    @endforeach
-                </select>
-                <select class="oi-select" wire:model.live="filterStatus">
-                    <option value="">Semua status aset</option>
-                    @foreach(['available' => 'Tersedia', 'borrowed' => 'Dipinjam', 'maintenance' => 'Maintenance', 'lost' => 'Hilang'] as $s => $label)
-                        <option value="{{ $s }}">{{ $label }}</option>
-                    @endforeach
-                </select>
-                <select class="oi-select" wire:model.live="assetSort">
-                    <option value="name">Urut: Nama A-Z</option>
-                    <option value="newest">Urut: Terbaru</option>
-                </select>
             </div>
 
-            <div class="oi-table-wrap">
-                <table class="oi-table">
+            <div class="oi-table-wrap" style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8125rem;">
                     <thead>
-                        <tr>
-                            <th>Aset / Kode</th>
-                            <th>Kategori</th>
-                            <th>Lokasi</th>
-                            <th>Status / Kondisi</th>
-                            <th>Tindakan</th>
+                        <tr style="border-bottom: 1px solid #f1f5f9; background: #fafbfc;">
+                            <th style="padding: 0.85rem 1.75rem; font-size: 0.6875rem; font-weight: 800; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">KODE ASET FISIK</th>
+                            <th style="padding: 0.85rem 1.25rem; font-size: 0.6875rem; font-weight: 800; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">NAMA BARANG FISIK</th>
+                            <th style="padding: 0.85rem 1.25rem; font-size: 0.6875rem; font-weight: 800; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">KATEGORI</th>
+                            <th style="padding: 0.85rem 1.25rem; font-size: 0.6875rem; font-weight: 800; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">LOKASI RAK</th>
+                            <th style="padding: 0.85rem 1.25rem; font-size: 0.6875rem; font-weight: 800; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">STATUS KETERSEDIAAN</th>
+                            <th style="padding: 0.85rem 1.75rem; font-size: 0.6875rem; font-weight: 800; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase; text-align: right;">AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($assets as $a)
-                            <tr wire:key="asset-{{ $a->id }}">
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 0.875rem;">
-                                        @if($a->photo)
-                                            <img src="{{ asset('storage/'.$a->photo) }}" alt="{{ $a->name }}" style="width: 48px; height: 48px; border-radius: 0.625rem; object-fit: cover; border: 1px solid #e2e8f0;" loading="lazy">
+                            @php
+                                $activeBrw = \App\Models\Borrowing::where('asset_id', $a->id)->whereIn('status', ['borrowed', 'overdue'])->with('borrower')->first();
+                                $borrower = $activeBrw?->borrower;
+                                $borrowerName = $borrower ? ($borrower->id === auth()->id() ? 'SAYA' : explode(' ', trim($borrower->name))[0]) : null;
+                            @endphp
+                            <tr wire:key="asset-{{ $a->id }}" style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s ease;" onmouseover="this.style.background='#fcfdfd'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 1.1rem 1.75rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.8125rem; font-weight: 700; color: #0f172a; white-space: nowrap;">
+                                    {{ $a->code }}
+                                </td>
+                                <td style="padding: 1.1rem 1.25rem;">
+                                    <a href="{{ route('asset.show', [$org, $a]) }}" style="font-weight: 700; color: #0f172a; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#7f112e'" onmouseout="this.style.color='#0f172a'">
+                                        {{ $a->name }}
+                                    </a>
+                                </td>
+                                <td style="padding: 1.1rem 1.25rem; color: #475569; font-weight: 500;">
+                                    {{ $a->category->name }}
+                                </td>
+                                <td style="padding: 1.1rem 1.25rem; color: #475569; font-weight: 500;">
+                                    {{ $a->location }}
+                                </td>
+                                <td style="padding: 1.1rem 1.25rem; white-space: nowrap;">
+                                    @if($a->status === 'available')
+                                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 800; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; text-transform: uppercase;">
+                                            <span style="font-size: 0.6rem; color: #10b981;">●</span> TERSEDIA
+                                        </span>
+                                    @elseif($a->status === 'borrowed')
+                                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 800; background: #fefce8; color: #b45309; border: 1px solid #fde047; text-transform: uppercase;">
+                                            <span style="font-size: 0.6rem; color: #f59e0b;">●</span> DIPINJAM {{ $borrowerName ? '('.strtoupper($borrowerName).')' : '' }}
+                                        </span>
+                                    @elseif($a->status === 'maintenance')
+                                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 800; background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; text-transform: uppercase;">
+                                            <span style="font-size: 0.6rem; color: #e11d48;">●</span> MAINTENANCE
+                                        </span>
+                                    @else
+                                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 800; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; text-transform: uppercase;">
+                                            <span style="font-size: 0.6rem; color: #64748b;">●</span> {{ strtoupper($a->status) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td style="padding: 1.1rem 1.75rem; text-align: right; white-space: nowrap;">
+                                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; justify-content: flex-end;">
+                                        @if($a->status === 'available' && !$org->archived_at)
+                                            <button type="button" class="btn-maroon" style="padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #7f112e; color: #ffffff; border: none; cursor: pointer; transition: background 0.15s ease;" wire:click="openBorrowForm({{ $a->id }})" wire:loading.attr="disabled" onmouseover="this.style.background='#680e2c'" onmouseout="this.style.background='#7f112e'">
+                                                Ajukan Pinjam
+                                            </button>
+                                        @elseif($a->status === 'borrowed')
+                                            <span style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.04em;">
+                                                SEDANG DIPINJAM
+                                            </span>
+                                        @elseif($a->status === 'maintenance')
+                                            <span style="font-size: 0.75rem; font-weight: 800; color: #be123c; letter-spacing: 0.04em;">
+                                                DI BENGKEL SERVIS
+                                            </span>
                                         @else
-                                            <div style="width: 48px; height: 48px; border-radius: 0.625rem; background: #f1f5f9; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-                                                <x-icon name="box" :size="22" />
-                                            </div>
+                                            <span style="font-size: 0.75rem; font-weight: 800; color: #94a3b8;">
+                                                TIDAK TERSEDIA
+                                            </span>
                                         @endif
-                                        <div>
-                                            <a href="{{ route('asset.show', [$org, $a]) }}" class="oi-table-title">{{ $a->name }}</a>
-                                            <div class="oi-table-sub" style="font-family: monospace;">{{ $a->code }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="oi-tag oi-tag-neutral">{{ $a->category->name }}</span>
-                                </td>
-                                <td>
-                                    <div class="oi-table-sub">{{ $a->location }}</div>
-                                </td>
-                                <td>
-                                    <x-room.status :value="$a->status" />
-                                    <div class="oi-table-sub" style="margin-top: 0.25rem;">{{ $a->physical_condition }}</div>
-                                </td>
-                                <td>
-                                    <div class="oi-action-group">
-                                        @if($canBorrow && $a->status === 'available' && !$org->archived_at)
-                                            <button type="button" id="oi-borrow-asset-{{ $a->id }}" class="oi-btn oi-btn-primary oi-btn-sm" style="border-radius: 9999px;" wire:click="openBorrowForm({{ $a->id }})" wire:loading.attr="disabled" aria-haspopup="dialog">Ajukan Pinjam</button>
-                                        @endif
-                                        <button type="button" id="oi-report-button-{{ $a->id }}" class="oi-btn oi-btn-secondary oi-btn-sm" style="border-radius: 9999px;" wire:click="openDamageReport({{ $a->id }})" wire:loading.attr="disabled" aria-expanded="{{ $reportAssetId === $a->id ? 'true' : 'false' }}" aria-controls="oi-damage-report-form">Laporkan Kerusakan</button>
-                                        <a class="oi-btn oi-btn-secondary oi-btn-sm" style="border-radius: 9999px;" href="{{ route('asset.timeline', [$org, $a]) }}">Riwayat</a>
+
                                         @if($operator)
-                                            <button type="button" id="oi-edit-asset-{{ $a->id }}" class="oi-btn oi-btn-secondary oi-btn-sm" style="border-radius: 9999px;" wire:click="editAsset({{ $a->id }})" aria-haspopup="dialog">Edit</button>
-                                            <button type="button" class="oi-btn oi-btn-secondary oi-btn-sm" style="border-radius: 9999px;" wire:click="deleteAsset({{ $a->id }})" wire:confirm="Hapus aset ini secara soft delete?">Hapus</button>
-                                            @if($a->status === 'lost')
-                                                <button type="button" class="oi-btn oi-btn-secondary oi-btn-sm" style="border-radius: 9999px;" wire:click="found({{ $a->id }})">Tandai ditemukan</button>
-                                            @endif
+                                            <button type="button" title="Edit Aset" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 0.5rem; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.15s ease;" wire:click="editAsset({{ $a->id }})" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                                                Edit
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5">
-                                    <div class="oi-empty">
-                                        <x-icon name="box" :size="28" />
-                                        <h3>Belum ada aset yang sesuai</h3>
-                                        <p>Coba sesuaikan kata kunci pencarian atau filter kategori.</p>
-                                    </div>
+                                <td colspan="6" style="padding: 2.5rem 1rem; text-align: center; color: #94a3b8;">
+                                    <p style="font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">Belum ada aset fisik yang sesuai</p>
+                                    <p style="font-size: 0.75rem; margin: 0;">Coba sesuaikan kata kunci pencarian aset fisik.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -223,7 +231,7 @@
                 </table>
             </div>
             @if($assets->hasPages())
-                <div class="oi-pagination" style="padding: 1rem 1.75rem;">
+                <div class="oi-pagination" style="padding: 1rem 1.75rem; border-top: 1px solid #f1f5f9;">
                     {{ $assets->links() }}
                 </div>
             @endif
@@ -460,7 +468,7 @@
         <section class="panel-card oi-panel">
             <div class="panel-header oi-panel-head">
                 <div>
-                    <h2 class="panel-title">Anggota Komunitas</h2>
+                    <h2 class="panel-title">Anggota Organization</h2>
                     <p class="oi-panel-caption">Pengguna terverifikasi dapat langsung bergabung sebagai Member. Admin mengatur role dan akses anggota di sini.</p>
                 </div>
                 <span class="oi-tag oi-tag-blue">{{ $members->count() }} Anggota</span>
@@ -804,10 +812,10 @@
 
     @elseif($tab==='settings')
         <div style="display: flex; flex-direction: column; gap: 1.75rem;">
-            <!-- PARAMETER OPERASIONAL KOMUNITAS (SESUAI FOTO 1 & 2) -->
+            <!-- PARAMETER OPERASIONAL ORGANIZATION -->
             <section style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                 <div style="margin-bottom: 1.5rem;">
-                    <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0 0 0.35rem 0;">Parameter Operasional Komunitas</h2>
+                    <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0 0 0.35rem 0;">Parameter Operasional Organization</h2>
                     <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0;">Perubahan parameter langsung berlaku untuk seluruh transaksi baru.</p>
                 </div>
                 <div>
@@ -841,13 +849,13 @@
             <section style="background: #ffffff; border: 1px solid #fecdd3; border-radius: 1.25rem; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                 <div style="margin-bottom: 1.25rem;">
                     <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0 0 0.35rem 0;">Zona Bahaya Admin</h2>
-                    <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0;">Tindakan berikut bersifat permanen dan memerlukan otorisasi penuh pemilik komunitas.</p>
+                    <p style="font-size: 0.8125rem; font-weight: 400; color: #64748b; margin: 0;">Tindakan berikut bersifat permanen dan memerlukan otorisasi penuh pemilik Organization.</p>
                 </div>
                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                    <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.55rem 1.25rem; font-size: 0.8125rem; font-weight: 700;" wire:click="archive" wire:confirm="Ubah status arsip Komunitas?">
-                        {{ $org->archived_at ? 'Buka Kembali Komunitas' : 'Arsipkan Komunitas' }}
+                    <button type="button" class="pill-btn btn-secondary-light" style="padding: 0.55rem 1.25rem; font-size: 0.8125rem; font-weight: 700;" wire:click="archive" wire:confirm="Ubah status arsip Organization?">
+                        {{ $org->archived_at ? 'Buka Kembali Organization' : 'Arsipkan Organization' }}
                     </button>
-                    <button type="button" class="pill-btn" style="background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 0.55rem 1.25rem; font-size: 0.8125rem; font-weight: 700; border-radius: 9999px; cursor: pointer;" wire:click="deleteOrganization" wire:confirm="Hapus Komunitas secara soft delete? Histori akan dipertahankan.">
+                    <button type="button" class="pill-btn" style="background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 0.55rem 1.25rem; font-size: 0.8125rem; font-weight: 700; border-radius: 9999px; cursor: pointer;" wire:click="deleteOrganization" wire:confirm="Hapus Organization secara soft delete? Histori akan dipertahankan.">
                         Hapus Organization
                     </button>
                 </div>

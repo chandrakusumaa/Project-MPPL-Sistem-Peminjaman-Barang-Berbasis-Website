@@ -15,13 +15,10 @@
 
         <!-- NAV LINKS (TENGAH - SESUAI FOTO 4 & 5) -->
         <nav style="display: flex; align-items: center; gap: 2rem; font-size: 0.84rem; font-weight: 700;">
-            <a href="{{ route('organizations') }}" style="color: {{ request()->routeIs('organizations') ? '#80142B' : '#475467' }}; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#80142B'" onmouseout="this.style.color='{{ request()->routeIs('organizations') ? '#80142B' : '#475467' }}'">
+            <a href="{{ route('organizations') }}" style="color: {{ request()->routeIs('organizations') ? '#7f112e' : '#475467' }}; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#7f112e'" onmouseout="this.style.color='{{ request()->routeIs('organizations') ? '#7f112e' : '#475467' }}'">
                 Jelajahi Organization
             </a>
-            <a href="{{ route('scan.qr') }}" style="color: {{ request()->routeIs('scan.qr') ? '#80142B' : '#475467' }}; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#80142B'" onmouseout="this.style.color='{{ request()->routeIs('scan.qr') ? '#80142B' : '#475467' }}'">
-                Scan QR Cepat
-            </a>
-            <a href="{{ route('landing') }}#features" style="color: #475467; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#80142B'" onmouseout="this.style.color='#475467'">
+            <a href="{{ route('landing') }}#features" style="color: #475467; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#7f112e'" onmouseout="this.style.color='#475467'">
                 Fitur Utama
             </a>
         </nav>
@@ -37,7 +34,7 @@
                     <span style="font-size: 0.8125rem; font-weight: 700; color: #0f172a; padding-right: 0.25rem;">
                         {{ $user->name }}
                     </span>
-                    <a href="{{ route('dashboard') }}" style="background: #fff1f2; color: #80142B; border-radius: 9999px; padding: 0.25rem 0.75rem; font-size: 0.72rem; font-weight: 800; text-decoration: none; transition: all 0.15s ease;">
+                    <a href="{{ route('dashboard') }}" style="background: #fff1f2; color: #7f112e; border-radius: 9999px; padding: 0.25rem 0.75rem; font-size: 0.72rem; font-weight: 800; text-decoration: none; transition: all 0.15s ease;">
                         Dashboard &rarr;
                     </a>
                 </div>

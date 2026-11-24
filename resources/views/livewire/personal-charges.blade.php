@@ -1,4 +1,4 @@
-<div class="oi-personal-charges" wire:poll.30s style="max-width: 72rem; margin: 0 auto; padding-bottom: 3rem;">
+<div class="oi-personal-charges" wire:poll.30s style="max-width: 1240px; margin: 0 auto; padding-bottom: 3.5rem;">
     @php
         $chargeTypes = ['late_fee' => 'Denda Keterlambatan', 'damage' => 'Biaya Kerusakan', 'loss' => 'Penggantian Kehilangan'];
         $settlements = ['unpaid' => 'Belum Dibayar', 'partial' => 'Sebagian Dibayar', 'paid' => 'Lunas', 'waived' => 'Dibebaskan', 'draft' => 'Draft Usulan', 'cancelled' => 'Dibatalkan'];
@@ -13,39 +13,74 @@
                 Tagihan & Denda Saya
             </h1>
             <p style="font-size: 0.875rem; color: #64748b; margin: 0;">
-                Ringkasan kewajiban denda keterlambatan, biaya kerusakan, dan verifikasi pembayaran manual di seluruh komunitas.
+                Ringkasan kewajiban denda keterlambatan, biaya kerusakan, dan verifikasi pembayaran manual di seluruh organisasi.
             </p>
         </div>
-        <div class="oi-head-actions">
+        <div class="oi-head-actions" style="display: flex; gap: 0.75rem;">
             <a class="pill-btn btn-secondary-light" style="font-size: 0.8125rem; padding: 0.5rem 1rem;" href="{{ route('personal.borrowings') }}">
                 Lihat Peminjaman &rarr;
             </a>
+            @php($firstPayableCharge = $charges->first(fn ($c) => $c->status === 'issued' && $c->balance > 0 && ! $c->organization->archived_at))
+            @if($firstPayableCharge)
+                <button type="button" wire:click="openPaymentModal({{ $firstPayableCharge->id }})" class="pill-btn btn-primary-red" style="font-size: 0.8125rem; padding: 0.5rem 1.15rem; font-weight: 700; cursor: pointer;">
+                    + Kirim Bukti Transfer
+                </button>
+            @endif
         </div>
     </div>
 
+    <!-- SUMMARY BANNER: SISA TAGIHAN & INSTRUKSI REKENING -->
+    @if(($summary->outstanding ?? 0) > 0)
+        <div style="background-color: #ffffff; border: 1px solid #fed7aa; border-top: 4px solid #ea580c; border-radius: 1.25rem; padding: 1.75rem 2rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+            <div>
+                <span class="micro-badge micro-badge-amber" style="margin-bottom: 0.5rem;">
+                    <span class="status-dot status-dot-amber"></span> Tagihan Belum Dibayar
+                </span>
+                <div style="font-size: 2.25rem; font-weight: 900; color: #c2410c; letter-spacing: -0.04em;">
+                    Rp{{ number_format($summary->outstanding, 0, ',', '.') }}
+                </div>
+                <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                    Sisa kewajiban denda keterlambatan atau ganti rugi fisik yang belum terkonfirmasi.
+                </p>
+            </div>
+
+            <div style="max-width: 32rem; font-size: 0.8125rem; color: #9a3412; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 1rem; padding: 1.125rem; display: flex; flex-direction: column; gap: 0.625rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <div><strong>Rekening Resmi:</strong> Bank BCA: <code style="font-family: monospace; font-size: 0.95rem; font-weight: 800; background: #ffedd5; padding: 0.15rem 0.4rem; border-radius: 4px;">827-019-2819</code> a.n. Kas Komunitas</div>
+                    <button type="button" onclick="copyBankAccount('8270192819')" class="pill-btn btn-primary-red" style="font-size: 0.6875rem; padding: 0.25rem 0.6rem; cursor: pointer;">
+                        📋 Salin Rekening
+                    </button>
+                </div>
+                <div style="font-size: 0.75rem; color: #7c2d12;">
+                    Setelah mentransfer, klik <strong>Kirim Bukti Transfer</strong> agar admin Organization dapat memverifikasi dan memperbarui saldo Anda.
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- 4 STAT METRIC CARDS -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
-        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem;">
+        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem; background: #ffffff; border: 1px solid #e2e8f0;">
             <span style="font-size: 0.8125rem; font-weight: 700; color: #64748b; display: block; margin-bottom: 0.5rem;">Total Tagihan</span>
-            <div style="font-size: 1.75rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em;">Rp{{ number_format($summary->total, 0, ',', '.') }}</div>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em;">Rp{{ number_format($summary->total ?? 0, 0, ',', '.') }}</div>
             <p style="font-size: 0.75rem; color: #94a3b8; margin: 0.25rem 0 0 0;">Tagihan resmi diterbitkan Admin</p>
         </div>
 
-        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem;">
+        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem; background: #ffffff; border: 1px solid #e2e8f0;">
             <span style="font-size: 0.8125rem; font-weight: 700; color: #059669; display: block; margin-bottom: 0.5rem;">Sudah Terkonfirmasi</span>
-            <div style="font-size: 1.75rem; font-weight: 900; color: #059669; letter-spacing: -0.03em;">Rp{{ number_format($summary->paid, 0, ',', '.') }}</div>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #059669; letter-spacing: -0.03em;">Rp{{ number_format($summary->paid ?? 0, 0, ',', '.') }}</div>
             <p style="font-size: 0.75rem; color: #94a3b8; margin: 0.25rem 0 0 0;">Pembayaran diverifikasi lunas</p>
         </div>
 
-        <div class="feature-card card-accent-red" style="padding: 1.5rem; border-radius: 1.25rem;">
-            <span style="font-size: 0.8125rem; font-weight: 700; color: #dc2626; display: block; margin-bottom: 0.5rem;">Sisa Kewajiban</span>
-            <div style="font-size: 1.75rem; font-weight: 900; color: #dc2626; letter-spacing: -0.03em;">Rp{{ number_format($summary->outstanding, 0, ',', '.') }}</div>
+        <div class="feature-card card-accent-red" style="padding: 1.5rem; border-radius: 1.25rem; background: #ffffff; border: 1px solid #fecdd6;">
+            <span style="font-size: 0.8125rem; font-weight: 700; color: #7f112e; display: block; margin-bottom: 0.5rem;">Sisa Kewajiban</span>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #7f112e; letter-spacing: -0.03em;">Rp{{ number_format($summary->outstanding ?? 0, 0, ',', '.') }}</div>
             <p style="font-size: 0.75rem; color: #64748b; margin: 0.25rem 0 0 0;">Jumlah yang belum lunas</p>
         </div>
 
-        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem;">
+        <div class="feature-card" style="padding: 1.5rem; border-radius: 1.25rem; background: #ffffff; border: 1px solid #e2e8f0;">
             <span style="font-size: 0.8125rem; font-weight: 700; color: #64748b; display: block; margin-bottom: 0.5rem;">Pembebasan (Waived)</span>
-            <div style="font-size: 1.75rem; font-weight: 900; color: #334155; letter-spacing: -0.03em;">Rp{{ number_format($summary->credited, 0, ',', '.') }}</div>
+            <div style="font-size: 1.75rem; font-weight: 900; color: #334155; letter-spacing: -0.03em;">Rp{{ number_format($summary->credited ?? 0, 0, ',', '.') }}</div>
             <p style="font-size: 0.75rem; color: #94a3b8; margin: 0.25rem 0 0 0;">Denda dimaafkan oleh Admin</p>
         </div>
     </div>
@@ -61,7 +96,7 @@
             {{ $message }}
         </div>
     @enderror
-    @if($pendingPayments > 0)
+    @if(($pendingPayments ?? 0) > 0)
         <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; color: #92400e; font-size: 0.8125rem;">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>
@@ -71,15 +106,15 @@
     @endif
 
     <!-- SECTION 1: DAFTAR TAGIHAN -->
-    <section class="feature-card" style="padding: 1.75rem; margin-bottom: 2.5rem;" aria-labelledby="charges-heading">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <section class="panel-card" style="padding: 1.75rem; margin-bottom: 2.5rem; border-radius: 1.25rem;" aria-labelledby="charges-heading">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
             <div>
-                <h2 id="charges-heading" style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0;">Daftar Tagihan & Denda</h2>
-                <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Rincian biaya denda dan status pelunasan.</p>
+                <h2 id="charges-heading" style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0;">Daftar Tagihan Lintas Organization</h2>
+                <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Rincian biaya denda, kerusakan, dan status pelunasan.</p>
             </div>
             
             <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                <select class="form-input" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8125rem;" wire:model.live="status" aria-label="Status tagihan">
+                <select class="form-input" style="width: auto; padding: 0.45rem 0.75rem; font-size: 0.8125rem;" wire:model.live="status" aria-label="Status tagihan">
                     <option value="">Semua Status</option>
                     <option value="outstanding">Belum Lunas</option>
                     <option value="paid">Lunas</option>
@@ -88,7 +123,7 @@
                     <option value="cancelled">Dibatalkan</option>
                 </select>
 
-                <select class="form-input" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8125rem;" wire:model.live="type" aria-label="Jenis tagihan">
+                <select class="form-input" style="width: auto; padding: 0.45rem 0.75rem; font-size: 0.8125rem;" wire:model.live="type" aria-label="Jenis tagihan">
                     <option value="">Semua Jenis</option>
                     @foreach($chargeTypes as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
@@ -97,46 +132,68 @@
             </div>
         </div>
 
-        <div wire:loading.delay role="status" style="font-size: 0.8125rem; color: #dc2626; margin-bottom: 0.5rem; font-weight: 600;">Memuat tagihan…</div>
+        <div wire:loading.delay role="status" style="font-size: 0.8125rem; color: #7f112e; margin-bottom: 0.5rem; font-weight: 600;">Memuat data tagihan…</div>
 
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8125rem;">
+        <div class="table-responsive" style="width: 100%; overflow-x: auto;">
+            <table class="data-table charges-full-table" style="width: 100%; table-layout: auto;">
                 <thead>
-                    <tr style="border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.75rem;">
-                        <th style="padding: 0.75rem 1rem;">No & Jenis Biaya</th>
-                        <th style="padding: 0.75rem 1rem;">Komunitas / Aset</th>
-                        <th style="padding: 0.75rem 1rem;">Total Biaya</th>
-                        <th style="padding: 0.75rem 1rem;">Terkonfirmasi</th>
-                        <th style="padding: 0.75rem 1rem;">Sisa Tagihan</th>
-                        <th style="padding: 0.75rem 1rem;">Status</th>
-                        <th style="padding: 0.75rem 1rem; text-align: right;">Aksi</th>
+                    <tr>
+                        <th style="white-space: nowrap; width: 110px; padding: 0.75rem 0.625rem;">No Tagihan</th>
+                        <th style="white-space: nowrap; min-width: 130px; padding: 0.75rem 0.625rem;">Organization</th>
+                        <th style="white-space: nowrap; width: 125px; padding: 0.75rem 0.625rem;">Jenis Tagihan</th>
+                        <th style="min-width: 140px; padding: 0.75rem 0.625rem;">Barang Terkait</th>
+                        <th style="white-space: nowrap; text-align: right; width: 100px; padding: 0.75rem 0.625rem;">Total Biaya</th>
+                        <th style="white-space: nowrap; text-align: right; width: 105px; padding: 0.75rem 0.625rem;">Terkonfirmasi</th>
+                        <th style="white-space: nowrap; text-align: right; width: 95px; padding: 0.75rem 0.625rem;">Sisa Tagihan</th>
+                        <th style="white-space: nowrap; text-align: center; width: 135px; padding: 0.75rem 0.625rem;">Status</th>
+                        <th style="white-space: nowrap; text-align: center; min-width: 130px; padding: 0.75rem 0.625rem;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($charges as $charge)
                         @php($settlement = $charge->settlement)
-                        <tr wire:key="personal-charge-{{ $charge->id }}" style="border-bottom: 1px solid #f1f5f9;">
-                            <td style="padding: 1rem;">
-                                <strong style="color: #0f172a; display: block;">#{{ $charge->id }} · {{ $chargeTypes[$charge->charge_type] }}</strong>
-                                <span style="font-size: 0.75rem; color: #64748b;">{{ $charge->reason }}</span>
+                        <tr wire:key="personal-charge-{{ $charge->id }}">
+                            <td style="padding: 0.75rem 0.625rem;">
+                                <span class="micro-badge" style="font-family: monospace;">INV-{{ str_pad($charge->id, 4, '0', STR_PAD_LEFT) }}</span>
                             </td>
-                            <td style="padding: 1rem;">
-                                <strong style="color: #334155; display: block;">{{ $charge->organization->name }}</strong>
-                                <small style="color: #94a3b8;">{{ $charge->asset->name }}</small>
+                            <td style="padding: 0.75rem 0.625rem;">
+                                <strong style="color: #0f172a;">{{ $charge->organization->name }}</strong>
                             </td>
-                            <td style="padding: 1rem; font-weight: 700; color: #0f172a;">Rp{{ number_format($charge->amount, 0, ',', '.') }}</td>
-                            <td style="padding: 1rem; color: #059669; font-weight: 600;">Rp{{ number_format($charge->payments->where('status', 'confirmed')->sum('amount'), 0, ',', '.') }}</td>
-                            <td style="padding: 1rem; font-weight: 800; color: #dc2626;">{{ $charge->status === 'issued' ? 'Rp'.number_format($charge->balance, 0, ',', '.') : '—' }}</td>
-                            <td style="padding: 1rem;">
-                                <span class="micro-badge {{ in_array($settlement, ['paid', 'waived']) ? 'micro-badge-green' : (in_array($settlement, ['unpaid', 'partial']) ? 'micro-badge-red' : '') }}">
-                                    {{ $settlements[$settlement] }}
+                            <td style="padding: 0.75rem 0.625rem;">
+                                <span class="micro-badge {{ $charge->charge_type === 'late_fee' ? 'micro-badge-amber' : ($charge->charge_type === 'damage' ? 'micro-badge-blue' : 'micro-badge-red') }}">
+                                    {{ $chargeTypes[$charge->charge_type] ?? $charge->charge_type }}
                                 </span>
                             </td>
-                            <td style="padding: 1rem; text-align: right; white-space: nowrap;">
+                            <td style="padding: 0.75rem 0.625rem;">
+                                <div style="font-weight: 600; color: #1e293b;">{{ $charge->asset->name }}</div>
+                                @if($charge->reason)
+                                    <small style="color: #64748b; font-size: 0.7rem; display: block;">{{ $charge->reason }}</small>
+                                @endif
+                            </td>
+                            <td style="white-space: nowrap; text-align: right; padding: 0.75rem 0.625rem; font-weight: 600;">
+                                Rp{{ number_format($charge->amount, 0, ',', '.') }}
+                            </td>
+                            <td style="white-space: nowrap; text-align: right; padding: 0.75rem 0.625rem; color: #059669; font-weight: 600;">
+                                Rp{{ number_format($charge->payments->where('status', 'confirmed')->sum('amount'), 0, ',', '.') }}
+                            </td>
+                            <td style="white-space: nowrap; text-align: right; padding: 0.75rem 0.625rem;">
+                                <strong style="color: {{ $charge->balance > 0 ? '#b91c1c' : '#15803d' }};">
+                                    {{ $charge->status === 'issued' ? 'Rp'.number_format($charge->balance, 0, ',', '.') : '—' }}
+                                </strong>
+                            </td>
+                            <td style="text-align: center; padding: 0.75rem 0.625rem;">
+                                <span class="micro-badge {{ in_array($settlement, ['paid', 'waived']) ? 'micro-badge-green' : (in_array($settlement, ['unpaid', 'partial']) ? 'micro-badge-amber' : '') }}">
+                                    <span class="status-dot {{ in_array($settlement, ['paid', 'waived']) ? 'status-dot-green' : (in_array($settlement, ['unpaid', 'partial']) ? 'status-dot-amber' : '') }}"></span>
+                                    {{ $settlements[$settlement] ?? $settlement }}
+                                </span>
+                            </td>
+                            <td style="text-align: center; padding: 0.75rem 0.625rem;">
                                 @if($charge->status === 'issued' && $charge->balance > 0 && !$charge->organization->archived_at)
-                                    <button type="button" class="btn-maroon" style="padding: 0.4rem 0.9rem; font-size: 0.75rem; font-weight: 700; border-radius: 9999px; border: none; cursor: pointer;" wire:click="openPaymentModal({{ $charge->id }})" wire:loading.attr="disabled">
-                                        Bayar
+                                    <button type="button" wire:click="openPaymentModal({{ $charge->id }})" wire:loading.attr="disabled" class="pill-btn btn-primary-red btn-sm" style="white-space: nowrap; padding: 0.4rem 0.85rem; font-weight: 700; cursor: pointer;">
+                                        Bayar / Kirim Bukti
                                     </button>
+                                @elseif(in_array($settlement, ['paid', 'waived'], true))
+                                    <span class="micro-badge micro-badge-green" style="white-space: nowrap;">Lunas Terverifikasi</span>
                                 @else
                                     <span style="color: #94a3b8;">—</span>
                                 @endif
@@ -144,9 +201,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 2.5rem 1rem; color: #94a3b8;">
+                            <td colspan="9" style="text-align: center; padding: 2.5rem 1rem; color: #94a3b8;">
                                 <p style="font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">Tidak ada tagihan{{ $status || $type ? ' yang sesuai filter' : '' }}</p>
-                                <p style="font-size: 0.75rem; margin: 0;">Tagihan denda keterlambatan atau kerusakan akan tercatat di sini.</p>
+                                <p style="font-size: 0.75rem; margin: 0;">Tagihan denda keterlambatan atau kerusakan fisik akan tercatat di sini.</p>
                             </td>
                         </tr>
                     @endforelse
@@ -160,15 +217,15 @@
     </section>
 
     <!-- SECTION 2: RIWAYAT PEMBAYARAN TRANSFER MANUAL -->
-    <section class="feature-card" style="padding: 1.75rem;" aria-labelledby="payments-heading">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <section class="panel-card" style="padding: 1.75rem; border-radius: 1.25rem;" aria-labelledby="payments-heading">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <h2 id="payments-heading" style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0;">Riwayat Pembayaran Manual</h2>
                 <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Catatan bukti transfer manual yang Anda kirimkan ke Admin.</p>
             </div>
             
             <div>
-                <select class="form-input" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8125rem;" wire:model.live="paymentStatus" aria-label="Status pembayaran">
+                <select class="form-input" style="width: auto; padding: 0.45rem 0.75rem; font-size: 0.8125rem;" wire:model.live="paymentStatus" aria-label="Status pembayaran">
                     <option value="">Semua Pembayaran</option>
                     @foreach($paymentLabels as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
@@ -177,33 +234,35 @@
             </div>
         </div>
 
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8125rem;">
+        <div class="table-responsive" style="width: 100%; overflow-x: auto;">
+            <table class="data-table" style="width: 100%; text-align: left; font-size: 0.8125rem;">
                 <thead>
                     <tr style="border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.75rem;">
                         <th style="padding: 0.75rem 1rem;">Waktu Transfer</th>
-                        <th style="padding: 0.75rem 1rem;">Tagihan & Komunitas</th>
-                        <th style="padding: 0.75rem 1rem;">Nominal Bayar</th>
+                        <th style="padding: 0.75rem 1rem;">Tagihan & Organization</th>
+                        <th style="padding: 0.75rem 1rem; text-align: right;">Nominal Bayar</th>
                         <th style="padding: 0.75rem 1rem;">Metode / Keterangan</th>
-                        <th style="padding: 0.75rem 1rem;">Status Verifikasi</th>
+                        <th style="padding: 0.75rem 1rem; text-align: center;">Status Verifikasi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($payments as $payment)
                         <tr wire:key="personal-payment-{{ $payment->id }}" style="border-bottom: 1px solid #f1f5f9;">
-                            <td style="padding: 1rem; color: #334155;">
-                                <strong>{{ $payment->paid_at->timezone('Asia/Jakarta')->format('d M Y') }}</strong>
-                                <small style="display: block; color: #94a3b8;">{{ $payment->paid_at->timezone('Asia/Jakarta')->format('H:i') }} WIB</small>
+                            <td style="padding: 1rem; color: #334155; white-space: nowrap;">
+                                <strong>{{ $payment->paid_at ? $payment->paid_at->timezone('Asia/Jakarta')->format('d M Y') : '—' }}</strong>
+                                <small style="display: block; color: #94a3b8;">{{ $payment->paid_at ? $payment->paid_at->timezone('Asia/Jakarta')->format('H:i') . ' WIB' : '' }}</small>
                             </td>
                             <td style="padding: 1rem;">
-                                <strong style="color: #0f172a; display: block;">#{{ $payment->charge_id }} · {{ $chargeTypes[$payment->charge->charge_type] }}</strong>
+                                <strong style="color: #0f172a; display: block;">#{{ $payment->charge_id }} · {{ $chargeTypes[$payment->charge->charge_type] ?? 'Tagihan' }}</strong>
                                 <small style="color: #64748b;">{{ $payment->charge->organization->name }} · {{ $payment->charge->asset->name }}</small>
                             </td>
-                            <td style="padding: 1rem; font-weight: 800; color: #0f172a;">Rp{{ number_format($payment->amount, 0, ',', '.') }}</td>
+                            <td style="padding: 1rem; font-weight: 800; color: #0f172a; text-align: right; white-space: nowrap;">
+                                Rp{{ number_format($payment->amount, 0, ',', '.') }}
+                            </td>
                             <td style="padding: 1rem; color: #64748b;">
-                                <span>{{ $methods[$payment->method] }}</span>
+                                <span>{{ $methods[$payment->method] ?? $payment->method }}</span>
                                 @if($payment->notes || $payment->reference)
-                                    <small style="display: block; color: #94a3b8;">{{ $payment->notes ?: $payment->reference }}</small>
+                                    <small style="display: block; color: #94a3b8;">Ref: {{ $payment->notes ?: $payment->reference }}</small>
                                 @endif
                                 @if($payment->evidence_path)
                                     <a href="{{ route('evidence', [$payment->charge_id, $payment->id]) }}" style="display: inline-block; margin-top: 0.25rem; font-size: 0.75rem; font-weight: 600; color: #80142B; text-decoration: underline;">Lihat Bukti ↗</a>
@@ -212,9 +271,10 @@
                                     <small style="display: block; color: #dc2626; font-weight: 600;">Alasan: {{ $payment->rejection_reason ?: $payment->void_reason }}</small>
                                 @endif
                             </td>
-                            <td style="padding: 1rem;">
+                            <td style="padding: 1rem; text-align: center; white-space: nowrap;">
                                 <span class="micro-badge {{ $payment->status === 'confirmed' ? 'micro-badge-green' : ($payment->status === 'pending' ? 'micro-badge-yellow' : 'micro-badge-red') }}">
-                                    {{ $paymentLabels[$payment->status] }}
+                                    <span class="status-dot {{ $payment->status === 'confirmed' ? 'status-dot-green' : ($payment->status === 'pending' ? 'status-dot-amber' : 'status-dot-red') }}"></span>
+                                    {{ $paymentLabels[$payment->status] ?? $payment->status }}
                                 </span>
                             </td>
                         </tr>
@@ -222,7 +282,7 @@
                         <tr>
                             <td colspan="5" style="text-align: center; padding: 2.5rem 1rem; color: #94a3b8;">
                                 <p style="font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">Belum ada riwayat pembayaran{{ $paymentStatus ? ' dengan status ini' : '' }}</p>
-                                <p style="font-size: 0.75rem; margin: 0;">Pembayaran yang dikonfirmasi Admin akan tercatat di sini.</p>
+                                <p style="font-size: 0.75rem; margin: 0;">Pembayaran manual yang dikonfirmasi Admin akan tercatat di sini.</p>
                             </td>
                         </tr>
                     @endforelse
@@ -241,7 +301,7 @@
             <div style="width: 100%; max-width: 36rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 24px 50px rgba(15, 23, 42, 0.22); overflow: hidden;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid #f1f5f9;">
                     <div>
-                        <span class="micro-badge" style="background: #eff6ff; color: #1d4ed8;">Tagihan #{{ $selectedCharge->id }} · Sisa Rp{{ number_format($selectedCharge->balance, 0, ',', '.') }}</span>
+                        <span class="micro-badge" style="background: #eff6ff; color: #1d4ed8;">INV-{{ str_pad($selectedCharge->id, 4, '0', STR_PAD_LEFT) }} · Sisa Rp{{ number_format($selectedCharge->balance, 0, ',', '.') }}</span>
                         <h2 id="oi-personal-payment-title" style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0.5rem 0 0.25rem 0;">Kirim Pembayaran Tagihan</h2>
                         <p style="font-size: 0.8125rem; color: #64748b; margin: 0;">{{ $selectedCharge->organization->name }} · Aset: <strong style="color: #0f172a;">{{ $selectedCharge->asset?->name ?? '-' }}</strong></p>
                     </div>
@@ -302,4 +362,14 @@
             </div>
         </div>
     @endif
+
+    <script>
+        function copyBankAccount(num) {
+            navigator.clipboard.writeText(num).then(() => {
+                if (typeof showToast === 'function') {
+                    showToast('Nomor rekening ' + num + ' disalin ke clipboard!', 'success');
+                }
+            }).catch(() => {});
+        }
+    </script>
 </div>
