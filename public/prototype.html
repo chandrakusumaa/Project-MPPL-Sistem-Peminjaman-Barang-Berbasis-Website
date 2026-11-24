@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workspace Organization — Media Kreatif Lab</title>
+  <link rel="stylesheet" href="css/style.css?v=16.0">
+  <style>
+    /* Strict Role Visibility Classes */
+    .role-hide { display: none !important; }
+    
+    /* Micro tab styling inside workspace */
+    .workspace-nav-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.65rem 0.875rem;
+      border-radius: 0.625rem;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #475467;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .workspace-nav-tab:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .workspace-nav-tab.active {
+      background: #ffffff;
+      color: var(--oi-red);
+      border-color: #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-weight: 700;
+    }
+    .workspace-tab-pane {
+      display: none;
+    }
+    .workspace-tab-pane.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .action-btn-group {
+      display: flex;
+      gap: 0.375rem;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    
+    <!-- ====================================================================
+         SIDEBAR NAVIGATION DENGAN KONTROL RBAC KETAT
+         ==================================================================== -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <a href="workspace.html" class="brand-logo">
+          <img src="images/logo.png" alt="Organization Inventory" class="app-logo" style="height: 38px; width: auto; object-fit: contain;">
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- INDIKATOR ROLE AKTIF -->
+        <div style="padding: 0 0.5rem 0.75rem 0.5rem;">
+          <div id="roleIndicatorBadge" class="micro-badge badge-role-member" style="width: 100%; justify-content: center; font-size: 0.6875rem; padding: 0.35rem 0.5rem;">
+            PERAN: MEMBER AKTIF
+          </div>
+        </div>
+
+        <!-- 1. MENU UMUM & MEMBER (SEMUA ROLE BISA LIHAT) -->
+        <div class="nav-section-title" id="secTitleMember">Navigasi Komunitas</div>
+        
+        <button type="button" class="workspace-nav-tab active" data-tab="tab-summary" onclick="switchWorkspaceTab('tab-summary')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Ringkasan Komunitas
+        </button>
+
+        <!-- Tab Katalog Barang (Khusus Member) -->
+        <button type="button" class="workspace-nav-tab" data-tab="tab-catalog" onclick="switchWorkspaceTab('tab-catalog')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          Katalog Barang
+        </button>
+
+        <!-- Tab Peminjaman Saya (Semua Role Punya Peminjaman Pribadi di Komunitas Ini) -->
+        <button type="button" class="workspace-nav-tab" data-tab="tab-my-borrowings" onclick="switchWorkspaceTab('tab-my-borrowings')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          Peminjaman Saya
+        </button>
+
+        <!-- Tab Tagihan Saya (Pribadi) -->
+        <button type="button" class="workspace-nav-tab" data-tab="tab-my-charges" onclick="switchWorkspaceTab('tab-my-charges')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Tagihan Saya
+        </button>
+
+        <!-- 2. MENU OPERASIONAL STAFF & ADMIN (MEMBER DILARANG KERAS MELIHAT) -->
+        <div class="nav-section-title nav-staff-admin" style="margin-top: 1.25rem;">Operasional Staff</div>
+        
+        <button type="button" class="workspace-nav-tab nav-staff-admin" data-tab="tab-inventory" onclick="switchWorkspaceTab('tab-inventory')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          Master Aset Fisik
+        </button>
+
+        <button type="button" class="workspace-nav-tab nav-staff-admin" data-tab="tab-approvals" onclick="switchWorkspaceTab('tab-approvals')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Persetujuan Pinjam
+        </button>
+
+        <button type="button" class="workspace-nav-tab nav-staff-admin" data-tab="tab-inspections" onclick="switchWorkspaceTab('tab-inspections')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          Meja Inspeksi Kembali
+        </button>
+
+        <button type="button" class="workspace-nav-tab nav-staff-admin" data-tab="tab-maintenance" onclick="switchWorkspaceTab('tab-maintenance')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Inspeksi & Servis
+        </button>
+
+        <!-- 23. Laporan Kerusakan Aset -->
+        <button type="button" class="workspace-nav-tab nav-staff-admin" data-tab="tab-damages" onclick="switchWorkspaceTab('tab-damages')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          Laporan Kerusakan
+        </button>
+
+        <!-- 25. Manajemen Kategori -->
+        <button type="button" class="workspace-nav-tab nav-staff-admin" data-tab="tab-categories" onclick="switchWorkspaceTab('tab-categories')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+          Kategori Aset
+        </button>
+
+        <!-- 26. Manajemen Lokasi Simpan -->
+        <button type="button" class="workspace-nav-tab nav-staff-admin" data-tab="tab-locations" onclick="switchWorkspaceTab('tab-locations')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Lokasi Simpan
+        </button>
+
+        <!-- 3. OTORITAS ADMIN SAJA (MEMBER & STAFF DILARANG KERAS MELIHAT) -->
+        <div class="nav-section-title nav-admin-only" style="margin-top: 1.25rem;">Otoritas Admin</div>
+        
+        <button type="button" class="workspace-nav-tab nav-admin-only" data-tab="tab-finances" onclick="switchWorkspaceTab('tab-finances')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Otoritas Finansial
+        </button>
+
+        <button type="button" class="workspace-nav-tab nav-admin-only" data-tab="tab-members" onclick="switchWorkspaceTab('tab-members')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          Kelola Anggota
+        </button>
+
+        <button type="button" class="workspace-nav-tab nav-admin-only" data-tab="tab-reports" onclick="switchWorkspaceTab('tab-reports')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Pusat Unduh CSV
+        </button>
+
+        <button type="button" class="workspace-nav-tab nav-admin-only" data-tab="tab-settings" onclick="switchWorkspaceTab('tab-settings')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Pengaturan Komunitas
+        </button>
+
+        <!-- 32. Audit Aktivitas Sistem -->
+        <button type="button" class="workspace-nav-tab nav-admin-only" data-tab="tab-audit" onclick="switchWorkspaceTab('tab-audit')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Audit Aktivitas
+        </button>
+
+        <!-- 4. NAVIGASI GLOBAL KE LUAR WORKSPACE -->
+        <div class="nav-section-title" style="margin-top: 1.5rem;">Navigasi Global</div>
+        <a href="user-dashboard.html" class="sidebar-link">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard Saya
+        </a>
+        <a href="my-organizations.html" class="sidebar-link">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          Semua Organization
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-avatar" style="background: linear-gradient(135deg, #7f112e, #05214c); color: white;">WA</div>
+        <div class="user-info">
+          <div class="user-name">Wildan Amal</div>
+          <div id="userRoleFooterText" class="user-email">Peran: Member Aktif</div>
+        </div>
+        <a href="javascript:void(0)" onclick="logoutUser(event)" title="Keluar dari Akun" style="color: #94a3b8; text-decoration: none; padding: 0.25rem; display: flex; align-items: center; cursor: pointer; margin-left: auto;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         MAIN APP CANVAS DENGAN LATAR SILUET
+         ==================================================================== -->
+    <main class="app-main">
+      
+      <!-- BACKGROUND SILUET & VECTOR WATERMARK -->
+      <div class="bg-siluet-layer" aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;">
+        <svg style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.035;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid-dots-ws" width="32" height="32" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.5" fill="#172033" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid-dots-ws)" />
+        </svg>
+
+        <svg style="position: absolute; left: 5%; top: 4rem; width: 22rem; height: 22rem; color: #0f172a; opacity: 0.035; transform: rotate(-6deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <circle cx="12" cy="13" r="4" />
+          <path d="M12 17v4m-3 0h6m-3-4l-3 4m3-4l3 4" stroke-dasharray="2 2" />
+        </svg>
+
+        <svg style="position: absolute; right: 2%; top: 8rem; width: 22rem; height: 22rem; color: #05214c; opacity: 0.03; transform: rotate(12deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="2" y="7" width="20" height="10" rx="2" />
+          <circle cx="8" cy="12" r="3" />
+          <path d="M16 10h2m-2 4h2" />
+          <path d="M6 17l-2 3m14-3l2 3" />
+          <path d="M8 9l12-6m-12 12l12 6" stroke-dasharray="1.5 2" opacity="0.6" />
+        </svg>
+
+        <div class="ambient-glow" style="top: 2rem; opacity: 0.6;"></div>
+      </div>
+
+      <!-- TOPBAR DENGAN ROLE SWITCHER AUDIT -->
+      <header class="app-topbar" style="position: relative; z-index: 10;">
+        <div class="topbar-left">
+          <button type="button" onclick="toggleSidebar()" class="btn-toggle-sidebar" title="Buka / Tutup Sidebar">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <span style="font-weight: 800; font-size: 1.125rem; color: #0f172a; letter-spacing: -0.02em;">Media Kreatif Lab</span>
+        </div>
+
+        <div class="topbar-right">
+          <!-- SIMULASI ROLE VIEWER (Audit Switcher Sesuai Permintaan MD) -->
+          <div style="display: flex; align-items: center; gap: 0.5rem; background: #ffffff; padding: 0.25rem 0.625rem; border-radius: 9999px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <span style="font-size: 0.6875rem; font-weight: 800; color: #64748b; padding-left: 0.25rem;">LIHAT SEBAGAI:</span>
+            <select id="roleViewSelect" onchange="changeRoleView(this.value)" class="form-select" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; font-weight: 800; border: none; background: transparent; width: auto; cursor: pointer; color: #0f172a;">
+              <option value="MEMBER">MEMBER</option>
+              <option value="STAFF">STAFF</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+
+          <!-- Tombol Aksi Topbar: Member HANYA bisa Ajukan Pinjam, Staff/Admin bisa Tambah Aset -->
+          <button type="button" onclick="openModal('modalApplyBorrow')" class="pill-btn btn-primary-red btn-sm" style="box-shadow: 0 4px 12px rgba(127, 17, 46, 0.2);">
+            + Ajukan Pinjam
+          </button>
+          
+          <button type="button" id="topbarBtnAddAsset" onclick="openModal('modalAddAsset')" class="pill-btn btn-solid-black btn-sm action-staff-admin">
+            + Tambah Aset
+          </button>
+
+                  <button type="button" class="pill-btn btn-ghost" onclick="openModal('modalNotifications')" style="padding: 0.55rem; position: relative;" title="Lihat Notifikasi Sistem" aria-label="Notifikasi">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span id="unreadNotifDot" style="position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: #7f112e; border-radius: 9999px;"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ====================================================================
+           WORKSPACE PAGE CONTAINER
+           ==================================================================== -->
+      <div class="page-container" style="position: relative; z-index: 2;">
+        
+        <!-- ROOM IDENTITY HEADER BANNER (ADAPTIF SESUAI ROLE) -->
+        <div class="workspace-header-card" style="margin-bottom: 2rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem;">
+          <div class="org-identity" style="display: flex; gap: 1.25rem; align-items: center;">
+            <div class="community-avatar" style="width: 56px; height: 56px; border-radius: 9999px; background-color: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; flex-shrink: 0;">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+  </svg>
+</div>
+            <div class="org-title-group">
+              <div class="org-main-name" style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.375rem; font-weight: 800; color: #0f172a;">
+                Media Kreatif Lab
+                <span id="roomHeaderRoleBadge" class="micro-badge badge-role-member">MEMBER AKTIF</span>
+              </div>
+              <p class="org-meta-desc" style="color: #64748b; font-size: 0.8125rem; margin-top: 0.25rem;">
+                Gedung B Lt. 3 Komunitas 304 · Maks Pinjam: <strong>7 Hari</strong> · Denda: <strong>Rp 25.000/hari</strong>
+              </p>
+            </div>
+          </div>
+
+          <div class="org-quick-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="openModal('modalApplyBorrow')" class="pill-btn btn-primary-red btn-md" style="box-shadow: 0 4px 14px rgba(127, 17, 46, 0.22);">
+              Ajukan Peminjaman Unit →
+            </button>
+            <button type="button" id="bannerBtnAddAsset" onclick="openModal('modalAddAsset')" class="pill-btn btn-secondary-light btn-md action-staff-admin">
+              + Tambah Unit Fisik
+            </button>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 1: RINGKASAN RUANG (ADAPTIF MEMBER vs STAFF vs ADMIN)
+             ================================================================== -->
+        <div id="tab-summary" class="workspace-tab-pane active">
+          
+          <!-- 4 STAT METRICS DENGAN PASTEL WASH -->
+          <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+            
+            <!-- Metric 1 -->
+            <div class="metric-card metric-card-slate" style="padding: 1.375rem 1.5rem;">
+              <div class="metric-top">
+                <span class="metric-label" id="labelMetric1" style="font-weight: 700;">Unit Fisik Tersedia</span>
+                <div class="metric-icon" style="background: #e2e8f0; color: #1e293b;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+              </div>
+              <div class="metric-value" id="valMetric1">42 Unit</div>
+              <div class="metric-sub" id="subMetric1" style="font-size: 0.75rem; color: #64748b; margin-top: 0.35rem;">Siap dipinjam langsung di lab</div>
+            </div>
+
+            <!-- Metric 2 -->
+            <div class="metric-card metric-card-mint" style="padding: 1.375rem 1.5rem;">
+              <div class="metric-top">
+                <span class="metric-label" id="labelMetric2" style="font-weight: 700;">Pinjaman Aktif Saya</span>
+                <div class="metric-icon" style="background: #dcfce7; color: #15803d;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+              </div>
+              <div class="metric-value" id="valMetric2">1 Unit Fisik</div>
+              <div class="metric-sub" id="subMetric2" style="font-size: 0.75rem; color: #166534; margin-top: 0.35rem;">Tripod Manfrotto (H-2 Jatuh Tempo)</div>
+            </div>
+
+            <!-- Metric 3 -->
+            <div class="metric-card metric-card-amber" style="padding: 1.375rem 1.5rem;">
+              <div class="metric-top">
+                <span class="metric-label" id="labelMetric3" style="font-weight: 700;">Pengajuan Pending</span>
+                <div class="metric-icon" style="background: #fef3c7; color: #b45309;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+              </div>
+              <div class="metric-value" id="valMetric3">1 Pengajuan</div>
+              <div class="metric-sub" id="subMetric3" style="font-size: 0.75rem; color: #92400e; margin-top: 0.35rem;">Sony A7 IV · Menunggu Staff</div>
+            </div>
+
+            <!-- Metric 4 -->
+            <div class="metric-card metric-card-red" style="padding: 1.375rem 1.5rem;">
+              <div class="metric-top">
+                <span class="metric-label" id="labelMetric4" style="font-weight: 700;">Tagihan Terbuka</span>
+                <div class="metric-icon" style="background: #fdf2f4; color: #7f112e;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+              </div>
+              <div class="metric-value" id="valMetric4">Rp 0</div>
+              <div class="metric-sub" id="subMetric4" style="font-size: 0.75rem; color: #166534; margin-top: 0.35rem;">Tidak ada denda/tunggakan aktif</div>
+            </div>
+
+          </div>
+
+          <!-- RINGKASAN CONTENT: TABEL RELEVAN SESUAI ROLE -->
+          <div class="panel-card" style="margin-bottom: 2rem;">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title" id="summaryTableTitle">Barang yang Sedang Anda Pinjam di Komunitas Ini</h2>
+                <p id="summaryTableSubtitle" style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Daftar unit fisik yang saat ini berada di tangan Anda. Bawa ke meja inspeksi lab sebelum batas kembali.
+                </p>
+              </div>
+              <button type="button" onclick="switchWorkspaceTab('tab-my-borrowings')" class="pill-btn btn-secondary-light btn-sm">
+                Lihat Selengkapnya →
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-code">Kode Aset</th>
+                    <th class="col-name">Nama Barang</th>
+                    <th>Peminjam</th>
+                    <th class="col-due">Batas Kembali</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-action">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="summaryTableBody">
+                  <!-- Row 1: Pinjaman Member Wildan -->
+                  <tr>
+                    <td class="col-code"><span class="micro-badge" style="font-family: monospace;">AST-0025</span></td>
+                    <td class="col-name"><strong>Tripod Manfrotto 055 Carbon Fiber</strong></td>
+                    <td>Wildan Amal (Anda)</td>
+                    <td class="col-due"><strong>22 Nov 2026</strong></td>
+                    <td class="col-status"><span class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> H-2 Jatuh Tempo</span></td>
+                    <td class="col-action">
+                      <button onclick="openModal('modalReportDamage')" class="pill-btn btn-danger-light btn-sm">Lapor Insiden</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ATURAN & INFORMASI LAB (SANGAT BERMANFAAT UNTUK MEMBER) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+            <div class="panel-card" style="padding: 1.5rem; margin-bottom: 0;">
+              <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem;">Aturan Peminjaman Laboratorium</h3>
+              <ul style="font-size: 0.8125rem; color: #475467; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+                <li>Maksimal durasi peminjaman adalah <strong>7 hari kalender</strong>.</li>
+                <li>Pengambilan barang fisik wajib di meja inspeksi setelah status <strong>Disetujui</strong>.</li>
+                <li>Denda keterlambatan berlaku <strong>Rp 25.000 / hari</strong> tanpa dispensasi otomatis.</li>
+                <li>Kerusakan fisik unit menjadi tanggung jawab peminjam berdasarkan estimasi biaya perbaikan teknisi lab.</li>
+              </ul>
+            </div>
+
+            <div class="panel-card" style="padding: 1.5rem; margin-bottom: 0;">
+              <h3 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem;">Informasi Pembayaran Denda</h3>
+              <p style="font-size: 0.8125rem; color: #64748b; line-height: 1.5; margin-bottom: 0.75rem;">
+                Seluruh pembayaran denda dilakukan melalui transfer manual ke kas komunitas dan diverifikasi oleh Admin.
+              </p>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.875rem 1rem; font-size: 0.8125rem;">
+                <div style="color: #64748b; font-size: 0.75rem; margin-bottom: 0.25rem;">Status Keuangan:</div>
+                <div style="font-weight: 800; font-size: 0.9375rem; color: #0f172a; margin-bottom: 0.5rem;">Transfer Manual Terverifikasi</div>
+                <a href="my-charges.html" class="pill-btn btn-secondary-light btn-sm" style="text-decoration: none; display: inline-flex;">
+                  Lihat Detail Tagihan →
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================================================================
+             TAB 2: KATALOG BARANG / MASTER INVENTARIS FISIK
+             ================================================================== -->
+        <div id="tab-inventory" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title" id="inventoryTitle">Master Inventaris Fisik (Staff/Admin)</h2>
+                <p id="inventorySubtitle" style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Setiap unit fisik tercatat dengan kode inventaris unik (bukan sistem kuantitas angka abstrak).
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <div class="search-input-wrapper">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                  <input type="text" id="inventorySearchInput" onkeyup="filterInventoryTable()" class="form-input" placeholder="Cari nama atau kode unit..." style="padding: 0.35rem 0.65rem 0.35rem 2.25rem; font-size: 0.8125rem;">
+                </div>
+                <!-- Tombol Tambah Aset: HANYA STAFF / ADMIN -->
+                <button type="button" onclick="openModal('modalAddAsset')" class="pill-btn btn-solid-black btn-sm action-staff-admin">
+                  + Tambah Aset Baru
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table" id="tableInventory">
+                <thead>
+                  <tr>
+                    <th class="col-code">Kode Aset Fisik</th>
+                    <th class="col-name">Nama Barang Fisik</th>
+                    <th>Kategori</th>
+                    <th>Lokasi Rak</th>
+                    <th class="col-status">Status Ketersediaan</th>
+                    <th class="col-action">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Item 1: Tersedia -->
+                  <tr>
+                    <td class="col-code"><span class="micro-badge" style="font-family: monospace;">AST-7829-0024</span></td>
+                    <td class="col-name"><strong>Sony Alpha 7 IV (Body Only)</strong></td>
+                    <td>Kamera Mirrorless</td>
+                    <td>Lemari A · Rak 02</td>
+                    <td class="col-status"><span class="micro-badge micro-badge-green"><span class="status-dot status-dot-green"></span> Tersedia</span></td>
+                    <td class="col-action">
+                      <div class="action-btn-group">
+                        <button onclick="openApplyForAsset('AST-7829-0024', 'Sony Alpha 7 IV')" class="pill-btn btn-primary-red btn-sm">Ajukan Pinjam</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Item 2: Dipinjam Wildan -->
+                  <tr>
+                    <td class="col-code"><span class="micro-badge" style="font-family: monospace;">AST-7829-0025</span></td>
+                    <td class="col-name"><strong>Tripod Manfrotto 055 Carbon Fiber</strong></td>
+                    <td>Perlengkapan Kamera</td>
+                    <td>Rak Tripod 01</td>
+                    <td class="col-status"><span class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> Dipinjam (Wildan)</span></td>
+                    <td class="col-action">
+                      <div class="action-btn-group">
+                        <span class="micro-badge" style="color: #64748b;">Sedang Dipinjam</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Item 3: Dipinjam Orang Lain -->
+                  <tr>
+                    <td class="col-code"><span class="micro-badge" style="font-family: monospace;">AST-7829-0026</span></td>
+                    <td class="col-name"><strong>Lensa Sony FE 24-70mm f/2.8 GM</strong></td>
+                    <td>Lensa</td>
+                    <td>Drybox 01 · Tray B</td>
+                    <td class="col-status"><span class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> Dipinjam (Siti)</span></td>
+                    <td class="col-action">
+                      <div class="action-btn-group">
+                        <span class="micro-badge" style="color: #64748b;">Sedang Dipinjam</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Item 4: Tersedia -->
+                  <tr>
+                    <td class="col-code"><span class="micro-badge" style="font-family: monospace;">AST-7829-0027</span></td>
+                    <td class="col-name"><strong>LED Video Light Godox SL-60W</strong></td>
+                    <td>Lighting</td>
+                    <td>Rak Lighting 03</td>
+                    <td class="col-status"><span class="micro-badge micro-badge-green"><span class="status-dot status-dot-green"></span> Tersedia</span></td>
+                    <td class="col-action">
+                      <div class="action-btn-group">
+                        <button onclick="openApplyForAsset('AST-7829-0027', 'Godox SL-60W')" class="pill-btn btn-primary-red btn-sm">Ajukan Pinjam</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Item 5: Tersedia -->
+                  <tr>
+                    <td class="col-code"><span class="micro-badge" style="font-family: monospace;">AST-7829-0028</span></td>
+                    <td class="col-name"><strong>Audio Recorder Zoom H6 Black</strong></td>
+                    <td>Audio Pro</td>
+                    <td>Koper Audio 01</td>
+                    <td class="col-status"><span class="micro-badge micro-badge-green"><span class="status-dot status-dot-green"></span> Tersedia</span></td>
+                    <td class="col-action">
+                      <div class="action-btn-group">
+                        <button onclick="openApplyForAsset('AST-7829-0028', 'Zoom H6 Black')" class="pill-btn btn-primary-red btn-sm">Ajukan Pinjam</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Item 6: Maintenance -->
+                  <tr>
+                    <td class="col-code"><span class="micro-badge" style="font-family: monospace;">AST-7829-0029</span></td>
+                    <td class="col-name"><strong>Wireless Mic Rode Wireless GO II</strong></td>
+                    <td>Audio Wireless</td>
+                    <td>Meja Servis Teknisi</td>
+                    <td class="col-status"><span class="micro-badge micro-badge-red"><span class="status-dot status-dot-red"></span> Maintenance</span></td>
+                    <td class="col-action">
+                      <div class="action-btn-group">
+                        <span class="micro-badge micro-badge-red">Di Bengkel Servis</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 2B: KATALOG BARANG (KHUSUS TAMPILAN MEMBER)
+             ================================================================== -->
+        <div id="tab-catalog" class="workspace-tab-pane">
+          <!-- Dipetakan ke tab-inventory dengan visual katalog ramah member -->
+        </div>
+
+        <!-- ==================================================================
+             TAB 3: PERSETUJUAN PINJAMAN (STAFF & ADMIN ONLY)
+             ================================================================== -->
+        <div id="tab-approvals" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Persetujuan Peminjaman & Serah Terima Fisik (Staff/Admin)</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Verifikasi permohonan pinjaman anggota dan lakukan serah terima unit fisik di meja laboratorium.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table" id="tableApprovals">
+                <thead>
+                  <tr>
+                    <th>ID Pinjam</th>
+                    <th>Nama Peminjam</th>
+                    <th>Unit Fisik</th>
+                    <th>Rentang Pinjam</th>
+                    <th>Keperluan</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Aksi Staff</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Pending 1: Wildan Amal -->
+                  <tr id="rowApprovalWildan">
+                    <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-004</span></td>
+                    <td><strong>Wildan Amal</strong><br><span style="font-size: 0.75rem; color: #64748b;">Member Aktif</span></td>
+                    <td>Sony Alpha 7 IV<br><span style="font-size: 0.75rem; font-family: monospace; color: #64748b;">AST-7829-0024</span></td>
+                    <td>21 Nov — 25 Nov 2026</td>
+                    <td>Liputan Proyek Multimedia</td>
+                    <td><span id="badgeStatusWildan" class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> Pending Approval</span></td>
+                    <td style="text-align: right;">
+                      <div class="action-btn-group" id="btnGroupWildan">
+                        <button onclick="approveBorrowing('rowApprovalWildan', 'badgeStatusWildan', 'btnGroupWildan', 'Sony Alpha 7 IV')" class="pill-btn btn-sm" style="background: #15803d; color: white;">Setujui</button>
+                        <button onclick="rejectBorrowing('rowApprovalWildan', 'badgeStatusWildan', 'btnGroupWildan')" class="pill-btn btn-danger-light btn-sm">Tolak</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Approved: Siti Rahma (Menunggu Serah Terima) -->
+                  <tr id="rowApprovalSiti">
+                    <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-003</span></td>
+                    <td><strong>Siti Rahma</strong><br><span style="font-size: 0.75rem; color: #64748b;">Member Aktif</span></td>
+                    <td>LED Video Light Godox SL-60W<br><span style="font-size: 0.75rem; font-family: monospace; color: #64748b;">AST-7829-0027</span></td>
+                    <td>21 Nov — 24 Nov 2026</td>
+                    <td>Tugas Akhir Tata Cahaya</td>
+                    <td><span id="badgeStatusSiti" class="micro-badge micro-badge-blue"><span class="status-dot status-dot-blue"></span> Disetujui (Siap Diambil)</span></td>
+                    <td style="text-align: right;">
+                      <div class="action-btn-group" id="btnGroupSiti">
+                        <button onclick="handoverUnit('rowApprovalSiti', 'badgeStatusSiti', 'btnGroupSiti', 'Godox SL-60W')" class="pill-btn btn-primary-red btn-sm">Serah Terima Fisik (Handover)</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Already Handed Over: Budi Santoso -->
+                  <tr>
+                    <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-002</span></td>
+                    <td><strong>Budi Santoso</strong><br><span style="font-size: 0.75rem; color: #64748b;">Member Aktif</span></td>
+                    <td>Lensa Sony FE 24-70mm f/2.8 GM<br><span style="font-size: 0.75rem; font-family: monospace; color: #64748b;">AST-7829-0026</span></td>
+                    <td>16 Nov — 23 Nov 2026</td>
+                    <td>Fotografi Produk Kampus</td>
+                    <td><span class="micro-badge micro-badge-green"><span class="status-dot status-dot-green"></span> Sedang Dipinjam</span></td>
+                    <td style="text-align: right;">
+                      <button onclick="switchWorkspaceTab('tab-inspections')" class="pill-btn btn-secondary-light btn-sm">Buka Meja Inspeksi →</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 4: MEJA INSPEKSI PENGEMBALIAN (STAFF & ADMIN ONLY)
+             ================================================================== -->
+        <div id="tab-inspections" class="workspace-tab-pane">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            
+            <!-- FORM INSPEKSI FISIK PENGEMBALIAN -->
+            <div class="panel-card" style="padding: 1.75rem; margin-bottom: 0;">
+              <h3 style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Meja Inspeksi Pengembalian Fisik</h3>
+              <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1.5rem;">
+                Pemeriksaan fisik unit saat dikembalikan peminjam, cek keterlambatan, dan buat draf tagihan jika ada denda.
+              </p>
+
+              <form onsubmit="handleInspectionSubmit(event)">
+                <div class="form-group">
+                  <label class="form-label">Pilih Peminjaman yang Sedang Dikembalikan</label>
+                  <select id="inspectionLoanSelect" onchange="updateInspectionCalculation()" class="form-select" required>
+                    <option value="loan-1">BRW-2026-001: Tripod Manfrotto 055 (Peminjam: Wildan Amal)</option>
+                    <option value="loan-2">BRW-2026-002: Lensa Sony FE 24-70mm (Peminjam: Budi Santoso)</option>
+                  </select>
+                </div>
+
+                <!-- KALKULASI OTOMATIS KETERLAMBATAN -->
+                <div id="inspectionOverdueBox" style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.25rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+                    <span style="color: #92400e; font-weight: 700;">Status Keterlambatan:</span>
+                    <strong style="color: #b45309;" id="txtInspectionLate">Telat 2 Hari</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-top: 0.35rem;">
+                    <span style="color: #64748b;">Perhitungan Denda:</span>
+                    <span id="txtInspectionCalc">2 Hari × Rp 25.000 / hari</span>
+                  </div>
+                  <div style="border-top: 1px solid #fde68a; margin-top: 0.5rem; padding-top: 0.5rem; display: flex; justify-content: space-between; font-size: 0.875rem;">
+                    <span style="font-weight: 700; color: #0f172a;">Total Denda Telat:</span>
+                    <strong style="color: #7f112e;" id="txtInspectionFine">Rp 25.000</strong>
+                  </div>
+                </div>
+
+                <!-- KONDISI FISIK CHECKLIST -->
+                <div class="form-group">
+                  <label class="form-label">Hasil Pemeriksaan Kondisi Fisik Unit</label>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; cursor: pointer;">
+                      <input type="radio" name="unitCondition" value="good" checked onchange="toggleDamageInput(false)">
+                      <span><strong>Kondisi Baik (Good):</strong> Bersih, fungsi normal, tanpa cacat/kerusakan.</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; cursor: pointer;">
+                      <input type="radio" name="unitCondition" value="minor" onchange="toggleDamageInput(true)">
+                      <span><strong>Rusak Ringan:</strong> Baret, kotor berat, atau baud pengunci kendor.</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; cursor: pointer;">
+                      <input type="radio" name="unitCondition" value="major" onchange="toggleDamageInput(true)">
+                      <span><strong>Rusak Berat / Hilang:</strong> Komponen pecah, optik berjamur, atau unit hilang.</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div id="damageInputGroup" style="display: none; background: #fdf2f4; border: 1px solid #fecdd6; border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.25rem;">
+                  <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label class="form-label" style="color: #05214c;">Estimasi Biaya Reparasi / Penggantian Fisik (Rp)</label>
+                    <input type="number" id="inputDamageCost" class="form-input" placeholder="Contoh: 150000" step="5000">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="color: #05214c;">Catatan Kerusakan dari Staff</label>
+                    <textarea id="inputDamageNotes" class="form-textarea" rows="2" placeholder="Jelaskan bagian mana yang cacat..."></textarea>
+                  </div>
+                </div>
+
+                <button type="submit" class="pill-btn btn-primary-red" style="width: 100%; justify-content: center;">
+                  Selesaikan Inspeksi & Buat Draf Tagihan →
+                </button>
+              </form>
+            </div>
+
+            <!-- LOG CATATAN INSPEKSI TERAKHIR -->
+            <div class="panel-card" style="padding: 1.75rem; margin-bottom: 0;">
+              <h3 style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Riwayat Pengembalian Terverifikasi</h3>
+              <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1.25rem;">Catatan inspeksi fisik yang telah diselesaikan oleh tim operasional.</p>
+              
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; background: #f8fafc;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: #0f172a; font-size: 0.875rem;">Zoom H6 Black (AST-0028)</strong>
+                    <span class="micro-badge micro-badge-green">Kondisi Baik</span>
+                  </div>
+                  <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.35rem;">
+                    Peminjam: Wildan Amal · Dikembalikan: 15 Nov 2026 · Denda: Rp 0 (Tepat Waktu)
+                  </div>
+                  <div style="font-size: 0.6875rem; color: #15803d; font-weight: 700; margin-top: 0.25rem;">
+                    ✓ Telah diverifikasi Staff dan unit kembali ke rak.
+                  </div>
+                </div>
+
+                <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; background: #f8fafc;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: #0f172a; font-size: 0.875rem;">Rode Wireless GO II (AST-0029)</strong>
+                    <span class="micro-badge micro-badge-red">Rusak Ringan</span>
+                  </div>
+                  <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.35rem;">
+                    Peminjam: Rian Hidayat · Jack audio receiver longgar · Draf Denda: Rp 150.000
+                  </div>
+                  <div style="font-size: 0.6875rem; color: #b45309; font-weight: 700; margin-top: 0.25rem;">
+                    ⚠️ Draf tagihan telah diteruskan ke Otoritas Keuangan Admin.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 5: UNIT DALAM PERBAIKAN & SERVIS (STAFF & ADMIN ONLY)
+             ================================================================== -->
+        <div id="tab-maintenance" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Pelacakan Pemeliharaan & Servis Fisik</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Unit fisik yang sedang berada di teknisi vendor atau bengkel perbaikan internal lab.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Kode Aset</th>
+                    <th>Nama Barang</th>
+                    <th>Kendala / Kerusakan</th>
+                    <th>Lokasi Bengkel / Vendor</th>
+                    <th>Estimasi Selesai</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="micro-badge" style="font-family: monospace;">AST-7829-0029</span></td>
+                    <td><strong>Rode Wireless GO II (Receiver)</strong></td>
+                    <td>Jack 3.5mm kendor & kresek</td>
+                    <td>Mitra Suara Pro Bandung</td>
+                    <td>26 Nov 2026</td>
+                    <td><span class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> Sedang Diservis</span></td>
+                    <td>
+                      <button onclick="showToast('Status servis diperbarui', 'info')" class="pill-btn btn-secondary-light btn-sm">Perbarui Status</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 6: OTORITAS FINANSIAL (ADMIN ONLY)
+             ================================================================== -->
+        <div id="tab-finances" class="workspace-tab-pane">
+          
+          <!-- SECTION A: DRAF TAGIHAN DARI MEJA INSPEKSI -->
+          <div class="panel-card" style="margin-bottom: 2rem;">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Draf Tagihan dari Meja Inspeksi (Perlu Penerbitan)</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Hanya Admin yang berhak menerbitkan (Issue) draf menjadi tagihan resmi atau membebaskan (Waive) denda.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Draf</th>
+                    <th>Member Peminjam</th>
+                    <th>Jenis Tagihan</th>
+                    <th>Unit Fisik Terkait</th>
+                    <th>Nominal</th>
+                    <th>Status Draf</th>
+                    <th style="text-align: right;">Aksi Otoritas Admin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id="rowDraftCharge1">
+                    <td><span class="micro-badge" style="font-family: monospace;">DFT-2026-09</span></td>
+                    <td><strong>Wildan Amal</strong><br><span style="font-size: 0.75rem; color: #64748b;">wildan@orginventory.id</span></td>
+                    <td><span class="micro-badge micro-badge-amber">Denda Telat 2 Hari</span></td>
+                    <td>Tripod Manfrotto 055</td>
+                    <td><strong style="color: var(--oi-red);">Rp 25.000</strong></td>
+                    <td><span id="badgeDraftStatus1" class="micro-badge micro-badge-amber">Menunggu Penerbitan</span></td>
+                    <td style="text-align: right;">
+                      <div class="action-btn-group" id="btnGroupDraft1">
+                        <button onclick="issueCharge('rowDraftCharge1', 'badgeDraftStatus1', 'btnGroupDraft1')" class="pill-btn btn-primary-red btn-sm">Terbitkan Tagihan (Issue)</button>
+                        <button onclick="waiveCharge('rowDraftCharge1', 'badgeDraftStatus1', 'btnGroupDraft1')" class="pill-btn btn-ghost btn-sm">Bebaskan (Waive)</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SECTION B: VERIFIKASI RESI TRANSFER MANUAL ANGGOTA -->
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Antrean Verifikasi Bukti Transfer Manual Bank</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Periksa mutasi rekening lab. Saldo anggota HANYA lunas jika Admin mengonfirmasi transfer ini.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>No Tagihan</th>
+                    <th>Pengunggah</th>
+                    <th>Nominal Bayar</th>
+                    <th>Tujuan Bank</th>
+                    <th>Pratinjau Resi</th>
+                    <th>Status Verifikasi</th>
+                    <th style="text-align: right;">Aksi Verifikasi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id="rowPaymentVerif1">
+                    <td><span class="micro-badge" style="font-family: monospace;">INV-2026-881</span></td>
+                    <td><strong>Wildan Amal</strong></td>
+                    <td><strong style="color: #15803d;">Rp 25.000</strong></td>
+                    <td>BCA (827-019-2819)</td>
+                    <td>
+                      <button onclick="openModal('modalVerifyPayment')" class="pill-btn btn-secondary-light btn-sm">
+                        🔍 Lihat Resi Transfer
+                      </button>
+                    </td>
+                    <td><span id="badgePaymentStatus1" class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> Pending Verifikasi</span></td>
+                    <td style="text-align: right;">
+                      <div class="action-btn-group" id="btnGroupPayment1">
+                        <button onclick="confirmPayment('rowPaymentVerif1', 'badgePaymentStatus1', 'btnGroupPayment1')" class="pill-btn btn-sm" style="background: #15803d; color: white;">Konfirmasi Lunas</button>
+                        <button onclick="rejectPayment('rowPaymentVerif1', 'badgePaymentStatus1', 'btnGroupPayment1')" class="pill-btn btn-danger-light btn-sm">Tolak</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================================================================
+             TAB 7: KELOLA ANGGOTA (ADMIN ONLY)
+             ================================================================== -->
+        <div id="tab-members" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Manajemen Hak Akses & Peran Anggota</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Role melekat per komunitas: Admin dapat mengangkat anggota menjadi Staff atau Admin baru.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nama Anggota</th>
+                    <th>Email</th>
+                    <th>Peran Saat Ini</th>
+                    <th>Tanggal Gabung</th>
+                    <th>Unit Dibawa</th>
+                    <th style="text-align: right;">Ubah Otoritas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Wildan Amal (Anda)</strong></td>
+                    <td>wildan@orginventory.id</td>
+                    <td><span class="micro-badge badge-role-admin">ADMIN</span></td>
+                    <td>01 Jan 2026</td>
+                    <td>1 Unit</td>
+                    <td style="text-align: right;"><span class="micro-badge" style="color: #64748b;">Pemilik Komunitas</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Siti Rahma</strong></td>
+                    <td>siti@orginventory.id</td>
+                    <td><span class="micro-badge badge-role-staff">STAFF</span></td>
+                    <td>10 Feb 2026</td>
+                    <td>1 Unit</td>
+                    <td style="text-align: right;">
+                      <button onclick="showToast('Peran Siti diubah menjadi Member', 'info')" class="pill-btn btn-secondary-light btn-sm">Jadikan Member</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Budi Santoso</strong></td>
+                    <td>budi@orginventory.id</td>
+                    <td><span class="micro-badge badge-role-member">MEMBER</span></td>
+                    <td>18 Mar 2026</td>
+                    <td>1 Unit</td>
+                    <td style="text-align: right;">
+                      <button onclick="showToast('Budi diangkat menjadi Staff Operasional!', 'success')" class="pill-btn btn-secondary-light btn-sm">Angkat Jadi Staff</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 8: PUSAT UNDUH 6 CSV (ADMIN ONLY)
+             ================================================================== -->
+        <div id="tab-reports" class="workspace-tab-pane">
+          <div class="panel-card" style="padding: 1.75rem; margin-bottom: 2rem;">
+            <h2 class="panel-title" style="font-size: 1.25rem; margin-bottom: 0.35rem;">Pusat Unduh Laporan CSV Resmi (6 Modul)</h2>
+            <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1.75rem;">
+              Ekspor seluruh basis data dan jejak audit fisik komunitas Media Kreatif Lab ke format CSV untuk audit institusi.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem;">
+              
+              <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; background: #f8fafc;">
+                <h4 style="font-size: 0.9375rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">1. CSV Master Inventaris Fisik</h4>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">Daftar 48 unit fisik, barcode 26-karakter, lokasi rak, dan kondisi.</p>
+                <button onclick="downloadCSV('Inventaris_Media_Kreatif_Lab.csv')" class="pill-btn btn-solid-black btn-sm">Unduh CSV Inventaris</button>
+              </div>
+
+              <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; background: #f8fafc;">
+                <h4 style="font-size: 0.9375rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">2. CSV Riwayat Peminjaman</h4>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">Seluruh log peminjaman, nama peminjam, tanggal ambil, dan kembali.</p>
+                <button onclick="downloadCSV('Peminjaman_Media_Kreatif_Lab.csv')" class="pill-btn btn-solid-black btn-sm">Unduh CSV Peminjaman</button>
+              </div>
+
+              <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; background: #f8fafc;">
+                <h4 style="font-size: 0.9375rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">3. CSV Audit Denda & Keuangan</h4>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">Rekap denda telat, kerusakan, dan status transfer bank terverifikasi.</p>
+                <button onclick="downloadCSV('Keuangan_Media_Kreatif_Lab.csv')" class="pill-btn btn-solid-black btn-sm">Unduh CSV Keuangan</button>
+              </div>
+
+              <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; background: #f8fafc;">
+                <h4 style="font-size: 0.9375rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">4. CSV Catatan Inspeksi & Servis</h4>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">Log pemeriksaan fisik meja staf, unit di bengkel, dan riwayat kerusakan.</p>
+                <button onclick="downloadCSV('Inspeksi_Servis_Media_Kreatif_Lab.csv')" class="pill-btn btn-solid-black btn-sm">Unduh CSV Inspeksi</button>
+              </div>
+
+              <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; background: #f8fafc;">
+                <h4 style="font-size: 0.9375rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">5. CSV Daftar Anggota & Peran</h4>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">Daftar 24 user, kontak WhatsApp, email, dan otorisasi peran.</p>
+                <button onclick="downloadCSV('Anggota_Media_Kreatif_Lab.csv')" class="pill-btn btn-solid-black btn-sm">Unduh CSV Anggota</button>
+              </div>
+
+              <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; background: #f8fafc;">
+                <h4 style="font-size: 0.9375rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">6. CSV Audit Log Sistem (Immutable)</h4>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">Jejak waktu seluruh transaksi, pembuatan komunitas, dan verifikasi.</p>
+                <button onclick="downloadCSV('Audit_Log_Media_Kreatif_Lab.csv')" class="pill-btn btn-solid-black btn-sm">Unduh CSV Audit Log</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 9: PENGATURAN RUANG (ADMIN ONLY)
+             ================================================================== -->
+        <div id="tab-settings" class="workspace-tab-pane">
+          <div class="panel-card" style="padding: 1.75rem; margin-bottom: 2rem;">
+            <h2 class="panel-title" style="font-size: 1.125rem; margin-bottom: 0.35rem;">Parameter Operasional Komunitas</h2>
+            <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1.5rem;">Perubahan parameter langsung berlaku untuk seluruh transaksi baru.</p>
+
+            <form onsubmit="event.preventDefault(); showToast('Pengaturan komunitas berhasil disimpan!', 'success');">
+              <div class="form-group">
+                <label class="form-label">Nama Organization</label>
+                <input type="text" class="form-input" value="Media Kreatif Lab" required>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label class="form-label">Batas Maksimal Pinjam (Hari)</label>
+                  <input type="number" class="form-input" value="7" min="1" max="60" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tarif Denda Telat per Hari (Rp)</label>
+                  <input type="number" class="form-input" value="25000" step="5000" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Rekening Bank untuk Pembayaran Denda Manual</label>
+                <input type="text" class="form-input" value="BCA 827-019-2819 a.n Media Kreatif Lab" required>
+              </div>
+
+              <button type="submit" class="pill-btn btn-solid-black">Simpan Perubahan</button>
+            </form>
+          </div>
+
+          <div class="panel-card" style="padding: 1.75rem; border: 1px solid #fecdd6; background: #fffcfc;">
+            <h3 style="font-size: 1.0625rem; font-weight: 800; color: #05214c; margin-bottom: 0.25rem;">Zona Bahaya Admin</h3>
+            <p style="font-size: 0.8125rem; color: #680e2c; margin-bottom: 1rem;">Tindakan berikut bersifat permanen dan memerlukan otorisasi penuh pemilik komunitas.</p>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button onclick="if(confirm('Arsipkan komunitas ini? Komunitas tidak akan menerima pengajuan baru.')) showToast('Komunitas diarsipkan', 'info')" class="pill-btn btn-secondary-light btn-sm">Arsipkan Komunitas</button>
+              <button onclick="if(confirm('YAKIN HAPUS RUANG INI? Seluruh data akan dimusnahkan!')) showToast('Otoritas ditolak: Masih ada 1 unit dipinjam aktif.', 'error')" class="pill-btn btn-danger-light btn-sm">Hapus Organization</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 10: PEMINJAMAN SAYA DI RUANG INI (SEMUA BISA AKSES)
+             ================================================================== -->
+        <div id="tab-my-borrowings" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Peminjaman Pribadi Anda di Media Kreatif Lab</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Unit fisik yang sedang Anda bawa, ajukan, atau telah selesai dikembalikan di komunitas ini.
+                </p>
+              </div>
+              <button onclick="switchWorkspaceTab('tab-catalog')" class="pill-btn btn-primary-red btn-sm">
+                + Pinjam Barang Lain
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Pinjam</th>
+                    <th>Kode Fisik</th>
+                    <th>Nama Barang</th>
+                    <th>Rentang Pinjam</th>
+                    <th>Status Pinjaman</th>
+                    <th style="text-align: right;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="myBorrowingsTableBody">
+                  <!-- Row 1: Sedang Dipinjam -->
+                  <tr>
+                    <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-001</span></td>
+                    <td><span class="micro-badge" style="font-family: monospace;">AST-7829-0025</span></td>
+                    <td><strong>Tripod Manfrotto 055 Carbon Fiber</strong></td>
+                    <td>18 Nov — <strong>22 Nov 2026</strong></td>
+                    <td><span class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> Sedang Dipinjam (H-2)</span></td>
+                    <td style="text-align: right;">
+                      <button onclick="openModal('modalReportDamage')" class="pill-btn btn-danger-light btn-sm">Lapor Insiden</button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 2: Pengajuan Pending (Simulasi Alur 2) -->
+                  <tr id="rowMyLoanSony">
+                    <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-004</span></td>
+                    <td><span class="micro-badge" style="font-family: monospace;">AST-7829-0024</span></td>
+                    <td><strong>Sony Alpha 7 IV (Body Only)</strong></td>
+                    <td>21 Nov — 25 Nov 2026</td>
+                    <td><span id="badgeMySonyStatus" class="micro-badge micro-badge-blue"><span class="status-dot status-dot-blue"></span> Pending Approval</span></td>
+                    <td style="text-align: right;">
+                      <button onclick="cancelMyLoan('rowMyLoanSony')" class="pill-btn btn-ghost btn-sm" style="color: #7f112e;">Batalkan</button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 3: Selesai -->
+                  <tr>
+                    <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-000</span></td>
+                    <td><span class="micro-badge" style="font-family: monospace;">AST-7829-0028</span></td>
+                    <td><strong>Audio Recorder Zoom H6 Black</strong></td>
+                    <td>10 Nov — 15 Nov 2026</td>
+                    <td><span class="micro-badge micro-badge-green"><span class="status-dot status-dot-green"></span> Selesai Terverifikasi</span></td>
+                    <td style="text-align: right;">
+                      <a href="asset-timeline.html?code=AST-7829-0028" class="pill-btn btn-secondary-light btn-sm">Riwayat & Timeline</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 11: TAGIHAN SAYA DI RUANG INI (SEMUA BISA AKSES)
+             ================================================================== -->
+        <div id="tab-my-charges" class="workspace-tab-pane">
+          
+          <div style="background: #ffffff; border: 1px solid #fecdd6; border-top: 3px solid #7f112e; border-radius: 1.25rem; padding: 1.75rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <span class="micro-badge micro-badge-red" style="font-weight: 800; margin-bottom: 0.5rem;">KEWAJIBAN DENDA TERBUKA</span>
+                <div style="font-size: 2rem; font-weight: 900; color: #15803d; letter-spacing: -0.04em;">Rp 0 (Lunas)</div>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Denda keterlambatan 2 hari untuk unit <strong>Tripod Manfrotto 055</strong>.
+                </p>
+              </div>
+
+              <div>
+                <a href="my-charges.html" class="pill-btn btn-primary-red btn-md" style="text-decoration: none; font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(127, 17, 46, 0.22);">
+                  Lihat Detail →
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Daftar Tagihan Denda di Media Kreatif Lab</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Unggah bukti transfer untuk diverifikasi dan dikonfirmasi lunas oleh Admin.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>No Tagihan</th>
+                    <th>Jenis Denda</th>
+                    <th>Unit Fisik</th>
+                    <th>Nominal</th>
+                    <th>Status Pembayaran</th>
+                    <th style="text-align: right;">Aksi Pembayaran</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id="rowMyCharge1">
+                    <td><span class="micro-badge" style="font-family: monospace;">INV-2026-881</span></td>
+                    <td><span class="micro-badge micro-badge-amber">Denda Telat 2 Hari</span></td>
+                    <td>Tripod Manfrotto 055</td>
+                    <td><strong style="color: var(--oi-red);">Rp 25.000</strong></td>
+                    <td><span id="badgeMyChargeStatus1" class="micro-badge micro-badge-red"><span class="status-dot status-dot-red"></span> Belum Lunas</span></td>
+                    <td style="text-align: right;">
+                      <button id="btnUploadReceiptMyCharge" onclick="openModal('modalUploadReceipt')" class="pill-btn btn-primary-red btn-sm">
+                        Kirim Bukti Pembayaran
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+        <!-- ====================================================================
+             TAB 23: LAPORAN KERUSAKAN ASET (STAFF / ADMIN)
+             ==================================================================== -->
+        <div id="tab-damages" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Laporan Kerusakan & Klaim Insiden Fisik (Staff/Admin)</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Daftar insiden kerusakan fisik, dokumentasi bukti foto, estimasi perbaikan teknisi, dan penerbitan draf denda.
+                </p>
+              </div>
+              <button onclick="openModal('modalReportDamage')" class="pill-btn btn-primary-red btn-sm">
+                + Buat Laporan Kerusakan
+              </button>
+            </div>
+
+            <!-- Stats Ribbon -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 0 1.75rem 1.25rem 1.75rem;">
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem;">
+                <div style="font-size: 0.75rem; color: #64748b;">Total Insiden Terdata</div>
+                <div style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin-top: 0.25rem;">2 Kasus</div>
+              </div>
+              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 0.75rem; padding: 1rem;">
+                <div style="font-size: 0.75rem; color: #92400e;">Dalam Perbaikan Teknisi</div>
+                <div style="font-size: 1.5rem; font-weight: 900; color: #b45309; margin-top: 0.25rem;">1 Unit</div>
+              </div>
+              <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 0.75rem; padding: 1rem;">
+                <div style="font-size: 0.75rem; color: #065f46;">Selesai Diganti / Resolved</div>
+                <div style="font-size: 1.5rem; font-weight: 900; color: #059669; margin-top: 0.25rem;">1 Kasus</div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Insiden</th>
+                    <th>Aset Terkait</th>
+                    <th>Tingkat Kerusakan</th>
+                    <th>Kronologi Kejadian</th>
+                    <th>Penanggung Jawab</th>
+                    <th>Estimasi Biaya</th>
+                    <th>Status Servis</th>
+                    <th style="text-align: right;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="micro-badge" style="font-family: monospace;">INC-2026-041</span></td>
+                    <td>
+                      <strong>Epson 4K Laser Projector</strong><br>
+                      <span style="font-size: 0.75rem; font-family: monospace; color: #64748b;">AST-0027</span>
+                    </td>
+                    <td><span class="micro-badge micro-badge-amber">Rusak Ringan</span></td>
+                    <td style="max-width: 280px; font-size: 0.8125rem; color: #334155;">
+                      Kabel power supply internal short-circuit saat digunakan presentasi di Aula Lt. 2.
+                    </td>
+                    <td>
+                      <strong>Budi Santoso</strong><br>
+                      <span style="font-size: 0.75rem; color: #64748b;">Member (BRW-2026-001)</span>
+                    </td>
+                    <td><strong style="color: var(--oi-wine);">Rp 350.000</strong></td>
+                    <td>
+                      <span class="micro-badge" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;">
+                        <span class="status-dot" style="background: #2563eb;"></span> Servis Teknisi
+                      </span>
+                    </td>
+                    <td style="text-align: right;">
+                      <button onclick="openModal('modalDamageDetailAction')" class="pill-btn btn-primary-red btn-sm" style="font-weight: 700;">Tindak Lanjut & Ganti Rugi →</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="micro-badge" style="font-family: monospace;">INC-2026-040</span></td>
+                    <td>
+                      <strong>Multimeter Digital Fluke</strong><br>
+                      <span style="font-size: 0.75rem; font-family: monospace; color: #64748b;">AST-0033</span>
+                    </td>
+                    <td><span class="micro-badge micro-badge-red">Rusak Sedang</span></td>
+                    <td style="max-width: 280px; font-size: 0.8125rem; color: #334155;">
+                      Probe kabel terbakar dan meleleh akibat overvoltage praktikum.
+                    </td>
+                    <td>
+                      <strong>Andi Wijaya</strong><br>
+                      <span style="font-size: 0.75rem; color: #64748b;">Member (BRW-2026-000)</span>
+                    </td>
+                    <td><strong style="color: var(--oi-wine);">Rp 150.000</strong></td>
+                    <td>
+                      <span class="micro-badge micro-badge-green">
+                        <span class="status-dot status-dot-green"></span> Lunas / Resolved
+                      </span>
+                    </td>
+                    <td style="text-align: right;">
+                      <span style="font-size: 0.75rem; color: #059669; font-weight: 700;">Ganti Baru ✓</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 25: MANAJEMEN KATEGORI (STAFF / ADMIN)
+             ==================================================================== -->
+        <div id="tab-categories" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Manajemen Kategori Inventaris (Staff/Admin)</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Kelompokkan barang fisik ke dalam taksonomi kategori untuk mempermudah pencarian dan pengawasan stok.
+                </p>
+              </div>
+              <button onclick="openModal('modalAddCategory')" class="pill-btn btn-primary-red btn-sm">
+                + Tambah Kategori Baru
+              </button>
+            </div>
+
+            <!-- Category Grid Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; padding: 0 1.75rem 1.75rem 1.75rem;">
+              <!-- Cat 1 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div style="width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; background: #fdf2f4; color: var(--oi-wine); display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="4"/></svg>
+                  </div>
+                  <span class="micro-badge micro-badge-green" style="font-weight: 700;">18 Aset Fisik</span>
+                </div>
+                <h3 style="font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Kamera & Lensa</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">
+                  Kamera mirrorless, bodi kamera sinema, lensa prime, zoom, dan aksesoris sensor optic.
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Edit kategori Kamera', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Edit</button>
+                  <button onclick="showToast('Kategori tidak dapat dihapus karena masih memuat 18 unit aset', 'error')" class="pill-btn btn-ghost btn-sm" style="color: #94a3b8;">Hapus</button>
+                </div>
+              </div>
+
+              <!-- Cat 2 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div style="width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                  </div>
+                  <span class="micro-badge micro-badge-green" style="font-weight: 700;">8 Aset Fisik</span>
+                </div>
+                <h3 style="font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Audio & Mikrofon</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">
+                  Wireless microphone kit, shotgun mic, audio recorder portable, dan headset monitoring.
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Edit kategori Audio', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Edit</button>
+                  <button onclick="showToast('Kategori tidak dapat dihapus karena masih memuat aset aktif', 'error')" class="pill-btn btn-ghost btn-sm" style="color: #94a3b8;">Hapus</button>
+                </div>
+              </div>
+
+              <!-- Cat 3 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div style="width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                  </div>
+                  <span class="micro-badge micro-badge-green" style="font-weight: 700;">12 Aset Fisik</span>
+                </div>
+                <h3 style="font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Pencahayaan Studio</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">
+                  LED RGB light panel, softbox diffuser, c-stand lighting, dan panel reflector lipat.
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Edit kategori Lighting', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Edit</button>
+                  <button onclick="showToast('Kategori tidak dapat dihapus', 'error')" class="pill-btn btn-ghost btn-sm" style="color: #94a3b8;">Hapus</button>
+                </div>
+              </div>
+
+              <!-- Cat 4 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div style="width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; background: #f3e8ff; color: #7e22ce; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                  </div>
+                  <span class="micro-badge micro-badge-green" style="font-weight: 700;">6 Aset Fisik</span>
+                </div>
+                <h3 style="font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Support & Rigging</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">
+                  Tripod karbon tugas berat, monopod fluid head, gimbal 3-axis stabilizer, dan slider motorized.
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Edit kategori Support', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Edit</button>
+                  <button onclick="showToast('Kategori tidak dapat dihapus', 'error')" class="pill-btn btn-ghost btn-sm" style="color: #94a3b8;">Hapus</button>
+                </div>
+              </div>
+
+              <!-- Cat 5 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div style="width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; background: #f1f5f9; color: #475467; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                  </div>
+                  <span class="micro-badge micro-badge-green" style="font-weight: 700;">4 Aset Fisik</span>
+                </div>
+                <h3 style="font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Logistik & Hardcase</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">
+                  Flight case pelindung busa kustom, tas ransel perlengkapan lapangan, dan kabel drum roll.
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Edit kategori Logistik', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Edit</button>
+                  <button onclick="showToast('Kategori tidak dapat dihapus', 'error')" class="pill-btn btn-ghost btn-sm" style="color: #94a3b8;">Hapus</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 26: MANAJEMEN LOKASI SIMPAN (STAFF / ADMIN)
+             ==================================================================== -->
+        <div id="tab-locations" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <h2 class="panel-title">Manajemen Titik Penyimpanan Fisik (Staff/Admin)</h2>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                  Petakan posisi lemari, rak, dan gudang tempat setiap unit barang fisik disimpan.
+                </p>
+              </div>
+              <button onclick="openModal('modalAddLocation')" class="pill-btn btn-primary-red btn-sm">
+                + Tambah Lokasi Simpan
+              </button>
+            </div>
+
+            <!-- Locations Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; padding: 0 1.75rem 1.75rem 1.75rem;">
+              <!-- Loc 1 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <span class="micro-badge" style="font-weight: 800; font-family: monospace;">Lemari A-01</span>
+                  <span class="micro-badge micro-badge-amber">90% Penuh</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Lemari Kamera & Optik</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1rem;">Gedung B Lt. 3 · Studio 304 (Sisi Barat)</p>
+                
+                <!-- Capacity Bar -->
+                <div style="background: #f1f5f9; border-radius: 9999px; height: 8px; overflow: hidden; margin-bottom: 0.5rem;">
+                  <div style="width: 90%; height: 100%; background: #d97706; border-radius: 9999px;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">
+                  <span>Terisi: <strong>18 Unit</strong></span>
+                  <span>Kapasitas: <strong>20 Unit</strong></span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Rincian isi Lemari A-01', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Lihat Isi (18)</button>
+                  <button onclick="showToast('Edit titik simpan', 'info')" class="pill-btn btn-ghost btn-sm">Edit</button>
+                </div>
+              </div>
+
+              <!-- Loc 2 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <span class="micro-badge" style="font-weight: 800; font-family: monospace;">Rak B-01</span>
+                  <span class="micro-badge micro-badge-green">66% Penuh</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Rak Rigging & Tripod</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1rem;">Gedung B Lt. 3 · Studio 304 (Sisi Selatan)</p>
+                
+                <div style="background: #f1f5f9; border-radius: 9999px; height: 8px; overflow: hidden; margin-bottom: 0.5rem;">
+                  <div style="width: 66%; height: 100%; background: #059669; border-radius: 9999px;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">
+                  <span>Terisi: <strong>8 Unit</strong></span>
+                  <span>Kapasitas: <strong>12 Unit</strong></span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Rincian isi Rak B-01', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Lihat Isi (8)</button>
+                  <button onclick="showToast('Edit titik simpan', 'info')" class="pill-btn btn-ghost btn-sm">Edit</button>
+                </div>
+              </div>
+
+              <!-- Loc 3 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <span class="micro-badge" style="font-weight: 800; font-family: monospace;">Lemari C-04</span>
+                  <span class="micro-badge micro-badge-green">66% Penuh</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Proyektor & Elektronik</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1rem;">Gedung B Lt. 3 · Ruang Teknisi Studio</p>
+                
+                <div style="background: #f1f5f9; border-radius: 9999px; height: 8px; overflow: hidden; margin-bottom: 0.5rem;">
+                  <div style="width: 66%; height: 100%; background: #059669; border-radius: 9999px;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">
+                  <span>Terisi: <strong>10 Unit</strong></span>
+                  <span>Kapasitas: <strong>15 Unit</strong></span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Rincian isi Lemari C-04', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Lihat Isi (10)</button>
+                  <button onclick="showToast('Edit titik simpan', 'info')" class="pill-btn btn-ghost btn-sm">Edit</button>
+                </div>
+              </div>
+
+              <!-- Loc 4 -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <span class="micro-badge" style="font-weight: 800; font-family: monospace;">Gudang Utama</span>
+                  <span class="micro-badge micro-badge-green">40% Penuh</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">Flight Case & Logistik</h3>
+                <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1rem;">Gedung B Lt. 1 · Gudang Utama Logistik</p>
+                
+                <div style="background: #f1f5f9; border-radius: 9999px; height: 8px; overflow: hidden; margin-bottom: 0.5rem;">
+                  <div style="width: 40%; height: 100%; background: #059669; border-radius: 9999px;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">
+                  <span>Terisi: <strong>12 Unit</strong></span>
+                  <span>Kapasitas: <strong>30 Unit</strong></span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="showToast('Rincian isi Gudang Utama', 'info')" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">Lihat Isi (12)</button>
+                  <button onclick="showToast('Edit titik simpan', 'info')" class="pill-btn btn-ghost btn-sm">Edit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 32: AUDIT AKTIVITAS SISTEM (ADMIN ONLY - IMMUTABLE)
+             ==================================================================== -->
+        <div id="tab-audit" class="workspace-tab-pane">
+          <div class="panel-card">
+            <div class="panel-header" style="padding: 1.375rem 1.75rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                  <h2 class="panel-title">Audit Aktivitas Sistem (Immutable Audit Trail)</h2>
+                  <span class="micro-badge micro-badge-green" style="font-weight: 800; font-size: 0.6875rem;">SHA-256 Verified</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: #64748b;">
+                  Pencatatan riwayat kronologis seluruh tindakan staf dan admin yang tidak dapat diubah maupun dihapus oleh siapapun.
+                </p>
+              </div>
+              <button onclick="downloadCSV('audit_trail')" class="pill-btn btn-secondary-light btn-sm">
+                Unduh Log CSV
+              </button>
+            </div>
+
+            <!-- Audit Filter Pills -->
+            <div style="display: flex; gap: 0.5rem; padding: 0 1.75rem 1.25rem 1.75rem; flex-wrap: wrap;">
+              <button class="pill-btn btn-solid-black btn-sm">Semua Aksi (428)</button>
+              <button class="pill-btn btn-ghost btn-sm">Peminjaman (142)</button>
+              <button class="pill-btn btn-ghost btn-sm">Inspeksi & Kerusakan (38)</button>
+              <button class="pill-btn btn-ghost btn-sm">Otoritas Finansial (64)</button>
+              <button class="pill-btn btn-ghost btn-sm">Perubahan Hak Akses (12)</button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Waktu (WIB)</th>
+                    <th>Pelaku Aksi</th>
+                    <th>Tipe Aksi</th>
+                    <th>Detail Entitas & Perubahan</th>
+                    <th>Alamat IP</th>
+                    <th style="text-align: right;">Integritas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b; white-space: nowrap;">21 Nov 2026 10:45:12</td>
+                    <td>
+                      <strong>Wildan Amal</strong><br>
+                      <span style="font-size: 0.6875rem; color: #7f112e; font-weight: 700;">Administrator</span>
+                    </td>
+                    <td><span class="micro-badge micro-badge-green" style="font-size: 0.6875rem;">SETUJUI_PINJAM</span></td>
+                    <td style="font-size: 0.8125rem; color: #334155;">
+                      Menyetujui permohonan pinjam <strong>Sony Alpha 7 IV</strong> untuk Rian Pratama (BRW-2026-002)
+                    </td>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b;">192.168.1.102</td>
+                    <td style="text-align: right;"><span class="micro-badge micro-badge-green" style="font-size: 0.6875rem;">Tervalidasi ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b; white-space: nowrap;">21 Nov 2026 09:12:05</td>
+                    <td>
+                      <strong>Staff Lab 01</strong><br>
+                      <span style="font-size: 0.6875rem; color: #0284c7; font-weight: 700;">Staff Operasional</span>
+                    </td>
+                    <td><span class="micro-badge micro-badge-blue" style="font-size: 0.6875rem;">SERAH_TERIMA</span></td>
+                    <td style="font-size: 0.8125rem; color: #334155;">
+                      Serah terima fisik unit <strong>AST-0025</strong> ke Wildan Amal di Studio 304
+                    </td>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b;">192.168.1.108</td>
+                    <td style="text-align: right;"><span class="micro-badge micro-badge-green" style="font-size: 0.6875rem;">Tervalidasi ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b; white-space: nowrap;">20 Nov 2026 16:30:44</td>
+                    <td>
+                      <strong>Wildan Amal</strong><br>
+                      <span style="font-size: 0.6875rem; color: #7f112e; font-weight: 700;">Administrator</span>
+                    </td>
+                    <td><span class="micro-badge micro-badge-amber" style="font-size: 0.6875rem;">KONFIRMASI_BAYAR</span></td>
+                    <td style="font-size: 0.8125rem; color: #334155;">
+                      Verifikasi resi transfer Rp 150.000 untuk tagihan INV-2026-882 (Andi Wijaya)
+                    </td>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b;">192.168.1.102</td>
+                    <td style="text-align: right;"><span class="micro-badge micro-badge-green" style="font-size: 0.6875rem;">Tervalidasi ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b; white-space: nowrap;">19 Nov 2026 14:15:20</td>
+                    <td>
+                      <strong>Wildan Amal</strong><br>
+                      <span style="font-size: 0.6875rem; color: #7f112e; font-weight: 700;">Administrator</span>
+                    </td>
+                    <td><span class="micro-badge micro-badge-red" style="font-size: 0.6875rem;">PROMOSI_ROLE</span></td>
+                    <td style="font-size: 0.8125rem; color: #334155;">
+                      Mengubah hak akses <strong>Staff Lab 01</strong> dari Member menjadi Staff Operasional
+                    </td>
+                    <td style="font-family: monospace; font-size: 0.75rem; color: #64748b;">192.168.1.102</td>
+                    <td style="text-align: right;"><span class="micro-badge micro-badge-green" style="font-size: 0.6875rem;">Tervalidasi ✓</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1: FORM PENGAJUAN PINJAM (MEMBER FLOW)
+       ====================================================================== -->
+  
+  <!-- ====================================================================
+       21. MODAL DETAIL & LEMBAR PERSETUJUAN PINJAMAN (STAFF / ADMIN)
+       ==================================================================== -->
+  <div id="modalBorrowingDetail" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog" style="max-width: 32rem; padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <span class="micro-badge micro-badge-amber" style="font-weight: 800; font-size: 0.6875rem;">MENUNGGU APPROVAL</span>
+          <h2 style="font-size: 1.25rem; font-weight: 900; color: #0f172a; margin-top: 0.25rem;">Lembar Verifikasi Pinjaman</h2>
+        </div>
+        <button onclick="closeModal('modalBorrowingDetail')" class="btn-ghost" style="padding: 0.25rem; border: none; background: none; font-size: 1.25rem; cursor: pointer;">✕</button>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; gap: 0.875rem; align-items: center; margin-bottom: 0.75rem;">
+          <div class="user-avatar" style="background: #0f172a; color: white; width: 2.25rem; height: 2.25rem;">RP</div>
+          <div>
+            <div style="font-weight: 800; color: #0f172a; font-size: 0.9375rem;">Rian Pratama</div>
+            <div style="font-size: 0.75rem; color: #64748b;">Member Terdaftar · WA: 0812-9876-5432</div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.8125rem; border-top: 1px solid #e2e8f0; padding-top: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+            <span style="color: #64748b;">Unit Diminta:</span>
+            <strong>Sony Alpha 7 IV (CAM-001)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+            <span style="color: #64748b;">Rentang Pinjam:</span>
+            <strong>20 Nov — 24 Nov 2026 (4 Hari)</strong>
+          </div>
+          <div style="margin-top: 0.5rem; background: #ffffff; padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+            <span style="font-size: 0.6875rem; color: #64748b; font-weight: 700;">Keperluan Proyek:</span>
+            <p style="font-size: 0.75rem; color: #1e293b; margin-top: 0.15rem;">"Produksi Tugas Akhir Film Dokumenter Semester 5 di Studio B Kampus."</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #fdf2f4; border: 1px solid #fecdd6; border-radius: 0.75rem; padding: 0.75rem; margin-bottom: 1.5rem; font-size: 0.75rem; color: #7f112e;">
+        ✓ Peminjam telah menyetujui ketentuan denda keterlambatan Rp 25.000/hari dan tanggung jawab fisik.
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button onclick="closeModal('modalBorrowingDetail'); openModal('modalRejectBorrow');" class="pill-btn btn-secondary-light" style="flex: 1; justify-content: center; color: #e11d48; border-color: #fecdd6;">
+          Tolak Permohonan
+        </button>
+        <button onclick="approveBorrow('Wildan'); closeModal('modalBorrowingDetail');" class="pill-btn btn-primary-red" style="flex: 1.5; justify-content: center; font-weight: 800;">
+          Setujui Pinjaman ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH KATEGORI BARU -->
+  <div id="modalAddCategory" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog" style="max-width: 28rem; padding: 2rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 900; color: #0f172a; margin-bottom: 0.25rem;">Tambah Kategori Inventaris</h2>
+      <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1.25rem;">Buat kategori baru untuk mengelompokkan unit fisik.</p>
+
+      <form onsubmit="event.preventDefault(); showToast('Kategori baru berhasil ditambahkan!', 'success'); closeModal('modalAddCategory');">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Nama Kategori</label>
+          <input type="text" class="form-input" placeholder="Contoh: Drone & Aerial Capture" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label">Deskripsi</label>
+          <textarea class="form-textarea" rows="3" placeholder="Rincian peruntukan barang dalam kategori ini..."></textarea>
+        </div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button type="button" onclick="closeModal('modalAddCategory')" class="pill-btn btn-ghost">Batal</button>
+          <button type="submit" class="pill-btn btn-primary-red">Simpan Kategori</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH LOKASI SIMPAN -->
+  <div id="modalAddLocation" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog" style="max-width: 28rem; padding: 2rem;">
+      <h2 style="font-size: 1.25rem; font-weight: 900; color: #0f172a; margin-bottom: 0.25rem;">Tambah Titik Penyimpanan Fisik</h2>
+      <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1.25rem;">Daftarkan lemari, rak, atau ruangan baru untuk penempatan barang.</p>
+
+      <form onsubmit="event.preventDefault(); showToast('Titik simpan fisik berhasil didaftarkan!', 'success'); closeModal('modalAddLocation');">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Nama Titik Simpan / Kode Rak</label>
+          <input type="text" class="form-input" placeholder="Contoh: Lemari D-01 (Drone & Gimbal)" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Lokasi Gedung / Ruangan</label>
+          <input type="text" class="form-input" placeholder="Contoh: Gedung B Lt. 3 Studio 304" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label">Kapasitas Maksimal (Unit)</label>
+          <input type="number" class="form-input" placeholder="10" min="1" required>
+        </div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button type="button" onclick="closeModal('modalAddLocation')" class="pill-btn btn-ghost">Batal</button>
+          <button type="submit" class="pill-btn btn-primary-red">Simpan Titik Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalApplyBorrow" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Form Pengajuan Peminjaman Unit Fisik</h3>
+        <button type="button" onclick="closeModal('modalApplyBorrow')" class="modal-close-btn">&times;</button>
+      </div>
+      <form onsubmit="handleApplyBorrowSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Pilih Unit Fisik Barang</label>
+            <select id="borrowAssetSelect" class="form-select" required>
+              <option value="AST-7829-0024" selected>Sony Alpha 7 IV (Body Only) · AST-0024 (Tersedia)</option>
+              <option value="AST-7829-0027">LED Video Light Godox SL-60W · AST-0027 (Tersedia)</option>
+              <option value="AST-7829-0028">Audio Recorder Zoom H6 Black · AST-0028 (Tersedia)</option>
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Tanggal Mulai Pinjam</label>
+              <input type="date" id="borrowStartDate" class="form-input" value="2026-11-21" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tanggal Rencana Kembali</label>
+              <input type="date" id="borrowEndDate" class="form-input" value="2026-11-25" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Keperluan Peminjaman</label>
+            <textarea id="borrowPurpose" class="form-textarea" rows="2" placeholder="Contoh: Liputan Kegiatan Dokumentasi Workshop Multimedia Kampus..." required></textarea>
+          </div>
+
+          <!-- CHECKBOX PERSETUJUAN DENDA FISIK -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.875rem; margin-top: 0.75rem;">
+            <label style="display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.75rem; color: #475467; cursor: pointer; line-height: 1.5;">
+              <input type="checkbox" id="borrowAgreement" required style="margin-top: 0.2rem;">
+              <span>Saya menyetujui batas pinjam maksimal <strong>7 hari</strong>, bersedia membayar denda <strong>Rp 25.000/hari</strong> jika terlambat, dan bertanggung jawab penuh jika terjadi kerusakan fisik.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('modalApplyBorrow')" class="pill-btn btn-secondary-light">Batal</button>
+          <button type="submit" class="pill-btn btn-primary-red">Kirim Pengajuan Pinjaman →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 2: TOLAK PENGAJUAN PINJAMAN (STAFF FLOW)
+       ====================================================================== -->
+  <div id="modalRejectBorrow" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Alasan Penolakan Pengajuan Pinjaman</h3>
+        <button type="button" onclick="closeModal('modalRejectBorrow')" class="modal-close-btn">&times;</button>
+      </div>
+      <form onsubmit="handleRejectSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Alasan Penolakan untuk Anggota</label>
+            <textarea id="rejectReasonText" class="form-textarea" rows="3" placeholder="Contoh: Unit telah dijadwalkan untuk praktikum wajib laboratorium pada tanggal tersebut..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('modalRejectBorrow')" class="pill-btn btn-secondary-light">Kembali</button>
+          <button type="submit" class="pill-btn btn-danger-light">Konfirmasi Tolak Pengajuan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 3: TAMBAH UNIT FISIK BARU (STAFF & ADMIN ONLY)
+       ====================================================================== -->
+  <div id="modalAddAsset" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">+ Daftarkan Unit Aset Fisik Baru</h3>
+        <button type="button" onclick="closeModal('modalAddAsset')" class="modal-close-btn">&times;</button>
+      </div>
+      <form onsubmit="handleAddAssetSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Nama Barang Fisik</label>
+            <input type="text" id="newAssetName" class="form-input" placeholder="Contoh: Sony FX3 Cinema Camera" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Kategori</label>
+              <select class="form-select" required>
+                <option value="kamera">Kamera & Lensa</option>
+                <option value="audio">Audio Pro</option>
+                <option value="lighting">Lighting & Grip</option>
+                <option value="komputer">Komputer & Display</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lokasi Rak Penyimpanan</label>
+              <input type="text" class="form-input" placeholder="Lemari A · Rak 03" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kode Fisik Unik Sistem (Generated)</label>
+            <input type="text" class="form-input" value="AST-7829-9182-3849-0049" readonly style="font-family: monospace; background: #f8fafc;">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('modalAddAsset')" class="pill-btn btn-secondary-light">Batal</button>
+          <button type="submit" class="pill-btn btn-solid-black">Simpan & Daftarkan Unit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 5: LAPOR INSIDEN / KERUSAKAN BARANG
+       ====================================================================== -->
+  <div id="modalReportDamage" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Lapor Insiden Fisik Barang</h3>
+        <button type="button" onclick="closeModal('modalReportDamage')" class="modal-close-btn">&times;</button>
+      </div>
+      <form onsubmit="event.preventDefault(); closeModal('modalReportDamage'); showToast('Laporan insiden berhasil dikirim ke Staff lab.', 'success');">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Jenis Insiden</label>
+            <select class="form-select" required>
+              <option value="minor">Kerusakan Ringan (Baret / Lecet / Baud Longgar)</option>
+              <option value="major">Kerusakan Berat (Pecah / Fungsi Mati)</option>
+              <option value="lost">Kehilangan Unit Fisik</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deskripsi Kejadian</label>
+            <textarea class="form-textarea" rows="3" placeholder="Ceritakan kronologi kejadian dan kondisi unit saat ini..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('modalReportDamage')" class="pill-btn btn-secondary-light">Batal</button>
+          <button type="submit" class="pill-btn btn-danger-light">Kirim Laporan Insiden</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 6: UNGGAH BUKTI TRANSFER MANUAL (MEMBER FLOW)
+       ====================================================================== -->
+  <div id="modalUploadReceipt" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Kirim Bukti Pembayaran Manual Bank</h3>
+        <button type="button" onclick="closeModal('modalUploadReceipt')" class="modal-close-btn">&times;</button>
+      </div>
+      <form onsubmit="handleUploadReceiptSubmit(event)">
+        <div class="modal-body">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; font-size: 0.8125rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+              <span style="color: #64748b;">Tagihan:</span>
+              <strong>INV-2026-881 (Denda Telat)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+              <span style="color: #64748b;">Nominal Transfer:</span>
+              <strong style="color: var(--oi-red);">Rp 25.000</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #64748b;">Rekening Tujuan:</span>
+              <span>BCA 827-019-2819 a.n Media Kreatif Lab</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Unggah Foto / Screenshot Resi Transfer</label>
+            <input type="file" class="form-input" accept="image/*" required>
+            <span style="font-size: 0.6875rem; color: #94a3b8;">Format JPG, PNG atau PDF bukti transfer resmi mobile banking.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan Tambahan (Opsional)</label>
+            <input type="text" class="form-input" placeholder="Transfer dari rekening BCA a.n Wildan Amal">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('modalUploadReceipt')" class="pill-btn btn-secondary-light">Batal</button>
+          <button type="submit" class="pill-btn btn-primary-red">Kirim Bukti ke Admin →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 7: VERIFIKASI BUKTI TRANSFER MANUAL (ADMIN FLOW)
+       ====================================================================== -->
+  <div id="modalVerifyPayment" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Verifikasi Bukti Transfer Manual Member</h3>
+        <button type="button" onclick="closeModal('modalVerifyPayment')" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:0.75rem; padding:1rem; margin-bottom:1rem; font-size:0.8125rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <span style="color:#64748b;">Pengunggah:</span>
+            <strong>Wildan Amal</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <span style="color:#64748b;">Nominal Transfer:</span>
+            <strong style="color:var(--oi-red);">Rp 25.000</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:#64748b;">Tujuan Rekening:</span>
+            <span>BCA 827-019-2819</span>
+          </div>
+        </div>
+        <div style="border:1px solid #e2e8f0; border-radius:0.75rem; padding:1.25rem; text-align:center; background:#ffffff;">
+          <div style="font-size:0.75rem; color:#64748b; margin-bottom:0.5rem;">Pratinjau Struk Transfer Bank (Bukti Manual):</div>
+          <div style="display:inline-block; border:1px solid #cbd5e1; border-radius:0.5rem; padding:1rem; background:#fafbfc; font-family:monospace; font-size:0.75rem; text-align:left; line-height:1.6;">
+            [STRUK TRANSFER BANK BCA]<br>
+            TANGGAL : 21/11/2026 08:30<br>
+            DARI    : WILDAN AMAL<br>
+            KE REK  : 8270192819 (MEDIA KREATIF LAB)<br>
+            JUMLAH  : RP 25.000<br>
+            BERITA  : PELUNASAN DENDA INV-881<br>
+            STATUS  : BERHASIL
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="closeModal('modalVerifyPayment'); rejectPayment('rowPaymentVerif1', 'badgePaymentStatus1', 'btnGroupPayment1');" class="pill-btn btn-secondary-light">Tolak Bukti</button>
+        <button type="button" onclick="closeModal('modalVerifyPayment'); confirmPayment('rowPaymentVerif1', 'badgePaymentStatus1', 'btnGroupPayment1');" class="pill-btn btn-primary-red">Konfirmasi Lunas</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ====================================================================
+       SCRIPTS: STRICT ROLE-BASED ACCESS CONTROL (RBAC) & USER FLOWS
+       ==================================================================== -->
+  <script src="js/app.js?v=16.0"></script>
+  <script>
+    let currentActiveRole = 'member';
+
+    // 1. DYNAMIC ROLE-BASED VISIBILITY SWITCHER
+    function changeRoleView(role) {
+      currentActiveRole = (role || 'member').toLowerCase();
+      
+      const sel = document.getElementById('roleViewSelect');
+      if (sel) sel.value = currentActiveRole.toUpperCase();
+
+      // Update URL query string
+      const url = new URL(window.location.href);
+      url.searchParams.set('role', currentActiveRole);
+      window.history.replaceState(null, '', url);
+
+      // Elements
+      const badgeRoleSidebar = document.getElementById('roleIndicatorBadge');
+      const badgeRoleHeader = document.getElementById('roomHeaderRoleBadge');
+      const userRoleFooter = document.getElementById('userRoleFooterText');
+      const topbarAddBtn = document.getElementById('topbarBtnAddAsset');
+      const bannerAddBtn = document.getElementById('bannerBtnAddAsset');
+
+      const staffAdminElements = document.querySelectorAll('.nav-staff-admin, .action-staff-admin');
+      const adminOnlyElements = document.querySelectorAll('.nav-admin-only, .action-admin-only');
+      const memberOnlyElements = document.querySelectorAll('.nav-member-only');
+
+      if (currentActiveRole === 'member') {
+        // BADGES
+        if (badgeRoleSidebar) {
+          badgeRoleSidebar.innerText = 'PERAN: MEMBER AKTIF';
+          badgeRoleSidebar.className = 'micro-badge badge-role-member';
+        }
+        if (badgeRoleHeader) {
+          badgeRoleHeader.innerText = 'MEMBER AKTIF';
+          badgeRoleHeader.className = 'micro-badge badge-role-member';
+        }
+        if (userRoleFooter) userRoleFooter.innerText = 'Peran: Member Aktif';
+
+        // HIDE STAFF & ADMIN CONTROLS
+        staffAdminElements.forEach(el => el.classList.add('role-hide'));
+        adminOnlyElements.forEach(el => el.classList.add('role-hide'));
+        memberOnlyElements.forEach(el => el.classList.remove('role-hide'));
+
+        if (topbarAddBtn) topbarAddBtn.classList.add('role-hide');
+        if (bannerAddBtn) bannerAddBtn.classList.add('role-hide');
+
+        // Update Ringkasan Tab for Member
+        document.getElementById('labelMetric1').innerText = 'Unit Fisik Tersedia';
+        document.getElementById('valMetric1').innerText = '42 Unit';
+        document.getElementById('subMetric1').innerText = 'Siap dipinjam langsung di lab';
+
+        document.getElementById('labelMetric2').innerText = 'Pinjaman Aktif Saya';
+        document.getElementById('valMetric2').innerText = '1 Unit Fisik';
+        document.getElementById('subMetric2').innerText = 'Tripod Manfrotto (H-2)';
+
+        document.getElementById('labelMetric3').innerText = 'Pengajuan Pending';
+        document.getElementById('valMetric3').innerText = '1 Pengajuan';
+        document.getElementById('subMetric3').innerText = 'Sony A7 IV · Menunggu Staff';
+
+        document.getElementById('labelMetric4').innerText = 'Status Tagihan & Denda';
+        document.getElementById('valMetric4').innerText = 'Rp 0 (Nihil)';
+        document.getElementById('subMetric4').innerText = 'Tidak ada tunggakan denda aktif';
+
+        document.getElementById('summaryTableTitle').innerText = 'Barang yang Sedang Anda Pinjam di Komunitas Ini';
+        document.getElementById('summaryTableSubtitle').innerText = 'Daftar unit fisik yang saat ini berada di tangan Anda.';
+
+        document.getElementById('inventoryTitle').innerText = 'Katalog Perlengkapan Fisik Tersedia (Member)';
+        document.getElementById('inventorySubtitle').innerText = 'Pilih perlengkapan laboratorium dan ajukan peminjaman secara instan.';
+
+        // If currently on forbidden tab, fallback to summary
+        const currentTab = window.location.hash.replace('#', '') || 'tab-summary';
+        if (['tab-approvals', 'tab-inspections', 'tab-maintenance', 'tab-finances', 'tab-members', 'tab-reports', 'tab-settings'].includes(currentTab)) {
+          switchWorkspaceTab('tab-summary');
+        }
+
+      } else if (currentActiveRole === 'staff') {
+        // BADGES
+        if (badgeRoleSidebar) {
+          badgeRoleSidebar.innerText = 'PERAN: STAFF OPERASIONAL';
+          badgeRoleSidebar.className = 'micro-badge badge-role-staff';
+        }
+        if (badgeRoleHeader) {
+          badgeRoleHeader.innerText = 'STAFF OPERASIONAL';
+          badgeRoleHeader.className = 'micro-badge badge-role-staff';
+        }
+        if (userRoleFooter) userRoleFooter.innerText = 'Peran: Staff Operasional';
+
+        // SHOW STAFF CONTROLS, HIDE ADMIN CONTROLS
+        staffAdminElements.forEach(el => el.classList.remove('role-hide'));
+        adminOnlyElements.forEach(el => el.classList.add('role-hide'));
+        memberOnlyElements.forEach(el => el.classList.add('role-hide'));
+
+        if (topbarAddBtn) topbarAddBtn.classList.remove('role-hide');
+        if (bannerAddBtn) bannerAddBtn.classList.remove('role-hide');
+
+        // Update Ringkasan Tab for Staff
+        document.getElementById('labelMetric1').innerText = 'Total Inventaris Fisik';
+        document.getElementById('valMetric1').innerText = '48 Unit';
+        document.getElementById('subMetric1').innerText = 'Label kode fisik unik aktif';
+
+        document.getElementById('labelMetric2').innerText = 'Sedang Dipinjam';
+        document.getElementById('valMetric2').innerText = '3 Unit Fisik';
+        document.getElementById('subMetric2').innerText = 'Dipinjam oleh anggota lab';
+
+        document.getElementById('labelMetric3').innerText = 'Antrean Approval';
+        document.getElementById('valMetric3').innerText = '2 Pengajuan';
+        document.getElementById('subMetric3').innerText = 'Perlu review persetujuan Staff';
+
+        document.getElementById('labelMetric4').innerText = 'Unit Perlu Servis';
+        document.getElementById('valMetric4').innerText = '1 Unit';
+        document.getElementById('subMetric4').innerText = 'Di bengkel perbaikan teknisi';
+
+        document.getElementById('summaryTableTitle').innerText = 'Antrean Peminjaman Aktif di Laboratorium';
+        document.getElementById('summaryTableSubtitle').innerText = 'Seluruh unit fisik yang sedang dibawa atau diajukan peminjam.';
+
+        document.getElementById('inventoryTitle').innerText = 'Master Inventaris Fisik (Staff Operasional)';
+        document.getElementById('inventorySubtitle').innerText = 'Kelola unit barang, pantau status fisik, dan catat riwayat peminjaman.';
+
+        const currentTab = window.location.hash.replace('#', '') || 'tab-summary';
+        if (['tab-finances', 'tab-members', 'tab-reports', 'tab-settings'].includes(currentTab)) {
+          switchWorkspaceTab('tab-summary');
+        }
+
+      } else if (currentActiveRole === 'admin') {
+        // BADGES
+        if (badgeRoleSidebar) {
+          badgeRoleSidebar.innerText = 'PERAN: ADMINISTRATOR';
+          badgeRoleSidebar.className = 'micro-badge badge-role-admin';
+        }
+        if (badgeRoleHeader) {
+          badgeRoleHeader.innerText = 'ADMINISTRATOR';
+          badgeRoleHeader.className = 'micro-badge badge-role-admin';
+        }
+        if (userRoleFooter) userRoleFooter.innerText = 'Peran: Administrator Komunitas';
+
+        // SHOW ALL
+        staffAdminElements.forEach(el => el.classList.remove('role-hide'));
+        adminOnlyElements.forEach(el => el.classList.remove('role-hide'));
+        memberOnlyElements.forEach(el => el.classList.add('role-hide'));
+
+        if (topbarAddBtn) topbarAddBtn.classList.remove('role-hide');
+        if (bannerAddBtn) bannerAddBtn.classList.remove('role-hide');
+
+        document.getElementById('labelMetric1').innerText = 'Total Inventaris Fisik';
+        document.getElementById('valMetric1').innerText = '48 Unit';
+        document.getElementById('subMetric1').innerText = 'Taksiran nilai Rp 284.500.000';
+
+        document.getElementById('labelMetric2').innerText = 'Sedang Dipinjam';
+        document.getElementById('valMetric2').innerText = '3 Unit Fisik';
+        document.getElementById('subMetric2').innerText = 'Dipinjam oleh anggota lab';
+
+        document.getElementById('labelMetric3').innerText = 'Antrean Approval';
+        document.getElementById('valMetric3').innerText = '2 Pengajuan';
+        document.getElementById('subMetric3').innerText = 'Memerlukan review Staff / Admin';
+
+        document.getElementById('labelMetric4').innerText = 'Status Tagihan & Denda';
+        document.getElementById('valMetric4').innerText = 'Tertib / Nihil';
+        document.getElementById('subMetric4').innerText = 'Seluruh transaksi terdata rapi';
+
+        document.getElementById('summaryTableTitle').innerText = 'Ringkasan Operasional & Log Transaksi Terkini';
+        document.getElementById('summaryTableSubtitle').innerText = 'Monitoring seluruh pergerakan barang dan denda di Media Kreatif Lab.';
+
+        document.getElementById('inventoryTitle').innerText = 'Master Inventaris Fisik (Administrator)';
+        document.getElementById('inventorySubtitle').innerText = 'Akses penuh: Daftarkan unit baru, mutasi lokasi simpan, atau tinjau riwayat aset.';
+      }
+
+      showToast(`Tampilan disesuaikan: Peran ${currentActiveRole.toUpperCase()}`, 'info');
+    }
+
+    // 2. TAB SWITCHER
+    function switchWorkspaceTab(tabId) {
+      const originalTabId = tabId;
+      if (tabId === 'tab-catalog') {
+        tabId = 'tab-inventory';
+      }
+
+      document.querySelectorAll('.workspace-tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.workspace-nav-tab').forEach(el => el.classList.remove('active'));
+      
+      const pane = document.getElementById(tabId);
+      if (pane) pane.classList.add('active');
+
+      const btn = document.querySelector(`.workspace-nav-tab[data-tab="${originalTabId}"]`) || document.querySelector(`.workspace-nav-tab[data-tab="${tabId}"]`);
+      if (btn) btn.classList.add('active');
+
+      history.replaceState(null, null, `#${originalTabId}`);
+    }
+
+    // 3. MEMBER APPLY BORROW FLOW (ALL ROLES: MEMBER, STAFF, ADMIN)
+    window.openApplyForAsset = function(code, name) {
+      openApplyForAsset(code, name);
+    };
+    function openApplyForAsset(code, name) {
+      const select = document.getElementById('borrowAssetSelect');
+      if (select) {
+        let found = false;
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === code) {
+            select.selectedIndex = i;
+            found = true;
+            break;
+          }
+        }
+        if (!found && name) {
+          const opt = new Option(`${name} · ${code} (Tersedia)`, code, true, true);
+          select.add(opt);
+        }
+      }
+      openModal('modalApplyBorrow');
+    }
+
+    function handleApplyBorrowSubmit(event) {
+      event.preventDefault();
+      closeModal('modalApplyBorrow');
+
+      const select = document.getElementById('borrowAssetSelect');
+      let assetName = 'Unit Aset Fisik';
+      let assetCode = 'AST-7829-0024';
+      if (select && select.selectedIndex >= 0 && select.options[select.selectedIndex]) {
+        assetCode = select.value;
+        assetName = select.options[select.selectedIndex].text.split('·')[0].trim();
+      }
+      const startDate = document.getElementById('borrowStartDate') ? document.getElementById('borrowStartDate').value : '2026-11-21';
+      const endDate = document.getElementById('borrowEndDate') ? document.getElementById('borrowEndDate').value : '2026-11-25';
+      const purpose = document.getElementById('borrowPurpose') ? document.getElementById('borrowPurpose').value : 'Keperluan Peminjaman';
+
+      showToast(`Pengajuan peminjaman untuk ${assetName} berhasil dikirim! Menunggu approval Staff lab.`, 'success');
+
+      // Update My Borrowings row
+      const myTbody = document.getElementById('myBorrowingsTableBody');
+      if (myTbody) {
+        const tr = document.createElement('tr');
+        tr.id = 'rowNewBorrowingUser';
+        tr.style.background = '#fef2f2';
+        tr.innerHTML = `
+          <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-005</span></td>
+          <td><span class="micro-badge" style="font-family: monospace;">${assetCode}</span></td>
+          <td><strong>${assetName}</strong></td>
+          <td>${startDate} — <strong>${endDate}</strong></td>
+          <td><span class="micro-badge micro-badge-blue"><span class="status-dot status-dot-blue"></span> Menunggu Approval</span></td>
+          <td style="text-align: right;">
+            <button onclick="cancelMyLoan('rowNewBorrowingUser')" class="pill-btn btn-danger-light btn-sm">Batalkan</button>
+          </td>
+        `;
+        myTbody.prepend(tr);
+      }
+
+      // Add to staff/admin approval queue table (tab-approvals)
+      const approvalTbody = document.querySelector('#tableApprovals tbody');
+      if (approvalTbody) {
+        const trAppr = document.createElement('tr');
+        trAppr.id = 'rowNewApprovalStaff';
+        trAppr.style.background = '#fef2f2';
+        trAppr.innerHTML = `
+          <td><span class="micro-badge" style="font-family: monospace;">BRW-2026-005</span></td>
+          <td><strong>Wildan Amal (Anda)</strong><br><span style="font-size: 0.75rem; color: #64748b;">Member Terdaftar</span></td>
+          <td>${assetName}<br><span style="font-size: 0.75rem; font-family: monospace; color: #64748b;">${assetCode}</span></td>
+          <td>${startDate} — ${endDate}</td>
+          <td>${purpose}</td>
+          <td><span id="badgeStatusNewLoan" class="micro-badge micro-badge-amber"><span class="status-dot status-dot-amber"></span> Pending Review</span></td>
+          <td style="text-align: right;">
+            <div class="action-btn-group" id="btnGroupNewLoan">
+              <button onclick="approveBorrowing('rowNewApprovalStaff', 'badgeStatusNewLoan', 'btnGroupNewLoan', '${assetName}')" class="pill-btn btn-sm" style="background: #15803d; color: white;">Setujui</button>
+              <button onclick="rejectBorrowing('rowNewApprovalStaff', 'badgeStatusNewLoan', 'btnGroupNewLoan')" class="pill-btn btn-danger-light btn-sm">Tolak</button>
+            </div>
+          </td>
+        `;
+        approvalTbody.prepend(trAppr);
+      }
+
+      // Update badge counts
+      const badgePending = document.getElementById('badgePendingApproval');
+      if (badgePending) badgePending.innerText = '2';
+
+      // Switch to my borrowings tab so user sees result
+      setTimeout(() => {
+        switchWorkspaceTab('tab-my-borrowings');
+      }, 350);
+    }
+
+    function cancelMyLoan(rowId) {
+      if (confirm('Batalkan pengajuan pinjaman ini?')) {
+        const row = document.getElementById(rowId);
+        if (row) row.remove();
+        showToast('Pengajuan pinjaman berhasil dibatalkan.', 'info');
+      }
+    }
+
+    // 4. STAFF APPROVAL & HANDOVER FLOW
+    let pendingRejectTarget = null;
+
+    function approveBorrow(borrowerName) {
+      approveBorrowing('rowApprovalWildan', 'badgeStatusWildan', 'btnGroupWildan', 'Sony Alpha 7 IV');
+      showToast(`Permohonan pinjaman ${borrowerName ? 'oleh ' + borrowerName : ''} disetujui! Unit siap diserah-terimakan.`, 'success');
+    }
+    window.approveBorrow = approveBorrow;
+
+    function approveBorrowing(rowId, badgeId, btnGroupId, assetName) {
+      const badge = document.getElementById(badgeId);
+      const btnGroup = document.getElementById(btnGroupId);
+
+      badge.className = 'micro-badge micro-badge-blue';
+      badge.innerHTML = '<span class="status-dot status-dot-blue"></span> Disetujui (Siap Diambil)';
+
+      btnGroup.innerHTML = `<button onclick="handoverUnit('${rowId}', '${badgeId}', '${btnGroupId}', '${assetName}')" class="pill-btn btn-primary-red btn-sm">Serah Terima Fisik (Handover)</button>`;
+
+      showToast(`Pengajuan ${assetName} disetujui! Status menjadi "Siap Diambil".`, 'success');
+    }
+
+    function rejectBorrowing(rowId, badgeId, btnGroupId) {
+      pendingRejectTarget = { rowId, badgeId, btnGroupId };
+      openModal('modalRejectBorrow');
+    }
+
+    function handleRejectSubmit(event) {
+      event.preventDefault();
+      closeModal('modalRejectBorrow');
+      if (pendingRejectTarget) {
+        const badge = document.getElementById(pendingRejectTarget.badgeId);
+        const btnGroup = document.getElementById(pendingRejectTarget.btnGroupId);
+
+        badge.className = 'micro-badge micro-badge-red';
+        badge.innerHTML = '<span class="status-dot status-dot-red"></span> Ditolak Staff';
+        btnGroup.innerHTML = '<span class="micro-badge" style="color: #7f112e;">Ditolak</span>';
+
+        showToast('Pengajuan pinjaman telah ditolak.', 'info');
+      }
+    }
+
+    function handoverUnit(rowId, badgeId, btnGroupId, assetName) {
+      const badge = document.getElementById(badgeId);
+      const btnGroup = document.getElementById(btnGroupId);
+
+      badge.className = 'micro-badge micro-badge-green';
+      badge.innerHTML = '<span class="status-dot status-dot-green"></span> Sedang Dipinjam';
+      btnGroup.innerHTML = `<button onclick="switchWorkspaceTab('tab-inspections')" class="pill-btn btn-secondary-light btn-sm">Buka Meja Inspeksi →</button>`;
+
+      showToast(`Serah terima fisik ${assetName} selesai! Unit resmi berada di tangan peminjam.`, 'success');
+    }
+
+    // 5. STAFF INSPECTION RETURN & FINE DRAFT FLOW
+    function toggleDamageInput(isDamaged) {
+      const group = document.getElementById('damageInputGroup');
+      if (group) group.style.display = isDamaged ? 'block' : 'none';
+    }
+
+    function updateInspectionCalculation() {
+      const sel = document.getElementById('inspectionLoanSelect').value;
+      if (sel === 'loan-1') {
+        document.getElementById('txtInspectionLate').innerText = 'Telat 2 Hari';
+        document.getElementById('txtInspectionCalc').innerText = '2 Hari × Rp 25.000 / hari';
+        document.getElementById('txtInspectionFine').innerText = 'Rp 25.000';
+      } else {
+        document.getElementById('txtInspectionLate').innerText = 'Tepat Waktu (H-0)';
+        document.getElementById('txtInspectionCalc').innerText = 'Tidak ada keterlambatan';
+        document.getElementById('txtInspectionFine').innerText = 'Rp 0';
+      }
+    }
+
+    function handleInspectionSubmit(event) {
+      event.preventDefault();
+      const condition = document.querySelector('input[name="unitCondition"]:checked').value;
+      
+      if (condition === 'good') {
+        showToast('Inspeksi selesai: Unit kembali dalam kondisi BAIK! Draf denda telat Rp 25.000 dikirim ke Admin.', 'success');
+      } else {
+        const cost = document.getElementById('inputDamageCost').value || '150000';
+        showToast(`Inspeksi selesai: Dicatat kerusakan dengan estimasi perbaikan Rp ${Number(cost).toLocaleString('id-ID')}. Draf tagihan dikirim ke Admin!`, 'warning');
+      }
+
+      setTimeout(() => {
+        if (currentActiveRole === 'admin') {
+          switchWorkspaceTab('tab-finances');
+        } else {
+          switchWorkspaceTab('tab-approvals');
+        }
+      }, 600);
+    }
+
+    // 6. ADMIN FINANCIAL FLOW (ISSUE, WAIVE, CONFIRM PAYMENT)
+    function issueCharge(rowId, badgeId, btnGroupId) {
+      const badge = document.getElementById(badgeId);
+      const btnGroup = document.getElementById(btnGroupId);
+
+      badge.className = 'micro-badge micro-badge-red';
+      badge.innerHTML = '<span class="status-dot status-dot-red"></span> Tagihan Resmi Aktif';
+      btnGroup.innerHTML = '<span class="micro-badge micro-badge-red">Menunggu Pembayaran Member</span>';
+
+      showToast('Tagihan denda resmi diterbitkan (Issued) dan ditagihkan ke akun member.', 'success');
+    }
+
+    function waiveCharge(rowId, badgeId, btnGroupId) {
+      if (confirm('Bebaskan denda ini (Waive)? Anggota tidak perlu membayar.')) {
+        const badge = document.getElementById(badgeId);
+        const btnGroup = document.getElementById(btnGroupId);
+
+        badge.className = 'micro-badge micro-badge-green';
+        badge.innerHTML = '<span class="status-dot status-dot-green"></span> Denda Dibebaskan (Waived)';
+        btnGroup.innerHTML = '<span class="micro-badge" style="color:#15803d;">Lunas (Waived)</span>';
+
+        showToast('Denda berhasil dibebaskan (Waived) oleh Admin.', 'info');
+      }
+    }
+
+    function handleUploadReceiptSubmit(event) {
+      event.preventDefault();
+      closeModal('modalUploadReceipt');
+
+      const badge = document.getElementById('badgeMyChargeStatus1');
+      const btn = document.getElementById('btnUploadReceiptMyCharge');
+
+      if (badge) {
+        badge.className = 'micro-badge micro-badge-blue';
+        badge.innerHTML = '<span class="status-dot status-dot-blue"></span> Pending Verifikasi Admin';
+      }
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Bukti Terkirim (Menunggu Admin)';
+        btn.className = 'pill-btn btn-secondary-light btn-sm';
+      }
+
+      showToast('Bukti transfer berhasil dikirim ke Admin! Saldo akan lunas setelah dikonfirmasi.', 'success');
+    }
+
+    function confirmPayment(rowId, badgeId, btnGroupId) {
+      const badge = document.getElementById(badgeId);
+      const btnGroup = document.getElementById(btnGroupId);
+
+      badge.className = 'micro-badge micro-badge-green';
+      badge.innerHTML = '<span class="status-dot status-dot-green"></span> Lunas Terverifikasi';
+      btnGroup.innerHTML = '<span class="micro-badge micro-badge-green">Resi Terverifikasi ✓</span>';
+
+      // Update Member Tab view too
+      const myChargeBadge = document.getElementById('badgeMyChargeStatus1');
+      if (myChargeBadge) {
+        myChargeBadge.className = 'micro-badge micro-badge-green';
+        myChargeBadge.innerHTML = '<span class="status-dot status-dot-green"></span> Lunas Terverifikasi';
+      }
+      const myChargeAmount = document.getElementById('badgeMyChargesAmount');
+      if (myChargeAmount) myChargeAmount.innerText = 'Rp 0';
+
+      showToast('Transfer Rp 25.000 diverifikasi LUNAS! Saldo tagihan member resmi bersih.', 'success');
+    }
+
+    function rejectPayment(rowId, badgeId, btnGroupId) {
+      const reason = prompt('Masukkan alasan penolakan transfer (misal: dana belum masuk rekening):');
+      if (reason) {
+        const badge = document.getElementById(badgeId);
+        badge.className = 'micro-badge micro-badge-red';
+        badge.innerHTML = `<span class="status-dot status-dot-red"></span> Ditolak: ${reason}`;
+        showToast('Bukti transfer ditolak. Anggota diminta mengunggah ulang resi valid.', 'error');
+      }
+    }
+
+    // 7. CSV REPORT DOWNLOADER SIMULATION
+    function downloadCSV(filename) {
+      const csvContent = "data:text/csv;charset=utf-8,ID,Nama_Barang,Kode_Fisik,Lokasi,Status,Tanggal\n1,Sony Alpha 7 IV,AST-7829-0024,Lemari A,Tersedia,2026-11-21\n2,Tripod Manfrotto 055,AST-7829-0025,Rak 01,Dipinjam,2026-11-21";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`Berkas ${filename} berhasil diunduh!`, 'success');
+    }
+
+    // 8. ADD ASSET & SEARCH
+    function handleAddAssetSubmit(event) {
+      event.preventDefault();
+      closeModal('modalAddAsset');
+      const name = document.getElementById('newAssetName').value;
+      showToast(`Unit fisik "${name}" berhasil didaftarkan ke inventaris lab!`, 'success');
+    }
+
+    function filterInventoryTable() {
+      const query = document.getElementById('inventorySearchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#tableInventory tbody tr');
+      rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        r.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    // INITIALIZATION ON PAGE LOAD
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const roleParam = params.get('role') || 'member'; // Default to MEMBER as user requested!
+      changeRoleView(roleParam);
+
+      const hash = window.location.hash.replace('#', '') || 'tab-summary';
+      switchWorkspaceTab(hash);
+
+      // Check if action parameter present (e.g. from katalog)
+      const action = params.get('action');
+      if (action === 'borrow') {
+        const assetCode = params.get('asset') || 'AST-7829-0024';
+        setTimeout(() => {
+          openApplyForAsset(assetCode, 'Sony Alpha 7 IV');
+        }, 400);
+      }
+    });
+  </script>
+
+  <!-- ======================================================================
+       MODAL: DETAIL & TINDAK LANJUT LAPORAN KERUSAKAN (ADMIN / STAFF)
+       ====================================================================== -->
+  <div id="modalDamageDetailAction" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog" style="max-width: 620px;">
+      <div class="modal-header">
+        <div>
+          <span class="micro-badge micro-badge-amber" style="font-size: 0.6875rem;">INSIDEN AKTIF · STATUS: OPEN</span>
+          <h3 class="modal-title" style="margin-top: 0.25rem;">Detail & Penilaian Insiden Kerusakan Fisik</h3>
+        </div>
+        <button type="button" onclick="closeModal('modalDamageDetailAction')" class="pill-btn btn-ghost" style="padding: 0.25rem 0.5rem;">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Info Unit & Peminjam -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.875rem; padding: 1.125rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div>
+              <div style="font-size: 0.75rem; color: #64748b;">ID Insiden: <strong>INC-2026-041</strong> · Sumber: <strong>Laporan Mandiri Member</strong></div>
+              <div style="font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin-top: 0.25rem;">Epson 4K Laser Projector (AST-0027)</div>
+            </div>
+            <span class="micro-badge" style="background: #fee2e2; color: #991b1b; font-weight: 800;">Rusak Ringan</span>
+          </div>
+          <div style="font-size: 0.8125rem; color: #475467; border-top: 1px solid #e2e8f0; padding-top: 0.5rem; margin-top: 0.5rem;">
+            Peminjam Terkait: <strong>Budi Santoso</strong> (NIM 2109823) · Transaksi: <strong>BRW-2026-001</strong>
+          </div>
+        </div>
+
+        <!-- Foto Bukti Kerusakan Fisik -->
+        <div style="margin-bottom: 1.25rem;">
+          <label class="form-label" style="font-size: 0.8125rem;">Dokumentasi Foto Bukti Kerusakan Fisik</label>
+          <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 0.875rem; padding: 1rem; text-align: center;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+              <div style="position: relative; width: 140px; height: 100px; background: #e2e8f0; border-radius: 0.5rem; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <svg width="36" height="36" fill="none" stroke="#64748b" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span style="position: absolute; bottom: 4px; left: 6px; font-size: 0.625rem; background: rgba(0,0,0,0.6); color: white; padding: 1px 4px; border-radius: 3px;">Kabel Power Meleleh</span>
+              </div>
+              <div style="text-align: left; font-size: 0.8125rem; color: #475467; max-width: 320px;">
+                <strong>Kronologi Pemakaian:</strong><br>
+                <em>"Kabel konektor power supply internal short-circuit saat digunakan presentasi pemutaran karya film di Aula Lt. 2 kampus."</em>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Penilaian Severity Tingkat Keparahan -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" style="font-size: 0.8125rem;">Penilaian Tingkat Keparahan (Severity Assessment)</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <label style="border: 2px solid #fecdd6; background: #fdf2f4; border-radius: 0.75rem; padding: 0.75rem; display: flex; gap: 0.5rem; align-items: flex-start; cursor: pointer;">
+              <input type="radio" name="severitySelect" value="minor" checked style="accent-color: var(--oi-wine); margin-top: 0.15rem;">
+              <div>
+                <strong style="font-size: 0.8125rem; color: #7f112e;">Minor (Ringan / Kosmetik)</strong>
+                <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem;">Fungsi utama masih bekerja, kabel lecet, atau baud kendor.</p>
+              </div>
+            </label>
+            <label style="border: 1px solid #e2e8f0; background: #ffffff; border-radius: 0.75rem; padding: 0.75rem; display: flex; gap: 0.5rem; align-items: flex-start; cursor: pointer;">
+              <input type="radio" name="severitySelect" value="major" style="accent-color: var(--oi-wine); margin-top: 0.15rem;">
+              <div>
+                <strong style="font-size: 0.8125rem; color: #0f172a;">Major (Berat / Fungsi Rusak)</strong>
+                <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem;">Komponen pecah, optik berjamur, atau fungsi mati total.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Pilihan Tindakan Fisik Unit Aset -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" style="font-size: 0.8125rem;">Tindakan Operasional Unit Aset</label>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" onclick="showToast('Status unit AST-0027 di katalog dikunci ke: MAINTENANCE (Tidak bisa dipinjam)', 'info'); closeModal('modalDamageDetailAction');" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">
+              🔧 Kirim ke Servis (Kunci Aset)
+            </button>
+            <button type="button" onclick="showToast('Kerusakan dicatat sebagai baret wajar. Unit tetap AVAILABLE', 'success'); closeModal('modalDamageDetailAction');" class="pill-btn btn-secondary-light btn-sm" style="flex: 1; justify-content: center;">
+              📝 Catatan Fisik Saja
+            </button>
+            <button type="button" onclick="showToast('Servis selesai! Unit AST-0027 kembali berstatus AVAILABLE di katalog.', 'success'); closeModal('modalDamageDetailAction');" class="pill-btn btn-ghost btn-sm" style="flex: 1; justify-content: center; color: #059669; font-weight: 700;">
+              ✓ Selesai Servis (Resolved)
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" onclick="closeModal('modalDamageDetailAction')" class="pill-btn btn-ghost">Tutup</button>
+        <button type="button" onclick="closeModal('modalDamageDetailAction'); openModal('modalIssueDamageCharge')" class="pill-btn btn-primary-red" style="font-weight: 800;">
+          Terbitkan Tagihan Ganti Rugi →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: TERBITKAN TAGIHAN GANTI RUGI (BORROWER CHARGE ISSUANCE)
+       ====================================================================== -->
+  <div id="modalIssueDamageCharge" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog" style="max-width: 540px;">
+      <div class="modal-header">
+        <div>
+          <span class="micro-badge micro-badge-red" style="font-size: 0.6875rem;">OTORITAS FINANSIAL ADMIN</span>
+          <h3 class="modal-title" style="margin-top: 0.25rem;">Penerbitan Tagihan Ganti Rugi Fisik</h3>
+        </div>
+        <button type="button" onclick="closeModal('modalIssueDamageCharge')" class="pill-btn btn-ghost" style="padding: 0.25rem 0.5rem;">✕</button>
+      </div>
+      <form onsubmit="event.preventDefault(); showToast('Tagihan ganti rugi resmi diterbitkan ke peminjam! Muncul di menu Tagihan Saya.', 'success'); closeModal('modalIssueDamageCharge');">
+        <div class="modal-body">
+          <div style="background: #fdf2f4; border: 1px solid #fecdd6; border-radius: 0.75rem; padding: 0.875rem; margin-bottom: 1rem; font-size: 0.8125rem; color: #7f112e;">
+            <strong>Peminjam Tertagih:</strong> Budi Santoso (BRW-2026-001)<br>
+            <strong>Aset:</strong> Epson 4K Laser Projector (AST-0027)
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="font-size: 0.8125rem;">Jenis Tagihan Ganti Rugi</label>
+            <select class="form-select" required>
+              <option value="damage" selected>Biaya Reparasi / Servis Teknisi (Damage)</option>
+              <option value="loss">Biaya Penggantian Unit Hilang (Loss)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="font-size: 0.8125rem;">Nominal Tagihan Ganti Rugi (Rp)</label>
+            <input type="number" class="form-input" value="350000" min="10000" step="5000" required>
+            <span style="font-size: 0.6875rem; color: #64748b; margin-top: 0.25rem; display: block;">Sesuai taksiran nota perbaikan vendor teknisi lab.</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="font-size: 0.8125rem;">Dasar Penilaian / Keterangan Kuitansi</label>
+            <textarea class="form-textarea" rows="2" placeholder="Contoh: Penggantian modul adaptor internal power supply Epson Service Center..." required>Penggantian modul regulator power supply internal di vendor resmi Epson.</textarea>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; font-size: 0.75rem; color: #475467;">
+            ℹ️ Tagihan akan berstatus <strong>ISSUED</strong> dan langsung muncul di akun peminjam. Pembayaran dilakukan transfer antarbank manual lalu diverifikasi Admin.
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: space-between;">
+          <button type="button" onclick="closeModal('modalIssueDamageCharge')" class="pill-btn btn-secondary-light">Batal</button>
+          <button type="submit" class="pill-btn btn-primary-red" style="font-weight: 800;">Terbitkan Tagihan Resmi ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: POPUP NOTIFIKASI SISTEM (POP-UP RESMI)
+       ====================================================================== -->
+  <div id="modalNotifications" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog" style="max-width: 500px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="20" height="20" fill="none" stroke="#7f112e" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <h3 class="modal-title">Notifikasi Sistem</h3>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button type="button" onclick="markAllNotificationsRead()" class="pill-btn btn-ghost btn-sm" style="font-size: 0.6875rem; color: #64748b; padding: 0.25rem 0.5rem;">
+            Tandai Semua Dibaca
+          </button>
+          <button type="button" onclick="closeModal('modalNotifications')" class="modal-close-btn">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        
+        <!-- Notif 1: Denda Terbit -->
+        <div class="notif-card-item" style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 0.875rem; padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; gap: 0.625rem; align-items: flex-start;">
+              <span style="font-size: 1.125rem;">⚠️</span>
+              <div>
+                <strong style="font-size: 0.875rem; color: #92400e;">Tagihan Denda Terbit: INV-2026-881</strong>
+                <p style="font-size: 0.8125rem; color: #78350f; margin-top: 0.25rem; line-height: 1.4;">
+                  Admin Media Kreatif Lab menerbitkan tagihan keterlambatan 2 hari untuk Tripod Manfrotto 055 sebesar Rp 25.000 (Lunas).
+                </p>
+                <div style="margin-top: 0.625rem;">
+                  <a href="my-charges.html" class="pill-btn btn-primary-red btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.875rem;">
+                    Lihat Tagihan & Bayar →
+                  </a>
+                </div>
+              </div>
+            </div>
+            <span style="font-size: 0.6875rem; color: #b45309; white-space: nowrap; margin-left: 0.5rem;">10 mnt lalu</span>
+          </div>
+        </div>
+
+        <!-- Notif 2: Peringatan Jatuh Tempo -->
+        <div class="notif-card-item" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.875rem; padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; gap: 0.625rem; align-items: flex-start;">
+              <span style="font-size: 1.125rem;">🕒</span>
+              <div>
+                <strong style="font-size: 0.875rem; color: #0f172a;">Peringatan Batas Kembali Barang (H-2)</strong>
+                <p style="font-size: 0.8125rem; color: #475467; margin-top: 0.25rem; line-height: 1.4;">
+                  Peminjaman Tripod Manfrotto 055 jatuh tempo pada 22 Nov 2026. Harap bawa unit ke meja inspeksi tepat waktu.
+                </p>
+              </div>
+            </div>
+            <span style="font-size: 0.6875rem; color: #94a3b8; white-space: nowrap; margin-left: 0.5rem;">3 jam lalu</span>
+          </div>
+        </div>
+
+        <!-- Notif 3: Pengajuan Disetujui -->
+        <div class="notif-card-item" style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 0.875rem; padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; gap: 0.625rem; align-items: flex-start;">
+              <span style="font-size: 1.125rem;">✓</span>
+              <div>
+                <strong style="font-size: 0.875rem; color: #065f46;">Pengajuan Pinjaman Disetujui</strong>
+                <p style="font-size: 0.8125rem; color: #047857; margin-top: 0.25rem; line-height: 1.4;">
+                  Staff Media Kreatif Lab telah menyetujui pengajuan pinjaman Audio Recorder Zoom H6. Silakan ambil unit fisik di lab komunitas.
+                </p>
+              </div>
+            </div>
+            <span style="font-size: 0.6875rem; color: #059669; white-space: nowrap; margin-left: 0.5rem;">1 hari lalu</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span style="font-size: 0.75rem; color: #64748b;">Semua transaksi fisik terdata di audit log.</span>
+        <button type="button" onclick="closeModal('modalNotifications')" class="pill-btn btn-solid-black btn-sm">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

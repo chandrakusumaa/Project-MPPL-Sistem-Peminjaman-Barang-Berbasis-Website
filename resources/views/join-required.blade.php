@@ -6,10 +6,10 @@
             </div>
             <h1 style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin: 0 0 0.75rem 0;">Keanggotaan Diperlukan</h1>
             <p style="font-size: 0.9375rem; color: #64748b; line-height: 1.6; margin: 0 0 2rem 0;">
-                Anda harus menjadi anggota aktif Komunitas <strong>{{ $org->name }}</strong> untuk membuka katalog dan detail inventaris.
+                Anda harus menjadi anggota aktif Organization <strong>{{ $org->name }}</strong> untuk membuka katalog dan detail inventaris.
             </p>
             <a class="oi-btn oi-btn-primary" style="border-radius: 9999px; padding: 0.75rem 2rem; display: inline-flex;" href="{{ route('organization.public', $org) }}">
-                Lihat Profil & Gabung Komunitas →
+                Lihat Profil & Gabung Organization →
             </a>
         </div>
     </div>
