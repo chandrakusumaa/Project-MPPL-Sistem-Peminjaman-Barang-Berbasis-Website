@@ -78,8 +78,8 @@
         <button type="button" class="pill-btn {{ $filterRole === 'admin' ? 'btn-solid-black' : 'btn-secondary-light' }} btn-sm" wire:click="setFilterRole('admin')">
             Admin Saja ({{ $adminCount }})
         </button>
-        <button type="button" class="pill-btn {{ $filterRole === 'operator' ? 'btn-solid-black' : 'btn-secondary-light' }} btn-sm" wire:click="setFilterRole('operator')">
-            Staff Saja ({{ $operatorCount }})
+        <button type="button" class="pill-btn {{ $filterRole === 'staff' ? 'btn-solid-black' : 'btn-secondary-light' }} btn-sm" wire:click="setFilterRole('staff')">
+            Staff Saja ({{ $staffCount }})
         </button>
         <button type="button" class="pill-btn {{ $filterRole === 'member' ? 'btn-solid-black' : 'btn-secondary-light' }} btn-sm" wire:click="setFilterRole('member')">
             Member Saja ({{ $memberCount }})
@@ -110,8 +110,8 @@
                                 <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">{{ $org->slug }}</span>
                             </div>
                         </div>
-                        <span class="micro-badge {{ $role === 'admin' ? 'badge-role-admin' : ($role === 'operator' ? 'badge-role-staff' : 'badge-role-member') }}">
-                            {{ $role === 'admin' ? 'ADMIN' : ($role === 'operator' ? 'STAFF' : 'MEMBER') }}
+                        <span class="micro-badge {{ $role === 'admin' ? 'badge-role-admin' : ($role === 'staff' ? 'badge-role-staff' : 'badge-role-member') }}">
+                            {{ $role === 'admin' ? 'ADMIN' : ($role === 'staff' ? 'STAFF' : 'MEMBER') }}
                         </span>
                     </div>
 

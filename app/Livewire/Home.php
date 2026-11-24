@@ -117,7 +117,7 @@ class Home extends Component
 
         $allCount = $memberships->count();
         $adminCount = $memberships->where('role', 'admin')->count();
-        $operatorCount = $memberships->where('role', 'operator')->count();
+        $staffCount = $memberships->where('role', 'staff')->count();
         $memberCount = $memberships->where('role', 'member')->count();
 
         $filteredMembershipOrgIds = $memberships
@@ -136,7 +136,7 @@ class Home extends Component
             'memberships' => $memberships->keyBy('organization_id'),
             'allCount' => $allCount,
             'adminCount' => $adminCount,
-            'operatorCount' => $operatorCount,
+            'staffCount' => $staffCount,
             'memberCount' => $memberCount,
         ])->layout('components.layout', ['context' => 'account', 'showFeedback' => false]);
     }
