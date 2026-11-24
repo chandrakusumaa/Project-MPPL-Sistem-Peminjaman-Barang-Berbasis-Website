@@ -42,7 +42,6 @@
                         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
                         <span>Peminjaman Saya</span>
                     </div>
-                    <span style="background: #7f112e; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.5rem; font-size: 0.6875rem; font-weight: 800;">1</span>
                 </a>
 
                 <!-- 4. Tagihan & Denda -->

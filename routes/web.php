@@ -61,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', Profile::class)->name('profile');
     Route::get('/notifications', Notifications::class)->name('notifications');
+    Route::post('/notifications/read-all', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+
+        return back();
+    })->name('notifications.read-all');
     Route::get('/evidence/{charge}/{payment?}', function (BorrowerCharge $charge, ?int $payment = null) {
         $org = Organization::findOrFail($charge->organization_id);
         Gate::authorize('view', $org);

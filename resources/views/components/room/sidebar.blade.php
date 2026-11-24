@@ -34,19 +34,13 @@
                         <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                         <span>Katalog Aset (Pinjam)</span>
                     </button>
-                    <button type="button" wire:click="$set('tab', 'borrowings')" style="width: 100%; border: none; background: {{ $tab === 'borrowings' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'borrowings' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'borrowings' ? '800' : '600' }}; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                            <span>Peminjaman Saya</span>
-                        </div>
-                        <span style="background: #80142B; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.45rem; font-size: 0.65rem; font-weight: 800;">1</span>
+                    <button type="button" wire:click="$set('tab', 'borrowings')" style="width: 100%; border: none; background: {{ $tab === 'borrowings' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'borrowings' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'borrowings' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        <span>Peminjaman Saya</span>
                     </button>
-                    <button type="button" wire:click="$set('tab', 'charges')" style="width: 100%; border: none; background: {{ $tab === 'charges' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'charges' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'charges' ? '800' : '600' }}; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                            <span>Tagihan Saya</span>
-                        </div>
-                        <span style="background: #f59e0b; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.45rem; font-size: 0.65rem; font-weight: 800;">Rp 50rb</span>
+                    <button type="button" wire:click="$set('tab', 'charges')" style="width: 100%; border: none; background: {{ $tab === 'charges' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'charges' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'charges' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        <span>Tagihan Saya</span>
                     </button>
                 @endif
             </nav>
@@ -60,21 +54,15 @@
                 </div>
                 <nav style="display: flex; flex-direction: column; gap: 0.2rem;">
                     <!-- Master Aset Fisik -->
-                    <button type="button" wire:click="$set('tab', 'inventory')" style="width: 100%; border: none; background: {{ $tab === 'inventory' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'inventory' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'inventory' ? '800' : '600' }}; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                            <span>Master Aset Fisik</span>
-                        </div>
-                        <span style="background: #0f172a; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.45rem; font-size: 0.65rem; font-weight: 800;">{{ $org->assets_count ?? 48 }}</span>
+                    <button type="button" wire:click="$set('tab', 'inventory')" style="width: 100%; border: none; background: {{ $tab === 'inventory' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'inventory' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'inventory' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        <span>Master Aset Fisik</span>
                     </button>
 
                     <!-- Persetujuan Pinjam -->
-                    <button type="button" wire:click="$set('tab', 'borrowings')" style="width: 100%; border: none; background: {{ $tab === 'borrowings' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'borrowings' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'borrowings' ? '800' : '600' }}; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Persetujuan Pinjam</span>
-                        </div>
-                        <span style="background: #80142B; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.45rem; font-size: 0.65rem; font-weight: 800;">2</span>
+                    <button type="button" wire:click="$set('tab', 'borrowings')" style="width: 100%; border: none; background: {{ $tab === 'borrowings' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'borrowings' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'borrowings' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Persetujuan Pinjam</span>
                     </button>
 
                     <!-- Meja Inspeksi Kembali -->
@@ -84,12 +72,9 @@
                     </button>
 
                     <!-- Inspeksi & Servis -->
-                    <button type="button" wire:click="showMaintenance" style="width: 100%; border: none; background: {{ $tab === 'maintenance' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'maintenance' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'maintenance' ? '800' : '600' }}; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <span>Inspeksi & Servis</span>
-                        </div>
-                        <span style="background: #475467; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.45rem; font-size: 0.65rem; font-weight: 800;">1</span>
+                    <button type="button" wire:click="showMaintenance" style="width: 100%; border: none; background: {{ $tab === 'maintenance' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'maintenance' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'maintenance' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>Inspeksi & Servis</span>
                     </button>
                 </nav>
             </div>
@@ -103,21 +88,15 @@
                 </div>
                 <nav style="display: flex; flex-direction: column; gap: 0.2rem;">
                     <!-- Otoritas Finansial -->
-                    <button type="button" wire:click="$set('tab', 'charges')" style="width: 100%; border: none; background: {{ $tab === 'charges' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'charges' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'charges' ? '800' : '600' }}; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Otoritas Finansial</span>
-                        </div>
-                        <span style="background: #80142B; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.45rem; font-size: 0.65rem; font-weight: 800;">1 Verif</span>
+                    <button type="button" wire:click="$set('tab', 'charges')" style="width: 100%; border: none; background: {{ $tab === 'charges' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'charges' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'charges' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Otoritas Finansial</span>
                     </button>
 
                     <!-- Kelola Anggota -->
-                    <button type="button" wire:click="$set('tab', 'members')" style="width: 100%; border: none; background: {{ $tab === 'members' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'members' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'members' ? '800' : '600' }}; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                            <span>Kelola Anggota</span>
-                        </div>
-                        <span style="background: #0f172a; color: #ffffff; border-radius: 9999px; padding: 0.15rem 0.45rem; font-size: 0.65rem; font-weight: 800;">24</span>
+                    <button type="button" wire:click="$set('tab', 'members')" style="width: 100%; border: none; background: {{ $tab === 'members' ? '#fff1f2' : 'transparent' }}; color: {{ $tab === 'members' ? '#80142B' : '#334155' }}; font-weight: {{ $tab === 'members' ? '800' : '600' }}; display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 0.625rem; font-size: 0.8125rem; cursor: pointer; text-align: left;">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span>Kelola Anggota</span>
                     </button>
 
                     <!-- Pusat Unduh CSV -->
